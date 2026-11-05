@@ -97,3 +97,23 @@
    - **Hermes Agent Testi:** `AsyncTaskQueue` (Deadlock korumalı worker, DLQ yönlendirmesi, üstel geri çekilme, 1000 görev bellek sızıntı denetimi).
    - **Claude Code Köprü Testi:** `RFC 7807 API` (Idempotency-Key koruması, 8-thread eşzamanlılık kilidi, SQL enjeksiyon koruması, LiteLLM Anthropic şema doğrulaması).
    - **Sonuç:** 25/25 somut birim testi eksiksiz geçti (`pytest 25 passed in 1.04s`).
+
+---
+
+## Graphify (Graphify-Labs) Çoklu Ajan Bilgi Grafı Entegrasyonu
+1. **Kurulum ve Paket:**
+   - Paket: `graphifyy` (v0.9.102) `uv tool install --with mcp graphifyy` ile kuruldu.
+   - Bağımlılıklar: 25+ Tree-Sitter grameri (`tree-sitter>=0.25`), `networkx`, `numpy`, `rapidfuzz`, `mcp==2.3.0`.
+   - Giriş Noktaları: `graphify.exe` ve `graphify-mcp.exe` (Sistem PATH'inde aktif).
+
+2. **Ajan Dağıtımı:**
+   - **Antigravity:** Global `C:\Users\Birin\.gemini\config\skills\graphify\`, Workspace `.agents/skills/graphify/`, Kural `.agents/rules/graphify.md`, İş Akışı `.agents/workflows/graphify.md`.
+   - **Hermes Agent:** Global `C:\Users\Birin\.hermes\skills\graphify\`, Workspace `C:\Users\Birin\hermes-workspace\.hermes\skills\graphify\`.
+   - **Claude Code:** `C:\Users\Birin\.claude\skills\graphify\` ve Claude Desktop MCP (`claude_desktop_config.json`).
+   - **Qwen Code / Ortak:** `AGENTS.md` kılavuzuna `/graphify` kuralları işlendi.
+   - **MCP Servisi:** `hermes mcp list` -> `graphify` (10 araç: `query_graph`, `get_node`, `god_nodes`, `shortest_path` vb.) `✓ enabled` (2606ms PASS).
+
+3. **Canlı Kod Tabanı Graf Sonuçları (`graphify-out/`):**
+   - Taranan Dosya: 1.023 dosya (~996.387 kelime)
+   - Graf Metrikleri: **12.706 Düğüm**, **22.516 Kenar**, **768 Topluluk** (`graph.json` 14.58 MB)
+   - Doğrulama: `graphify query "cache"`, `graphify query "queue"`, `graphify god-nodes` ve BFS/DFS canlı sorgulaması doğrulandı.
