@@ -114,6 +114,19 @@
    - **MCP Servisi:** `hermes mcp list` -> `graphify` (10 araç: `query_graph`, `get_node`, `god_nodes`, `shortest_path` vb.) `✓ enabled` (2606ms PASS).
 
 3. **Canlı Kod Tabanı Graf Sonuçları (`graphify-out/`):**
-   - Taranan Dosya: 1.023 dosya (~996.387 kelime)
-   - Graf Metrikleri: **12.706 Düğüm**, **22.516 Kenar**, **768 Topluluk** (`graph.json` 14.58 MB)
+   - Taranan Dosya: 1.102 kod dosyası (340 desteklenmeyen dosya türü atlandı)
+   - Graf Metrikleri: **12.746 Düğüm**, **22.596 Kenar**, **762 Topluluk** (`graph.json` 14.62 MB)
    - Doğrulama: `graphify query "cache"`, `graphify query "queue"`, `graphify god-nodes` ve BFS/DFS canlı sorgulaması doğrulandı.
+
+## Not Defterim Masaüstü UI İyileştirmesi (2026-11-05)
+- `desktop-native/ui/style.css` içinde kenar çubuğu ve not listesi hiyerarşisi, tema uyumlu seçili not durumu, editör araç çubukları ve boş durum görünümleri iyileştirildi.
+- Sıralama ve çoklu-seçim düğmelerine eksik olan görsel stiller eklendi; HTML/IPC davranışına dokunulmadı.
+- Dosya tabanlı tarayıcı önizlemesinde boş durumlar ve kontrol stilleri doğrulandı. `cargo test --manifest-path desktop-native\Cargo.toml`, ortamda MSVC `link.exe` bulunmadığı için çalıştırılamadı.
+
+## GitHub Copilot CLI /remote Kılavuzu ve Başlatıcı Sistemi (2026-11-05)
+- `docs/copilot-cli-remote-rehberi.md`: GitHub Copilot CLI `/remote` ve `copilot --remote` uzaktan kontrol protokolü hazırlandı (Node.js 22+, `/login`, Mission Control, QR kod `Ctrl+O`, `/keep-alive`, telefon/web üzerinden onay ve yönlendirme akışı).
+- `baslaticilar/start-copilot-remote.ps1`: Copilot CLI `/remote` modu için akıllı PowerShell başlatıcısı geliştirildi.
+  - Git deposu (`git rev-parse`) ve remote origin (`git config --get remote.origin.url`) akıllı doğrulaması eklendi.
+  - `--connect <session-id>`, `--trust-folder`, `--model` ve serbest argüman desteği entegre edildi.
+  - `-InstallProfile` anahtarı ile PowerShell profiline (`$PROFILE`) `copilot-remote`, `cop-remote` ve `copremote` aliasları kalıcı olarak eklendi.
+- `baslaticilar/start-copilot-remote.bat`: Windows Gezgini ve CMD ortamı için tek tıkla çalıştırma desteği sağlandı.
