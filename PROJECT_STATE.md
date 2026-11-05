@@ -78,3 +78,22 @@
 3. **Güvenlik & Bütünlük:**
    - SHA256 ve dijital imza doğrulaması: Geçerli (Valid).
    - Yetki Seviyesi: Kullanıcı düzeyi (Non-elevated, UAC gereksinimi yok).
+
+---
+
+## Çoklu Ajan Yönetimi & Yerel/Ücretsiz Model Orkestrasyonu
+1. **Yönetilen Araçlar ve Yerel Yönlendirmeler:**
+   - **Claude Code (`claude` v2.1.318):** `npm -g @anthropic-ai/claude-code` ile kuruldu. `litellm[proxy]` (v1.83.9) ile Anthropic API istekleri yerel Ollama modeline (`qwen2.5-coder:14b`) köprülendi (`ANTHROPIC_BASE_URL=http://127.0.0.1:8000`).
+   - **Qwen Code (`qwen` v0.26.7):** `~/.qwen/settings.json` soket hatası düzeltildi (`http://127.0.0.1:11434/v1`), `qwen2.5-coder:14b` varsayılan model yapıldı.
+   - **Hermes Agent (`hermes` v0.22.5):** `config.yaml` ana modeli %100 yerel ve ücretsiz Ollama (`qwen2.5-coder:14b`, `http://127.0.0.1:11434/v1`) olarak yapılandırıldı.
+
+2. **VRAM Mutex ve Orkestrasyon Altyapısı:**
+   - Yönetici Betik: `c:\Users\Birin\Birin\Projeler\baslaticilar\manage-agents.ps1` ve `C:\Users\Birin\hermes-workspace\manage-agents.ps1`
+   - Kısayollar: `start-qwen.ps1`, `start-hermes-local.ps1`, `start-claude-local.ps1`
+   - VRAM Mutex Kuralı: Model geçişlerinde aktif olmayan modeller `ollama stop` ile tahliye edilerek RTX 5060 Ti 16 GB VRAM'in sistem RAM'ine taşması kesin olarak engellenir.
+
+3. **Katı Test ve Kodlama Doğrulama Sonuçları (`tests_rigorous/`):**
+   - **Qwen Code Testi:** `ThreadSafeTTLCache` (O(1) LRU, RLock, TTL süresi, 10-thread eşzamanlı yarışma, callback doğrulaması).
+   - **Hermes Agent Testi:** `AsyncTaskQueue` (Deadlock korumalı worker, DLQ yönlendirmesi, üstel geri çekilme, 1000 görev bellek sızıntı denetimi).
+   - **Claude Code Köprü Testi:** `RFC 7807 API` (Idempotency-Key koruması, 8-thread eşzamanlılık kilidi, SQL enjeksiyon koruması, LiteLLM Anthropic şema doğrulaması).
+   - **Sonuç:** 25/25 somut birim testi eksiksiz geçti (`pytest 25 passed in 1.04s`).
