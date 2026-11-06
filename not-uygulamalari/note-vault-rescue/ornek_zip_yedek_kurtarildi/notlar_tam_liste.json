@@ -1,0 +1,40 @@
+{
+  "type": "zip",
+  "notes": [
+    {
+      "id": 1,
+      "title": "Sirket Stratejisi",
+      "content": "Gizli roadmap notlari",
+      "categoryId": 10,
+      "categoryName": "Is Planlari",
+      "isPinned": false,
+      "isArchived": false,
+      "isLocked": false,
+      "attachments": [],
+      "createdAt": 0,
+      "updatedAt": 0,
+      "color": 0
+    }
+  ],
+  "categories": [
+    {
+      "id": 10,
+      "name": "Is Planlari"
+    }
+  ],
+  "attachments": [
+    "attachments/belge.txt"
+  ],
+  "metadata": {
+    "zip_files": [
+      "backup_info.json",
+      "categories.json",
+      "notes.json",
+      "attachments/belge.txt"
+    ],
+    "backup_info": {
+      "version": 1,
+      "notesCount": 1
+    }
+  }
+}

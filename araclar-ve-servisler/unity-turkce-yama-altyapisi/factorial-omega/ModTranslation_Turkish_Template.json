@@ -1,0 +1,128 @@
+{
+  "TargetModGuid": "00000000-0000-0000-0000-000000000000",
+  "TargetModVersion": "0.8.5",
+  "LocaleKeyCode": "tr",
+  "ShortNotes": "Factorial Omega - Resmi ModTranslations Türkçe Yama Paketi",
+  "TranslationRows": [
+    {
+      "DefaultString": "New Game",
+      "TranslatedString": "Yeni Oyun",
+      "HasBeenTranslated": true
+    },
+    {
+      "DefaultString": "Continue",
+      "TranslatedString": "Devam Et",
+      "HasBeenTranslated": true
+    },
+    {
+      "DefaultString": "Load Game",
+      "TranslatedString": "Oyunu Yükle",
+      "HasBeenTranslated": true
+    },
+    {
+      "DefaultString": "Save Game",
+      "TranslatedString": "Oyunu Kaydet",
+      "HasBeenTranslated": true
+    },
+    {
+      "DefaultString": "Options",
+      "TranslatedString": "Seçenekler",
+      "HasBeenTranslated": true
+    },
+    {
+      "DefaultString": "Settings",
+      "TranslatedString": "Ayarlar",
+      "HasBeenTranslated": true
+    },
+    {
+      "DefaultString": "Quit",
+      "TranslatedString": "Çıkış",
+      "HasBeenTranslated": true
+    },
+    {
+      "DefaultString": "Quit to Desktop",
+      "TranslatedString": "Masaüstüne Çık",
+      "HasBeenTranslated": true
+    },
+    {
+      "DefaultString": "Back",
+      "TranslatedString": "Geri",
+      "HasBeenTranslated": true
+    },
+    {
+      "DefaultString": "Inventory",
+      "TranslatedString": "Envanter",
+      "HasBeenTranslated": true
+    },
+    {
+      "DefaultString": "Shop",
+      "TranslatedString": "Mağaza",
+      "HasBeenTranslated": true
+    },
+    {
+      "DefaultString": "Display",
+      "TranslatedString": "Ekran",
+      "HasBeenTranslated": true
+    },
+    {
+      "DefaultString": "Audio",
+      "TranslatedString": "Ses",
+      "HasBeenTranslated": true
+    },
+    {
+      "DefaultString": "Language",
+      "TranslatedString": "Dil",
+      "HasBeenTranslated": true
+    },
+    {
+      "DefaultString": "Fullscreen",
+      "TranslatedString": "Tam Ekran",
+      "HasBeenTranslated": true
+    },
+    {
+      "DefaultString": "Resolution",
+      "TranslatedString": "Çözünürlük",
+      "HasBeenTranslated": true
+    },
+    {
+      "DefaultString": "Music Volume",
+      "TranslatedString": "Müzik Sesi",
+      "HasBeenTranslated": true
+    },
+    {
+      "DefaultString": "Sound Effects",
+      "TranslatedString": "Ses Efektleri",
+      "HasBeenTranslated": true
+    },
+    {
+      "DefaultString": "Voice Volume",
+      "TranslatedString": "Seslendirme",
+      "HasBeenTranslated": true
+    },
+    {
+      "DefaultString": "Apply",
+      "TranslatedString": "Uygula",
+      "HasBeenTranslated": true
+    },
+    {
+      "DefaultString": "Cancel",
+      "TranslatedString": "İptal",
+      "HasBeenTranslated": true
+    },
+    {
+      "DefaultString": "Confirm",
+      "TranslatedString": "Onayla",
+      "HasBeenTranslated": true
+    },
+    {
+      "DefaultString": "Yes",
+      "TranslatedString": "Evet",
+      "HasBeenTranslated": true
+    },
+    {
+      "DefaultString": "No",
+      "TranslatedString": "Hayır",
+      "HasBeenTranslated": true
+    }
+  ]
+}

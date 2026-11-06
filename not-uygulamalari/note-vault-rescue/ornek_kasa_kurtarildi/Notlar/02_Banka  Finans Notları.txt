@@ -1,0 +1,6 @@
+Başlık: Banka & Finans Notları
+Kategori: Önemli
+----------------------------------------
+
+Kasa No: 481-B
+Güvenlik İpucu: Mavi anahtarlık ile açılacak.

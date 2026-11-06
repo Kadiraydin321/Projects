@@ -1,0 +1,68 @@
+{
+  "Cargo.toml": {
+    "mtime": 1793813481.0380523,
+    "seen": 1793894125.1639173,
+    "ast_hash": "b9b5f9905f5f51fd8787bcec09af1044",
+    "semantic_hash": "b9b5f9905f5f51fd8787bcec09af1044"
+  },
+  "go-engine/go.mod": {
+    "mtime": 1793836705.165997,
+    "seen": 1793894125.1639228,
+    "ast_hash": "111f27166d9fa530a2fbfc00fa350ee7",
+    "semantic_hash": "111f27166d9fa530a2fbfc00fa350ee7"
+  },
+  "go-engine/main.go": {
+    "mtime": 1793860003.8826818,
+    "seen": 1793894125.1639254,
+    "ast_hash": "7c39c2efd1202be1ba8710b992c5907b",
+    "semantic_hash": "7c39c2efd1202be1ba8710b992c5907b"
+  },
+  "src/backup.rs": {
+    "mtime": 1793820160.791211,
+    "seen": 1793894125.163927,
+    "ast_hash": "fef068e89c894a478d34eb4ec90c86fe",
+    "semantic_hash": "fef068e89c894a478d34eb4ec90c86fe"
+  },
+  "src/crypto.rs": {
+    "mtime": 1793820245.5092084,
+    "seen": 1793894125.163928,
+    "ast_hash": "2a2355741164bf8da92436ca78822e97",
+    "semantic_hash": "2a2355741164bf8da92436ca78822e97"
+  },
+  "src/db.rs": {
+    "mtime": 1793836523.9236531,
+    "seen": 1793894125.163929,
+    "ast_hash": "b0aaf28840b154a8c7a09ea512353de8",
+    "semantic_hash": "b0aaf28840b154a8c7a09ea512353de8"
+  },
+  "src/main.rs": {
+    "mtime": 1793820256.9786682,
+    "seen": 1793894125.1639304,
+    "ast_hash": "d8ac843c76d25ddfad0b57d3abe0b7d8",
+    "semantic_hash": "d8ac843c76d25ddfad0b57d3abe0b7d8"
+  },
+  "src/models.rs": {
+    "mtime": 1793836431.887668,
+    "seen": 1793894125.1639314,
+    "ast_hash": "b653a8fbb1103aa507cf3791be51d93e",
+    "semantic_hash": "b653a8fbb1103aa507cf3791be51d93e"
+  },
+  "src/sync_server.rs": {
+    "mtime": 1793819617.87177,
+    "seen": 1793894125.1639323,
+    "ast_hash": "f56d5f41ed8679727c5c736892ef2a4d",
+    "semantic_hash": "f56d5f41ed8679727c5c736892ef2a4d"
+  },
+  "src/tests.rs": {
+    "mtime": 1793820312.715968,
+    "seen": 1793894125.1639335,
+    "ast_hash": "b6666e286c6500f9c90ff2741b3aca77",
+    "semantic_hash": "b6666e286c6500f9c90ff2741b3aca77"
+  },
+  "ui/app.js": {
+    "mtime": 1793880231.3576126,
+    "seen": 1793894125.1639342,
+    "ast_hash": "e4469f0f0ed007ec45ff17d046b579a2",
+    "semantic_hash": "e4469f0f0ed007ec45ff17d046b579a2"
+  }
+}

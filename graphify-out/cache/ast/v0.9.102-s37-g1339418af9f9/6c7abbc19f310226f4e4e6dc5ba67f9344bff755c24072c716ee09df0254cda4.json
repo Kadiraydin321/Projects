@@ -1,0 +1,1 @@
+{"nodes": [{"id": "$graphify-root$_araclar_ve_servisler_screen_translator_platforms_android_build_gradle", "label": "build.gradle", "file_type": "code", "source_file": "araclar-ve-servisler/screen-translator/platforms/android/build.gradle", "source_location": "L1"}], "edges": [], "raw_calls": [], "parse_errors": {"first_error_line": 18, "multiline_error": false}}

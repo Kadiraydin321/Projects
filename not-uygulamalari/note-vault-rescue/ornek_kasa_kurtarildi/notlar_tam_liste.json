@@ -1,0 +1,35 @@
+{
+  "type": "json",
+  "notes": [
+    {
+      "id": 1,
+      "title": "Alışveriş Listesi & Planlar",
+      "content": "1. Kahve çekirdeği al\n2. Defter ve kalem\n3. Sunum hazırlıkları tamamlanacak",
+      "categoryName": "Kişisel",
+      "isPinned": true,
+      "isArchived": false,
+      "isLocked": true,
+      "color": -123456,
+      "createdAt": 1729890000000,
+      "updatedAt": 1729891000000
+    },
+    {
+      "id": 2,
+      "title": "Banka & Finans Notları",
+      "content": "Kasa No: 481-B\nGüvenlik İpucu: Mavi anahtarlık ile açılacak.",
+      "categoryName": "Önemli",
+      "isPinned": false,
+      "isArchived": false,
+      "isLocked": true,
+      "color": -654321,
+      "createdAt": 1729880000000,
+      "updatedAt": 1729885000000
+    }
+  ],
+  "categories": [],
+  "attachments": [],
+  "metadata": {
+    "version": 1,
+    "exportTimestamp": 1729891200000
+  }
+}

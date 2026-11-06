@@ -1,0 +1,9 @@
+Sen bir sistem ve donanım geliştirme uzmanısın. Kullanıcı Windows üzerinde CMD / Komut İsteminde çalışacak bir USB Bellek Sağlık Kontrolü (USB Health Checker) yazılımı istiyor.
+
+KESİN KURALLAR:
+1. Kesinlikle uydurma, yalan, rastgele sayı üreten veya sahte (fake) kontroller yazma! Gerçek Windows API / WMI / PowerShell / SMART / bad sector kontrollerini kullan.
+2. Arayüze (GUI) gerek yok; sade, temiz ve doğrudan Windows CMD ekranında çalışan bir Python CLI betiği olsun (örneğin: `usb_health_check.py`).
+3. USB belleklerdeki gerçek teknik sınırları bil: Çoğu USB flash bellek standart ATA SMART komutlarını doğrudan geçirmez; bu yüzden hem WMI/PowerShell (MSFT_PhysicalDisk, Win32_DiskDrive, MediaType, OperationalStatus, HealthStatus), hem chkdsk doğrulaması, hem de isteğe bağlı güvenli sektör okuma/yazma testi (I/O test & bad sector scan) yapabilen sağlam, dürüst bir araç olmalı.
+4. Kod dosyasını /home/birin/Projeler/WindowsControlApp/usb_health_check.py olarak kaydet.
+5. Dosyayı kaydettikten sonra bizzat Python ile syntax ve import kontrollerini yap, hatasız çalıştığından emin ol.
+6. Sonucu ve nasıl çalıştırılacağını açık, net bir şekilde Türkçe olarak açıkla.

@@ -1,0 +1,79 @@
+{
+  "app.py": {
+    "mtime": 1792958343.350955,
+    "seen": 1793894100.8757796,
+    "ast_hash": "416bd3f742d7e73ccd9ef054176be6c3",
+    "semantic_hash": "416bd3f742d7e73ccd9ef054176be6c3"
+  },
+  "baslat.sh": {
+    "mtime": 1792957662.786927,
+    "seen": 1793894100.8759983,
+    "ast_hash": "8d1ad76857ea3dd250799e565c4da58e",
+    "semantic_hash": "8d1ad76857ea3dd250799e565c4da58e"
+  },
+  "baslat_terminal.sh": {
+    "mtime": 1792957673.775425,
+    "seen": 1793894100.8761177,
+    "ast_hash": "6fec11206571af76af3699526b7ddbfd",
+    "semantic_hash": "6fec11206571af76af3699526b7ddbfd"
+  },
+  "cli.py": {
+    "mtime": 1792958628.688694,
+    "seen": 1793894100.876223,
+    "ast_hash": "a0cabfcb4cabd544568a8845c444a35b",
+    "semantic_hash": "a0cabfcb4cabd544568a8845c444a35b"
+  },
+  "create_sample_notevault.py": {
+    "mtime": 1792957387.8502204,
+    "seen": 1793894100.8763251,
+    "ast_hash": "86384d25b4f4f7bf41c76e9a191d872d",
+    "semantic_hash": "86384d25b4f4f7bf41c76e9a191d872d"
+  },
+  "notevault_core.py": {
+    "mtime": 1792958602.332549,
+    "seen": 1793894100.8764331,
+    "ast_hash": "59a8428e8ff15e840413c2fde02f0947",
+    "semantic_hash": "59a8428e8ff15e840413c2fde02f0947"
+  },
+  "ornek_kasa_kurtarildi/notlar_tam_liste.json": {
+    "mtime": 1792958632.1772473,
+    "seen": 1793894100.8765535,
+    "ast_hash": "8102e568f898e971c37ecce1c15b28e7",
+    "semantic_hash": "8102e568f898e971c37ecce1c15b28e7",
+    "ast_empty": true
+  },
+  "ornek_zip_yedek_kurtarildi/arsiv_dosyalari/backup_info.json": {
+    "mtime": 1792958355.6880538,
+    "seen": 1793894100.876556,
+    "ast_hash": "193e749d6034e5e11195cac1bb7ab7fc",
+    "semantic_hash": "193e749d6034e5e11195cac1bb7ab7fc",
+    "ast_empty": true
+  },
+  "ornek_zip_yedek_kurtarildi/arsiv_dosyalari/categories.json": {
+    "mtime": 1792958355.6880538,
+    "seen": 1793894100.8765574,
+    "ast_hash": "7916dcfd9f65b1faedb0bc2772e993d8",
+    "semantic_hash": "7916dcfd9f65b1faedb0bc2772e993d8",
+    "ast_empty": true
+  },
+  "ornek_zip_yedek_kurtarildi/arsiv_dosyalari/notes.json": {
+    "mtime": 1792958355.6880538,
+    "seen": 1793894100.8765583,
+    "ast_hash": "99c0f8b5f536e17cd5778c5e5f24cdb4",
+    "semantic_hash": "99c0f8b5f536e17cd5778c5e5f24cdb4",
+    "ast_empty": true
+  },
+  "ornek_zip_yedek_kurtarildi/notlar_tam_liste.json": {
+    "mtime": 1792958355.6880538,
+    "seen": 1793894100.8765597,
+    "ast_hash": "f82dbf6944494362290d284724aba2f6",
+    "semantic_hash": "f82dbf6944494362290d284724aba2f6",
+    "ast_empty": true
+  },
+  "variations.py": {
+    "mtime": 1792957581.4495096,
+    "seen": 1793894100.8765614,
+    "ast_hash": "61893b6111678090c57454b2ca0f3bed",
+    "semantic_hash": "61893b6111678090c57454b2ca0f3bed"
+  }
+}

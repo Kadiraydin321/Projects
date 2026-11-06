@@ -1,0 +1,4 @@
+# Requirements for Windows Management Utility
+
+# Standard library dependencies (no additional packages needed)
+# All functionality is based on built-in Python libraries and Windows commands

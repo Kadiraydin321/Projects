@@ -1,0 +1,188 @@
+{
+  "C_Drive_Extracted/Users/Public/Documents/WindowsServiceManager.ps1": {
+    "mtime": 1792626125.4621327,
+    "seen": 1793894104.6997411,
+    "ast_hash": "ec2fe626db25b7cf249c4b5c69b3b8dc",
+    "semantic_hash": "ec2fe626db25b7cf249c4b5c69b3b8dc"
+  },
+  "C_Drive_Extracted/Users/user/Documents/WindowsAdminApp/main.py": {
+    "mtime": 1792626249.941776,
+    "seen": 1793894104.699747,
+    "ast_hash": "d9af06554ef6f11b827d4dd29590a408",
+    "semantic_hash": "d9af06554ef6f11b827d4dd29590a408"
+  },
+  "C_Drive_Extracted/Users/user/Documents/setup.py": {
+    "mtime": 1792626624.2719235,
+    "seen": 1793894104.6997497,
+    "ast_hash": "fd928cb2bbf6a3c61d266569454360c9",
+    "semantic_hash": "fd928cb2bbf6a3c61d266569454360c9"
+  },
+  "C_Drive_Extracted/Users/user/Documents/windows_manager.py": {
+    "mtime": 1792626624.1655905,
+    "seen": 1793894104.699751,
+    "ast_hash": "a99bf3cc2ed83c9439a7e0b7564903b8",
+    "semantic_hash": "a99bf3cc2ed83c9439a7e0b7564903b8"
+  },
+  "C_Drive_Extracted/WindowsAdminApp/main.py": {
+    "mtime": 1792630622.6603978,
+    "seen": 1793894104.699752,
+    "ast_hash": "9b131bc829d22136ef15b9d36d312cd6",
+    "semantic_hash": "9b131bc829d22136ef15b9d36d312cd6"
+  },
+  "C_Drive_Extracted/WindowsManagementApp/MainWindow.xaml": {
+    "mtime": 1792626426.388839,
+    "seen": 1793894104.6997533,
+    "ast_hash": "5072dc6dc611b219ce80aeeae8af9c74",
+    "semantic_hash": "5072dc6dc611b219ce80aeeae8af9c74"
+  },
+  "C_Drive_Extracted/WindowsManagementApp/MainWindow.xaml.cs": {
+    "mtime": 1792626426.3741724,
+    "seen": 1793894104.6997542,
+    "ast_hash": "17d0bd17f9ea4b957a94d2291748b7cd",
+    "semantic_hash": "17d0bd17f9ea4b957a94d2291748b7cd"
+  },
+  "C_Drive_Extracted/WindowsManager/__init__.py": {
+    "mtime": 1792627106.6509995,
+    "seen": 1793894104.6997552,
+    "ast_hash": "05ccea6f50b9049dab329f50649fa7ff",
+    "semantic_hash": "05ccea6f50b9049dab329f50649fa7ff"
+  },
+  "C_Drive_Extracted/WindowsManager/examples/basic_usage.py": {
+    "mtime": 1792627106.8563325,
+    "seen": 1793894104.6997561,
+    "ast_hash": "ec39c2170e265cba15f1aa2e580a8047",
+    "semantic_hash": "ec39c2170e265cba15f1aa2e580a8047"
+  },
+  "C_Drive_Extracted/WindowsManager/main.py": {
+    "mtime": 1792627437.0630763,
+    "seen": 1793894104.699757,
+    "ast_hash": "54d2c25a18c45f2d73a79e255a4a1cb5",
+    "semantic_hash": "54d2c25a18c45f2d73a79e255a4a1cb5"
+  },
+  "C_Drive_Extracted/WindowsManager/setup.py": {
+    "mtime": 1792627106.5996664,
+    "seen": 1793894104.699758,
+    "ast_hash": "61024fac8fc8751fe27a4379f10d7c3a",
+    "semantic_hash": "61024fac8fc8751fe27a4379f10d7c3a"
+  },
+  "C_Drive_Extracted/WindowsManager/test.py": {
+    "mtime": 1792627840.3837318,
+    "seen": 1793894104.699759,
+    "ast_hash": "2c68d2d0349b6caa667d1b5f7548b335",
+    "semantic_hash": "2c68d2d0349b6caa667d1b5f7548b335"
+  },
+  "C_Drive_Extracted/WindowsManager/test_integration.py": {
+    "mtime": 1792627106.8306658,
+    "seen": 1793894104.6997602,
+    "ast_hash": "00231ba2ae15a2f0629c93cf6c3834a3",
+    "semantic_hash": "00231ba2ae15a2f0629c93cf6c3834a3"
+  },
+  "C_Drive_Extracted/WindowsManager/test_windows_manager.py": {
+    "mtime": 1792627106.2696671,
+    "seen": 1793894104.699761,
+    "ast_hash": "b9bba48358c3e243a439c9e1d9df9919",
+    "semantic_hash": "b9bba48358c3e243a439c9e1d9df9919"
+  },
+  "C_Drive_Extracted/WindowsManager/utils.py": {
+    "mtime": 1792627840.200399,
+    "seen": 1793894104.6997619,
+    "ast_hash": "413d029a28cb86fbab469200c837587f",
+    "semantic_hash": "413d029a28cb86fbab469200c837587f"
+  },
+  "C_Drive_Extracted/WindowsManager/windows_manager.py": {
+    "mtime": 1792627106.731666,
+    "seen": 1793894104.6997626,
+    "ast_hash": "5a1b3ff0a40f1e930a6ff96a3976e483",
+    "semantic_hash": "5a1b3ff0a40f1e930a6ff96a3976e483"
+  },
+  "C_Drive_Extracted/temp/WindowsApp/main.py": {
+    "mtime": 1792634777.4468536,
+    "seen": 1793894104.6997635,
+    "ast_hash": "668763df060b5f6c9d9c8a428bc032b1",
+    "semantic_hash": "668763df060b5f6c9d9c8a428bc032b1"
+  },
+  "C_Drive_Extracted/temp/WindowsManager.py": {
+    "mtime": 1792626372.2141225,
+    "seen": 1793894104.6997645,
+    "ast_hash": "891a12dd0ba68085b3c8f76e91568b2f",
+    "semantic_hash": "891a12dd0ba68085b3c8f76e91568b2f"
+  },
+  "C_Drive_Extracted/temp/winapp/main.py": {
+    "mtime": 1792631113.1290157,
+    "seen": 1793894104.6997652,
+    "ast_hash": "e5a9e1b48d4c9ca67da07afcbad8607a",
+    "semantic_hash": "e5a9e1b48d4c9ca67da07afcbad8607a"
+  },
+  "C_Drive_Extracted/temp/windows_app.py": {
+    "mtime": 1792627177.9846878,
+    "seen": 1793894104.6997662,
+    "ast_hash": "fcb23f9f42225625263b9e9b8e8898cd",
+    "semantic_hash": "fcb23f9f42225625263b9e9b8e8898cd"
+  },
+  "C_Drive_Extracted/temp/windows_management_app.py": {
+    "mtime": 1792634287.8310714,
+    "seen": 1793894104.699767,
+    "ast_hash": "7a6d746c19d688a41f3fe6a12baa6a72",
+    "semantic_hash": "7a6d746c19d688a41f3fe6a12baa6a72"
+  },
+  "C_Drive_Extracted/temp/windows_manager.py": {
+    "mtime": 1792628722.819031,
+    "seen": 1793894104.699768,
+    "ast_hash": "7854ce39c3b0cf7a8bc18c33675f9725",
+    "semantic_hash": "7854ce39c3b0cf7a8bc18c33675f9725"
+  },
+  "C_Drive_Extracted/windows_management_app/main.py": {
+    "mtime": 1792637697.8743248,
+    "seen": 1793894104.699769,
+    "ast_hash": "de0eadb1b819716dae9ba208210e0311",
+    "semantic_hash": "de0eadb1b819716dae9ba208210e0311"
+  },
+  "modules/__init__.py": {
+    "mtime": 1792625039.0955837,
+    "seen": 1793894104.6997702,
+    "ast_hash": "ca15dee7f81d0c656ba6bfe48118b08c",
+    "semantic_hash": "ca15dee7f81d0c656ba6bfe48118b08c"
+  },
+  "modules/disk_manager.py": {
+    "mtime": 1792625106.951032,
+    "seen": 1793894104.699771,
+    "ast_hash": "440def814c56eb016fc7d11b3402ae0c",
+    "semantic_hash": "440def814c56eb016fc7d11b3402ae0c"
+  },
+  "modules/system_cleaner.py": {
+    "mtime": 1792625199.6354187,
+    "seen": 1793894104.6997716,
+    "ast_hash": "91b22dad583f64e390e3c5570eeb0c55",
+    "semantic_hash": "91b22dad583f64e390e3c5570eeb0c55"
+  },
+  "modules/update_manager.py": {
+    "mtime": 1792625136.7726495,
+    "seen": 1793894104.6997728,
+    "ast_hash": "8998a86e33f06062d0ea4a0df8108d67",
+    "semantic_hash": "8998a86e33f06062d0ea4a0df8108d67"
+  },
+  "run_autonomous_hermes.py": {
+    "mtime": 1792625023.2480466,
+    "seen": 1793894104.6997738,
+    "ast_hash": "fc9a2e7d07a47c8dc90cf84d1d3723c8",
+    "semantic_hash": "fc9a2e7d07a47c8dc90cf84d1d3723c8"
+  },
+  "tests/__init__.py": {
+    "mtime": 1792625039.1102505,
+    "seen": 1793894104.6997745,
+    "ast_hash": "ca15dee7f81d0c656ba6bfe48118b08c",
+    "semantic_hash": "ca15dee7f81d0c656ba6bfe48118b08c"
+  },
+  "usb_health_check.py": {
+    "mtime": 1792683664.126891,
+    "seen": 1793894104.6997755,
+    "ast_hash": "e84d8c45985e163130d6912b6a5ce7a7",
+    "semantic_hash": "e84d8c45985e163130d6912b6a5ce7a7"
+  },
+  "windows_manager.py": {
+    "mtime": 1792628989.8948188,
+    "seen": 1793894104.6997764,
+    "ast_hash": "28554d4d2a72d12c737942c7550f293a",
+    "semantic_hash": "28554d4d2a72d12c737942c7550f293a"
+  }
+}

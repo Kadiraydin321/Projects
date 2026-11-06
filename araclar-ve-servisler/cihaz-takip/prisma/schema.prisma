@@ -1,0 +1,253 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Bolumler {
+  bolum_id               String      @id @default(cuid())
+  bolum_adi              String
+  bagli_mudur_id         String?
+  // Relations
+  kullanicilar           Kullanici[] @relation("BolumKullanicilari")
+  mudur                  Kullanici?  @relation("BolumMuduru", fields: [bagli_mudur_id], references: [kullanici_id], onDelete: SetNull)
+}
+
+model Kullanici {
+  kullanici_id           String   @id @default(cuid())
+  ad                     String
+  soyad                  String
+  sicil_no               String?
+  email                  String   @unique
+  sifre                  String?
+  telefon                String?
+  yetki_seviyesi         String   // Standart / Sef / Mudur / Admin
+  durum                  String   // Aktif / Pasif
+  
+  // Relations
+  rol                    Rol?     @relation(fields: [yetki_seviyesi], references: [ad])
+  
+  bolum_id               String?
+  sef_id                 String?
+  mudur_id               String?
+
+  // Relations
+  bolum                  Bolumler? @relation("BolumKullanicilari", fields: [bolum_id], references: [bolum_id], onDelete: SetNull)
+  sef                    Kullanici? @relation("SefKullanici", fields: [sef_id], references: [kullanici_id], onDelete: SetNull)
+  mudur                  Kullanici? @relation("MudurKullanici", fields: [mudur_id], references: [kullanici_id], onDelete: SetNull)
+  
+  ast_kullanicilar_sef   Kullanici[] @relation("SefKullanici")
+  ast_kullanicilar_mudur Kullanici[] @relation("MudurKullanici")
+  muduru_oldugu_bolumler Bolumler[]  @relation("BolumMuduru")
+
+  anlik_cihazlar         Cihaz[]  @relation("AnlikKullaniciCihaz")
+  zimmetli_cihazlar      Cihaz[]  @relation("ZimmetliKullaniciCihaz")
+  anlik_jigler           Jig[]    @relation("AnlikKullaniciJig")
+  onceki_jigler          Jig[]    @relation("OncekiKullaniciJig")
+  zimmet_gecmisi         ZimmetGecmisi[]
+  bildirimler            Bildirimler[]
+  
+  gonderilen_istekler    CihazIstekleri[] @relation("IstekGonderen")
+  alinan_istekler        CihazIstekleri[] @relation("IstekAlici")
+  sohbet_gruplari_uyelik SohbetGruplari[] @relation("GrupYoneticileri")
+
+  gonderilen_transferler TransferIstegi[] @relation("GonderenTransfer")
+  alinan_transferler     TransferIstegi[] @relation("AliciTransfer")
+  loglar                 SistemLog[]      @relation("KullaniciLoglar")
+}
+
+model Cihaz {
+  cihaz_id               String   @id @default(cuid())
+  marka                  String?
+  model                  String?
+  seri_no                String?
+  envanter_no            String?
+  barkod_qr              String?
+  cihaz_turu             String?
+  kullanim_amaci         String?
+  kullanilan_yer         String?
+  durum                  String   // Aktif / Bakimda / Hurda / Kayip
+  satin_alma_tarihi      DateTime?
+  garanti_bitis_tarihi   DateTime?
+  kalibrasyon_baslangic  DateTime?
+  kalibrasyon_bitis      DateTime?
+  kalibrasyon_sikligi    String?
+  kalibrasyon_firma      String?
+  anlik_kullanici_id     String?
+  zimmetli_kullanici_id  String?
+  fotograf_url           String?
+  notlar                 String?
+
+  // Relations
+  anlik_kullanici        Kullanici? @relation("AnlikKullaniciCihaz", fields: [anlik_kullanici_id], references: [kullanici_id], onDelete: SetNull)
+  zimmetli_kullanici     Kullanici? @relation("ZimmetliKullaniciCihaz", fields: [zimmetli_kullanici_id], references: [kullanici_id], onDelete: SetNull)
+  zimmet_gecmisi         ZimmetGecmisi[]
+  kalibrasyon_kayitlari  KalibrasyonKayitlari[]
+  bakim_kayitlari        BakimKayitlari[]
+  
+  verilen_istekler       CihazIstekleri[] @relation("VerilenCihaz")
+  istenen_istekler       CihazIstekleri[] @relation("IstenenCihaz")
+}
+
+model CihazIstekleri {
+  istek_id               String   @id @default(cuid())
+  istek_tipi             String   // Takas / Devir
+  gonderen_id            String
+  alici_id               String
+  verilen_cihaz_id       String
+  istenen_cihaz_id       String?  // Devir ise bos olabilir
+  durum                  String   // Bekliyor / Onaylandi / Reddedildi
+  tarih                  DateTime @default(now())
+  notlar                 String?
+
+  gonderen               Kullanici @relation("IstekGonderen", fields: [gonderen_id], references: [kullanici_id], onDelete: Cascade)
+  alici                  Kullanici @relation("IstekAlici", fields: [alici_id], references: [kullanici_id], onDelete: Cascade)
+  verilen_cihaz          Cihaz     @relation("VerilenCihaz", fields: [verilen_cihaz_id], references: [cihaz_id], onDelete: Cascade)
+  istenen_cihaz          Cihaz?    @relation("IstenenCihaz", fields: [istenen_cihaz_id], references: [cihaz_id], onDelete: Cascade)
+}
+
+model Jig {
+  jig_id                 String   @id @default(cuid())
+  jig_adi                String
+  stok_no                String?
+  seri_no                String?
+  kategori               String?
+  kullanilan_yer         String?
+  kullanilma_amaci       String?
+  durum                  String   // Aktif / Bakimda / Hurda
+  anlik_kullanici_id     String?
+  onceki_kullanici_id    String?
+  bakim_tarihi           DateTime?
+  fotograf_url           String?
+  notlar                 String?
+
+  // Relations
+  anlik_kullanici        Kullanici? @relation("AnlikKullaniciJig", fields: [anlik_kullanici_id], references: [kullanici_id], onDelete: SetNull)
+  onceki_kullanici       Kullanici? @relation("OncekiKullaniciJig", fields: [onceki_kullanici_id], references: [kullanici_id], onDelete: SetNull)
+  zimmet_gecmisi         ZimmetGecmisi[]
+  bakim_kayitlari        BakimKayitlari[]
+}
+
+model ZimmetGecmisi {
+  id                     String   @id @default(cuid())
+  cihaz_id               String?
+  jig_id                 String?
+  kullanici_id           String
+  baslangic_tarihi       DateTime
+  bitis_tarihi           DateTime?
+  teslim_alan            String?
+  teslim_eden            String?
+
+  // Relations
+  cihaz                  Cihaz?   @relation(fields: [cihaz_id], references: [cihaz_id], onDelete: SetNull)
+  jig                    Jig?     @relation(fields: [jig_id], references: [jig_id], onDelete: SetNull)
+  kullanici              Kullanici @relation(fields: [kullanici_id], references: [kullanici_id], onDelete: Cascade)
+}
+
+model KalibrasyonKayitlari {
+  id                     String   @id @default(cuid())
+  cihaz_id               String
+  tarih                  DateTime
+  sonuc                  String?
+  sertifika_no           String?
+  gerceklestiren_firma   String?
+
+  // Relations
+  cihaz                  Cihaz    @relation(fields: [cihaz_id], references: [cihaz_id], onDelete: Cascade)
+}
+
+model BakimKayitlari {
+  id                     String   @id @default(cuid())
+  cihaz_id               String?
+  jig_id                 String?
+  tarih                  DateTime
+  aciklama               String?
+  maliyet                Float?
+
+  // Relations
+  cihaz                  Cihaz?   @relation(fields: [cihaz_id], references: [cihaz_id], onDelete: Cascade)
+  jig                    Jig?     @relation(fields: [jig_id], references: [jig_id], onDelete: Cascade)
+}
+
+model SohbetGruplari {
+  grup_id                String   @id @default(cuid())
+  grup_adi               String
+  yonetici_id            String?
+  uye_listesi            String?
+
+  // Relations
+  yonetici               Kullanici? @relation("GrupYoneticileri", fields: [yonetici_id], references: [kullanici_id], onDelete: SetNull)
+}
+
+model Bildirimler {
+  bildirim_id            String   @id @default(cuid())
+  tip                    String   // kalibrasyon suresi doluyor, bakim gerekiyor, takas istegi vb.
+  hedef_kullanici_id     String
+  tarih                  DateTime @default(now())
+  okundu_mu              Boolean  @default(false)
+  mesaj                  String?
+
+  // Relations
+  hedef_kullanici        Kullanici @relation(fields: [hedef_kullanici_id], references: [kullanici_id], onDelete: Cascade)
+}
+
+model TransferIstegi {
+  istek_id       String   @id @default(uuid())
+  istek_tipi     String   // "DEVIR" veya "TAKAS"
+  durum          String   // "ALICI_ONAYI_BEKLIYOR", "SEF_ONAYI_BEKLIYOR", "MUDUR_ONAYI_BEKLIYOR", "ONAYLANDI", "REDDEDILDI"
+  olusturulma    DateTime @default(now())
+  bolumler_arasi Boolean  @default(false)
+  
+  // İstek Yapan (Gönderen)
+  gonderen_id       String
+  gonderen          Kullanici @relation("GonderenTransfer", fields: [gonderen_id], references: [kullanici_id], onDelete: Cascade)
+  gonderen_cihaz_id String? 
+  gonderen_jig_id   String?
+  
+  // İstek Alan (Alıcı)
+  alici_id          String
+  alici             Kullanici @relation("AliciTransfer", fields: [alici_id], references: [kullanici_id], onDelete: Cascade)
+  alici_cihaz_id    String?  
+  alici_jig_id      String?
+}
+
+model SistemLog {
+  log_id         String    @id @default(uuid())
+  islem_tipi     String    // "LOGIN", "LOGOUT", "CIHAZ_EKLE", "CIHAZ_GUNCELLE", "DEVIR", "TAKAS" vb.
+  aciklama       String
+  detaylar       String?   // JSON olarak detaylı veriler eklenecek
+  kullanici_id   String?
+  kullanici      Kullanici? @relation("KullaniciLoglar", fields: [kullanici_id], references: [kullanici_id], onDelete: SetNull)
+  tarih          DateTime  @default(now())
+  ip_adresi      String?
+}
+
+model Rol {
+  ad                   String @id
+  cihaz_ekle           Boolean @default(false)
+  cihaz_duzenle        Boolean @default(false)
+  cihaz_sil            Boolean @default(false)
+  jig_ekle             Boolean @default(false)
+  jig_duzenle          Boolean @default(false)
+  jig_sil              Boolean @default(false)
+  kullanici_ekle       Boolean @default(false)
+  kullanici_duzenle    Boolean @default(false)
+  kullanici_sil        Boolean @default(false)
+  admin_panel_erisimi  Boolean @default(false)
+
+  // Relations
+  kullanicilar         Kullanici[]
+}
+
+model CihazTuru {
+  id String @id @default(cuid())
+  ad String @unique
+}
+
+model JigKategorisi {
+  id String @id @default(cuid())
+  ad String @unique
+}

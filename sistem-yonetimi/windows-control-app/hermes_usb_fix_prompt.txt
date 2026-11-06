@@ -1,0 +1,16 @@
+DİKKAT: Yazdığın usb_health_check.py dosyasında 'test_disk_sectors' fonksiyonunda ÇOK TEHLİKELİ BİR HATA VAR!
+$disk = Get-Disk | Where-Object {$_.Number -eq 0}
+Initialize-Disk -Number 0
+New-Partition -DiskNumber 0
+Format-Volume ...
+yazmışsın! Disk Number 0 kullanıcının Windows C: ana sistem diskidir! Bu komut çalışırsa kullanıcının tüm Windows sistemini siler ve bilgisayarı çökertir! Ayrıca sektör testi için disk formatlanmaz!
+
+LÜTFEN DERHAL BU HATAYI DÜZELT:
+1. 'test_disk_sectors' fonksiyonunu GÜVENLİ VE GERÇEK bir okuma/yazma I/O blok testine çevir. Asla diski formatlama veya silme!
+   - Güvenli yöntem: USB bellek içine geçici bir test dosyası (örneğin: E:\.health_test_tmp.bin) oluştur.
+   - Belirli blok boyutlarında (örneğin 4MB/16MB) veri yaz, geri oku, verilerin checksum'ını (SHA256 veya byte karşılaştırması) doğrula. Okuma/yazma hızını (MB/s) ve varsa I/O bozulmalarını (bad block) raporla.
+   - Test bitince geçici dosyayı güvenle sil.
+2. Disk 0 veya C: sürücüsü koruması ekle. Kullanıcı asla sistem diskini seçememeli.
+3. WMI/PowerShell komutlarında Get-CimInstance kullan (Get-WmiObject modern PowerShell'de deprecated uyarısı verir).
+4. Dosyayı /home/birin/Projeler/WindowsControlApp/usb_health_check.py üzerine kaydet.
+5. Kodun hatasız olduğundan ve diske zarar vermeyeceğinden emin ol.

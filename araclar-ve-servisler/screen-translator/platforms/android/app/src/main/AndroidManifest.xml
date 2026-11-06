@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.translator.lens">
+
+    <!-- Diğer uygulamaların üzerinde kayan pencere gösterme izni -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    
+    <!-- Ekran yakalama için ön plan servis izinleri -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
+    
+    <!-- Yapay zeka ve Python motoru haberleşmesi için ağ izni -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@android:drawable/ic_menu_search"
+        android:label="Screen Translator AI"
+        android:roundIcon="@android:drawable/ic_menu_search"
+        android:supportsRtl="true"
+        android:theme="@android:style/Theme.DeviceDefault.NoActionBar">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Ekran Yakalama Servisi (MediaProjection) -->
+        <service
+            android:name=".ScreenCaptureService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="mediaProjection" />
+
+        <!-- Google Lens Kayan Katman Servisi (Overlay Window) -->
+        <service
+            android:name=".LensOverlayService"
+            android:enabled="true"
+            android:exported="false" />
+
+    </application>
+
+</manifest>

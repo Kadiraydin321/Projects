@@ -1,0 +1,132 @@
+{
+  "schemaVersion": "2.0.0",
+  "generatedAt": "2026-11-04T12:23:17.652Z",
+  "target": {
+    "host": "127.0.0.1",
+    "port": 8769,
+    "appName": "Not Defterim Mock Sync Server (Node.js)",
+    "notesCount": 1,
+    "requiresPin": true
+  },
+  "summary": {
+    "total": 13,
+    "passed": 13,
+    "failed": 0,
+    "warnings": 0,
+    "passRate": 100,
+    "durationMs": 70,
+    "target": {
+      "host": "127.0.0.1",
+      "port": 8769,
+      "appName": "Not Defterim Mock Sync Server (Node.js)",
+      "notesCount": 1,
+      "requiresPin": true
+    }
+  },
+  "tests": [
+    {
+      "id": "DISC-01",
+      "category": "KEŞİF & BAĞLANTI (PROBE)",
+      "title": "Hedef Sunucu Erişilebilirliği ve /api/status Durum Sorgusu",
+      "status": "PASS",
+      "details": "Sunucu kimliği: \"Not Defterim Mock Sync Server (Node.js)\", Not Sayısı: 1, PIN Zorunlu: true",
+      "latencyMs": 8.24
+    },
+    {
+      "id": "SEC-01",
+      "category": "GÜVENLİK & KİMLİK DOĞRULAMA",
+      "title": "PIN Başlığı Olmadan İndirme Reddi (HTTP 401)",
+      "status": "PASS",
+      "details": "PIN olmadan yapılan istek başarıyla HTTP 401 ile reddedildi.",
+      "latencyMs": 0.93
+    },
+    {
+      "id": "SEC-02",
+      "category": "GÜVENLİK & KİMLİK DOĞRULAMA",
+      "title": "Geçersiz PIN ile İndirme Reddi (X-Sync-PIN: 9999)",
+      "status": "PASS",
+      "details": "Hatalı PIN ile yapılan istek güvenli şekilde HTTP 401 ile durduruldu.",
+      "latencyMs": 0.53
+    },
+    {
+      "id": "SEC-03",
+      "category": "GÜVENLİK & KİMLİK DOĞRULAMA",
+      "title": "Doğru PIN ile Başarılı Yetkilendirme (X-Sync-PIN)",
+      "status": "PASS",
+      "details": "Geçerli PIN (1234) kabul edildi, HTTP 200 alındı. İçerik boyutu: 900 bayt.",
+      "latencyMs": 14.22
+    },
+    {
+      "id": "SEC-04",
+      "category": "GÜVENLİK & KİMLİK DOĞRULAMA",
+      "title": "URL Parametresi ile Yetkilendirme (?pin=...) Doğrulaması",
+      "status": "PASS",
+      "details": "Query parametresindeki PIN kabul edildi, web tarayıcı doğrudan indirme desteği teyit edildi.",
+      "latencyMs": 1
+    },
+    {
+      "id": "SEC-05",
+      "category": "GÜVENLİK & KİMLİK DOĞRULAMA",
+      "title": "Alternatif Başlık Desteği (X-Pairing-PIN)",
+      "status": "PASS",
+      "details": "'X-Pairing-PIN' başlığı başarıyla destekleniyor (HTTP 200).",
+      "latencyMs": 0.87
+    },
+    {
+      "id": "SEC-06",
+      "category": "GÜVENLİK & KİMLİK DOĞRULAMA",
+      "title": "Sınır Değer ve SQL/XSS Enjeksiyon Koruması",
+      "status": "PASS",
+      "details": "6 sınır durumdan 6 tanesi güvenli şekilde HTTP 401 ile reddedildi.",
+      "latencyMs": 0
+    },
+    {
+      "id": "SEC-07",
+      "category": "GÜVENLİK & KİMLİK DOĞRULAMA",
+      "title": "Seri Hatalı PIN / Brute-Force Dayanıklılık Testi",
+      "status": "PASS",
+      "details": "10 eşzamanlı hatalı PIN denemesi sunucu kilitlenmeden 7 ms içinde tamamlandı (Ort. 1 ms/istek).",
+      "latencyMs": 1
+    },
+    {
+      "id": "DATA-01",
+      "category": "VERİ BÜTÜNLÜĞÜ & İKİ YÖNLÜ SENKRONİZASYON",
+      "title": "Yedek Arşivi İndirme ve ZIP Doğrulaması",
+      "status": "PASS",
+      "details": "Arşiv başarıyla indirildi (900 bayt). SHA-256: e678d9fd81a51684... İçerik: [backup_info.json, categories.json, notes.json]",
+      "latencyMs": 0.72
+    },
+    {
+      "id": "DATA-02",
+      "category": "VERİ BÜTÜNLÜĞÜ & İKİ YÖNLÜ SENKRONİZASYON",
+      "title": "İki Yönlü Round-Trip Senkronizasyon ve SHA-256 Bütünlük Testi",
+      "status": "PASS",
+      "details": "Veriler yüklendi, geri indirildi ve döngüsel (round-trip) alan doğrulaması %100 eşleşti. UTF-8 Türkçe karakterler ve Markdown içerik kayıpsız korundu.",
+      "latencyMs": 1.83
+    },
+    {
+      "id": "STR-01",
+      "category": "SINIR DURUMLAR & STRES / YÜK TESTLERİ",
+      "title": "Aşırı Yük Güvenlik Testi (10 MB Payload Too Large)",
+      "status": "PASS",
+      "details": "10 MB yük sonrası sunucu çökmedi (HTTP: 413, Ping: 0.63 ms). Mükemmel: HTTP 413 Payload Too Large döndü.",
+      "latencyMs": 10.05
+    },
+    {
+      "id": "STR-02",
+      "category": "SINIR DURUMLAR & STRES / YÜK TESTLERİ",
+      "title": "Bozuk ZIP / Geçersiz İkili Veri Paketi Testi",
+      "status": "PASS",
+      "details": "Bozuk veri paketi gönderildiğinde sunucu kararlı kaldı (HTTP: 400). Unhandled Exception oluşmadı.",
+      "latencyMs": 4.24
+    },
+    {
+      "id": "STR-03",
+      "category": "SINIR DURUMLAR & STRES / YÜK TESTLERİ",
+      "title": "Eşzamanlı Çoklu İstemci Testi (5 Paralel İstek)",
+      "status": "PASS",
+      "details": "5 eşzamanlı istek 3 ms sürede tamamlandı. Kilitlenme: 0. Hız: 1666.7 req/sn (Min: 2.84ms, Ort: 3ms, Max: 3.09ms).",
+      "latencyMs": 3
+    }
+  ]
+}

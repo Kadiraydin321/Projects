@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AntiGravity | PC & Depolama Kontrol Paneli</title>
+    <!-- Google Fonts: Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Main Style Sheet -->
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="dark-theme">
+    <!-- Dynamic Glowing Ambient Blobs (Liquid Backlight) -->
+    <div class="ambient-glow">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <!-- Main Wallpaper Slideshow Layer -->
+    <div id="wallpaper-background" class="wallpaper-bg"></div>
+
+    <!-- Dashboard Glass container -->
+    <div class="dashboard-container">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="logo-area">
+                <div class="logo-icon"><i class="fa-solid fa-feather-pointed"></i></div>
+                <h2>AntiGravity</h2>
+            </div>
+            
+            <nav class="nav-menu">
+                <a href="#home" class="nav-item active" data-tab="home">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Ana Sayfa</span>
+                </a>
+                <a href="#pc-control" class="nav-item" data-tab="pc-control">
+                    <i class="fa-solid fa-desktop"></i>
+                    <span>Sistem Yönetimi</span>
+                </a>
+                <a href="#notes" class="nav-item" data-tab="notes">
+                    <i class="fa-solid fa-note-sticky"></i>
+                    <span>Güvenli Notlar</span>
+                </a>
+                <a href="#drive" class="nav-item" data-tab="drive">
+                    <i class="fa-brands fa-google-drive"></i>
+                    <span>Google Drive</span>
+                </a>
+                <a href="#games" class="nav-item" data-tab="games">
+                    <i class="fa-solid fa-gamepad"></i>
+                    <span>Ücretsiz Oyunlar</span>
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <button id="settings-btn" class="glass-btn circle-btn" title="Ayarlar">
+                    <i class="fa-solid fa-cog"></i>
+                </button>
+                <button id="layout-toggle" class="glass-btn circle-btn" title="Ekran Genişliği (Pencere/Tam Ekran)">
+                    <i class="fa-solid fa-expand"></i>
+                </button>
+                <button id="fullscreen-toggle" class="glass-btn circle-btn" title="Tam Ekran Modu (OS)">
+                    <i class="fa-solid fa-maximize"></i>
+                </button>
+                <div class="theme-toggle-container">
+                    <button id="theme-toggle" class="glass-btn circle-btn" title="Tema Değiştir">
+                        <i class="fa-solid fa-moon"></i>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="content-area">
+            
+            <!-- SECTION 1: HOME/DASHBOARD -->
+            <section id="tab-home" class="tab-content active">
+                <header class="content-header">
+                    <div>
+                        <h1 id="greeting">Merhaba!</h1>
+                        <p class="subtitle">Sistem durumunuz ve hızlı eylemler aşağıdadır.</p>
+                    </div>
+                    <div class="clock-widget">
+                        <span id="widget-time">00:00:00</span>
+                        <span id="widget-date">1 Ocak 1970</span>
+                    </div>
+                </header>
+                
+                <div class="grid-layout">
+                    <!-- CPU Monitor Widget -->
+                    <div class="glass-card stat-card">
+                        <div class="card-icon cpu-color"><i class="fa-solid fa-microchip"></i></div>
+                        <div class="card-info">
+                            <h3>CPU Kullanımı</h3>
+                            <div class="stat-progress-container">
+                                <svg class="progress-ring" width="120" height="120">
+                                    <circle class="progress-ring__circle-bg" stroke="rgba(255,255,255,0.1)" stroke-width="8" fill="transparent" r="50" cx="60" cy="60"/>
+                                    <circle id="cpu-ring" class="progress-ring__circle cpu-ring-stroke" stroke-width="8" fill="transparent" r="50" cx="60" cy="60"/>
+                                </svg>
+                                <span class="stat-value" id="cpu-val">0%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RAM Monitor Widget -->
+                    <div class="glass-card stat-card">
+                        <div class="card-icon ram-color"><i class="fa-solid fa-memory"></i></div>
+                        <div class="card-info">
+                            <h3>RAM Kullanımı</h3>
+                            <div class="stat-progress-container">
+                                <svg class="progress-ring" width="120" height="120">
+                                    <circle class="progress-ring__circle-bg" stroke="rgba(255,255,255,0.1)" stroke-width="8" fill="transparent" r="50" cx="60" cy="60"/>
+                                    <circle id="ram-ring" class="progress-ring__circle ram-ring-stroke" stroke-width="8" fill="transparent" r="50" cx="60" cy="60"/>
+                                </svg>
+                                <span class="stat-value" id="ram-val">0%</span>
+                            </div>
+                            <p class="card-detail" id="ram-text">Kullanılan: 0 GB / 0 GB</p>
+                        </div>
+                    </div>
+
+                    <!-- Disk Monitor Widget -->
+                    <div class="glass-card stat-card">
+                        <div class="card-icon disk-color"><i class="fa-solid fa-hard-drive"></i></div>
+                        <div class="card-info">
+                            <h3>Disk C:</h3>
+                            <div class="stat-progress-container">
+                                <svg class="progress-ring" width="120" height="120">
+                                    <circle class="progress-ring__circle-bg" stroke="rgba(255,255,255,0.1)" stroke-width="8" fill="transparent" r="50" cx="60" cy="60"/>
+                                    <circle id="disk-ring" class="progress-ring__circle disk-ring-stroke" stroke-width="8" fill="transparent" r="50" cx="60" cy="60"/>
+                                </svg>
+                                <span class="stat-value" id="disk-val">0%</span>
+                            </div>
+                            <p class="card-detail" id="disk-text">Boş Alan: 0 GB / 0 GB</p>
+                        </div>
+                    </div>
+
+                    <!-- Quick System Actions -->
+                    <div class="glass-card col-span-2">
+                        <h3>Hızlı Sistem Kontrolleri</h3>
+                        <div class="quick-actions-grid">
+                            <button id="quick-scan-btn" class="glass-action-btn">
+                                <i class="fa-solid fa-broom"></i>
+                                <span>Gereksiz Dosya Tara</span>
+                            </button>
+                            <button id="quick-shutdown-btn" class="glass-action-btn danger">
+                                <i class="fa-solid fa-power-off"></i>
+                                <span>1 Saat Sonra Kapat</span>
+                            </button>
+                            <div class="system-uptime">
+                                <i class="fa-solid fa-clock"></i>
+                                <div>
+                                    <span class="label">Sistem Çalışma Süresi</span>
+                                    <span id="uptime-val" class="value">0s 0dk</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Google Drive Status Quick-Card -->
+                    <div class="glass-card">
+                        <h3>Drive Durumu</h3>
+                        <div id="drive-quick-widget" class="drive-quick-widget">
+                            <div class="drive-connection-state unauthenticated">
+                                <i class="fa-solid fa-link-slash"></i>
+                                <p>Bağlı Değil</p>
+                                <button class="glass-btn small-btn" onclick="navigateToTab('drive')">Bağlan</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 2: SYSTEM MANAGEMENT -->
+            <section id="tab-pc-control" class="tab-content">
+                <header class="content-header">
+                    <div>
+                        <h1>Sistem Yönetimi</h1>
+                        <p class="subtitle">Disk temizleme ve PC zamanlayıcı araçları.</p>
+                    </div>
+                </header>
+                
+                <div class="grid-layout">
+                    <!-- Temp File Cleaner -->
+                    <div class="glass-card">
+                        <div class="card-title-with-btn">
+                            <h3>Disk Temizleyici (Temp Temizliği)</h3>
+                            <i class="fa-solid fa-trash-can title-icon"></i>
+                        </div>
+                        <p class="description">Bilgisayarınızdaki geçici dosyaları (User Temp, Windows Temp) tarayarak gereksiz yer kaplayan verileri temizler.</p>
+                        
+                        <div class="cleaner-actions">
+                            <button id="scan-temp-btn" class="glass-btn primary-btn"><i class="fa-solid fa-magnifying-glass"></i> Tara</button>
+                            <button id="clean-temp-btn" class="glass-btn danger-btn" disabled><i class="fa-solid fa-trash"></i> Temizle</button>
+                        </div>
+                        
+                        <div id="clean-result" class="cleaner-status-box hidden">
+                            <div class="status-row">
+                                <span>Bulunan Dosya:</span>
+                                <strong id="scan-count">0</strong>
+                            </div>
+                            <div class="status-row">
+                                <span>Toplam Boyut:</span>
+                                <strong id="scan-size">0 MB</strong>
+                            </div>
+                        </div>
+                        
+                        <div id="clean-log" class="console-log hidden"></div>
+                    </div>
+
+                    <!-- PC Shutdown Timer -->
+                    <div class="glass-card">
+                        <div class="card-title-with-btn">
+                            <h3>Güç Zamanlayıcı</h3>
+                            <i class="fa-solid fa-hourglass-half title-icon"></i>
+                        </div>
+                        <p class="description">Bilgisayarınızın belirlediğiniz bir süre sonra otomatik olarak kapanmasını, yeniden başlamasını veya uyku moduna geçmesini sağlar.</p>
+                        
+                        <div class="scheduler-controls">
+                            <div class="form-group">
+                                <label>İşlem Seçin:</label>
+                                <div class="action-selector">
+                                    <button class="selector-btn active" data-action="shutdown"><i class="fa-solid fa-power-off"></i> Kapat</button>
+                                    <button class="selector-btn" data-action="restart"><i class="fa-solid fa-rotate"></i> Yeniden Başlat</button>
+                                    <button class="selector-btn" data-action="sleep"><i class="fa-solid fa-moon"></i> Uyut</button>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Süre Seçin:</label>
+                                <div class="timer-presets">
+                                    <button type="button" class="preset-time-btn" data-minutes="15">15 dk</button>
+                                    <button type="button" class="preset-time-btn" data-minutes="30">30 dk</button>
+                                    <button type="button" class="preset-time-btn active" data-minutes="60">1 saat</button>
+                                    <button type="button" class="preset-time-btn" data-minutes="120">2 saat</button>
+                                    <button type="button" class="preset-time-btn" data-minutes="180">3 saat</button>
+                                    <button type="button" class="preset-time-btn" data-minutes="custom">Özel</button>
+                                </div>
+                            </div>
+                            
+                            <!-- Slider Container -->
+                            <div class="form-group" id="slider-container">
+                                <label>Zaman Sürgüsü: <strong id="timer-display-val">60 dk</strong></label>
+                                <input type="range" id="timer-slider" min="5" max="360" step="5" value="60" class="glass-slider">
+                            </div>
+
+                            <!-- Custom Inputs Container (Hidden by default) -->
+                            <div class="form-group hidden" id="custom-timer-container">
+                                <div class="custom-timer-inputs">
+                                    <div class="input-with-label">
+                                        <input type="number" id="custom-hours" class="glass-input" min="0" max="24" value="1">
+                                        <label for="custom-hours">Saat</label>
+                                    </div>
+                                    <div class="input-with-label">
+                                        <input type="number" id="custom-minutes" class="glass-input" min="0" max="59" value="0">
+                                        <label for="custom-minutes">Dakika</label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="timer-action-buttons">
+                                <button type="button" id="start-timer-btn" class="glass-btn primary-btn"><i class="fa-solid fa-play"></i> Zamanlayıcıyı Başlat</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Active Timer Banner -->
+                        <div id="active-timer-box" class="active-timer-box hidden">
+                            <div class="timer-ring">
+                                <i class="fa-solid fa-clock-rotate-left timer-running-icon"></i>
+                                <div class="timer-countdown">
+                                    <span id="countdown-text">00:00:00</span>
+                                    <span id="countdown-action">Kapatma Aktif</span>
+                                </div>
+                            </div>
+                            <button id="cancel-timer-btn" class="glass-btn danger-btn"><i class="fa-solid fa-xmark"></i> İptal Et</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 3: SECURE STICKY NOTES -->
+            <section id="tab-notes" class="tab-content">
+                <header class="content-header">
+                    <div>
+                        <h1>Güvenli Yapışkan Notlar</h1>
+                        <p class="subtitle">Tüm notlarınız tarayıcınızda şifrelenir ve Google Drive'a güvenle yedeklenir.</p>
+                    </div>
+                    <div class="notes-header-actions">
+                        <button id="add-note-btn" class="glass-btn primary-btn"><i class="fa-solid fa-plus"></i> Yeni Not</button>
+                        <button id="sync-notes-btn" class="glass-btn"><i class="fa-solid fa-cloud-arrow-up"></i> Buluta Yedekle</button>
+                    </div>
+                </header>
+                
+                <div class="notes-workspace">
+                    <!-- Folders Sidebar inside Notes Tab -->
+                    <aside class="notes-folders-sidebar">
+                        <h3>Klasörler</h3>
+                        <div id="folders-list" class="folders-list">
+                            <!-- JS loaded folders -->
+                        </div>
+                        <button id="add-folder-btn" class="glass-btn small-btn"><i class="fa-solid fa-folder-plus"></i> Klasör Ekle</button>
+                    </aside>
+                    
+                    <!-- Notes Grid Board -->
+                    <div class="notes-board-area">
+                        <div class="notes-filter-bar">
+                            <div class="search-box">
+                                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                                <input type="text" id="search-notes-input" class="glass-input" placeholder="Notlarda ara...">
+                            </div>
+                            <div class="filter-box">
+                                <label for="filter-notes-color">Renk:</label>
+                                <select id="filter-notes-color" class="glass-select">
+                                    <option value="all">Tümü (Renk)</option>
+                                    <option value="note-yellow">Sarı</option>
+                                    <option value="note-blue">Mavi</option>
+                                    <option value="note-pink">Pembe</option>
+                                    <option value="note-green">Yeşil</option>
+                                    <option value="note-purple">Mor</option>
+                                </select>
+                            </div>
+                            <div class="filter-box">
+                                <label for="filter-notes-security">Durum:</label>
+                                <select id="filter-notes-security" class="glass-select">
+                                    <option value="all">Tümü (Güvenlik)</option>
+                                    <option value="locked">Kilitli / Şifreli</option>
+                                    <option value="unlocked">Açık / Şifresiz</option>
+                                </select>
+                            </div>
+                            <div class="filter-box">
+                                <label for="filter-notes-date">Tarih:</label>
+                                <select id="filter-notes-date" class="glass-select">
+                                    <option value="all">Tümü (Zaman)</option>
+                                    <option value="today">Bugün</option>
+                                    <option value="week">Son 7 Gün</option>
+                                    <option value="month">Son 30 Gün</option>
+                                </select>
+                            </div>
+                            <div class="sort-box">
+                                <label for="sort-notes-select">Sırala:</label>
+                                <select id="sort-notes-select" class="glass-select">
+                                    <option value="pinned">Önce Sabitlenenler</option>
+                                    <option value="newest">En Yeni</option>
+                                    <option value="oldest">En Eski</option>
+                                    <option value="title">Başlık (A-Z)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div id="notes-grid" class="notes-grid">
+                            <!-- Notes dynamic items -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 4: GOOGLE DRIVE -->
+            <section id="tab-drive" class="tab-content">
+                <header class="content-header">
+                    <div>
+                        <h1>Google Drive Yönetimi</h1>
+                        <p class="subtitle">5 TB alanınızı etkili bir şekilde yönetin ve yerel yedeklemeler yapın.</p>
+                    </div>
+                </header>
+                
+                <div class="grid-layout">
+                    <!-- Drive Connection & Quota Widget -->
+                    <div class="glass-card col-span-2">
+                        <h3>Drive Hesap Detayları & Depolama</h3>
+                        <div id="drive-auth-panel" class="drive-auth-panel">
+                            <!-- Unauthenticated state -->
+                            <div id="drive-unauth-view" class="drive-status-view">
+                                <div class="icon-warning"><i class="fa-solid fa-cloud-arrow-down"></i></div>
+                                <div class="info-block">
+                                    <h4>Google Drive Bağlantısı Gerekli</h4>
+                                    <p>Dosyalarınızı yönetmek ve şifreli yapışkan notlarınızı bulutta yedeklemek için Google Drive hesabınızı bağlayın.</p>
+                                </div>
+                                <button id="connect-drive-btn" class="glass-btn primary-btn"><i class="fa-brands fa-google"></i> Hesabı Bağla</button>
+                            </div>
+                            
+                            <!-- Authenticated state -->
+                            <div id="drive-auth-view" class="drive-status-view hidden">
+                                <div class="user-profile">
+                                    <div class="user-avatar"><i class="fa-solid fa-user-astronaut"></i></div>
+                                    <div>
+                                        <h4 id="drive-user-name">Kullanıcı Adı</h4>
+                                        <p id="drive-user-email">email@gmail.com</p>
+                                    </div>
+                                </div>
+                                <div class="quota-container">
+                                    <div class="quota-info">
+                                        <span>Kullanılan: <strong id="drive-used-space">0 GB</strong></span>
+                                        <span>Toplam Kapasite: <strong id="drive-total-space">5000 GB</strong></span>
+                                    </div>
+                                    <div class="quota-progress-bar">
+                                        <div id="drive-quota-fill" class="quota-fill" style="width: 0%"></div>
+                                    </div>
+                                    <p class="quota-pct-label" id="quota-pct">Alanınızın 0%'ı kullanılıyor.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Drive Explorer (Upload / View Files) -->
+                    <div class="glass-card col-span-2 file-explorer-card">
+                        <div class="card-title-with-btn">
+                            <h3>Bulut Dosya Gezgini</h3>
+                            <div class="explorer-actions">
+                                <button id="refresh-files-btn" class="glass-btn circle-btn" title="Yenile"><i class="fa-solid fa-arrows-rotate"></i></button>
+                                <label for="file-upload-input" class="glass-btn small-btn primary-btn" style="cursor: pointer;">
+                                    <i class="fa-solid fa-cloud-arrow-up"></i> Dosya Yükle
+                                </label>
+                                <input type="file" id="file-upload-input" style="display: none;">
+                            </div>
+                        </div>
+                        
+                        <div class="file-list-header">
+                            <span class="col-name">Dosya Adı</span>
+                            <span class="col-type">Tür</span>
+                            <span class="col-size">Boyut</span>
+                            <span class="col-actions">İşlem</span>
+                        </div>
+                        
+                        <div id="drive-files-list" class="drive-files-list">
+                            <!-- Dynamic file list items -->
+                            <div class="list-empty">
+                                <i class="fa-solid fa-folder-open"></i>
+                                <p>Dosyaları görmek için hesabınızı bağlayın ve gezgini yenileyin.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Local Folder Backup Utility -->
+                    <div class="glass-card col-span-2">
+                        <h3>Otomatik Klasör Yedekleme (Drive'a Yükle)</h3>
+                        <p class="description">Bilgisayarınızdaki herhangi bir klasörün tamamını sıkıştırıp (Zip) tek tıkla Google Drive'ınıza yükleyebilirsiniz.</p>
+                        
+                        <div class="backup-form">
+                            <div class="form-group flex-row">
+                                <input type="text" id="backup-folder-input" class="glass-input" placeholder="Örn: C:\Kullanıcılar\Ad\Belgelerim" style="flex: 1;">
+                                <button id="start-backup-btn" class="glass-btn primary-btn"><i class="fa-solid fa-shield-halved"></i> Drive'a Yedekle</button>
+                            </div>
+                            <p class="input-note">Seçtiğiniz klasör yerel olarak zip formatına sıkıştırılacak ve Drive ana dizinine yüklenecektir.</p>
+                        </div>
+                        
+                        <div id="backup-status" class="backup-status-box hidden">
+                            <div class="spinner-container">
+                                <div class="spinner"></div>
+                                <span>Klasörünüz zip dosyasına dönüştürülüyor ve Google Drive'a yükleniyor. Lütfen bekleyin...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 5: FREE GAMES -->
+            <section id="tab-games" class="tab-content">
+                <header class="content-header">
+                    <div>
+                        <h1>Ücretsiz Oyun Fırsatları</h1>
+                        <p class="subtitle">Epic Games, Steam ve diğer mağazalardaki güncel ücretsiz oyun ve hediye kampanyaları.</p>
+                    </div>
+                    <button id="refresh-games-btn" class="glass-btn"><i class="fa-solid fa-rotate"></i> Yenile</button>
+                </header>
+                
+                <div class="games-tabs-nav">
+                    <button type="button" class="game-tab-btn active" data-game-type="giveaways">Kampanyalar & Sınırlı Süreli</button>
+                    <button type="button" class="game-tab-btn" data-game-type="f2p">Kalıcı Ücretsiz Oyunlar</button>
+                </div>
+
+                <div class="games-filter-bar" style="margin-bottom: 24px;">
+                    <div class="search-box">
+                        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                        <input type="text" id="search-games-input" class="glass-input" placeholder="Oyunlarda ara...">
+                    </div>
+                    <div class="filter-box">
+                        <label for="filter-game-platform">Platform:</label>
+                        <select id="filter-game-platform" class="glass-select">
+                            <option value="all">Tümü (Platform)</option>
+                            <option value="pc">PC (Windows)</option>
+                            <option value="steam">Steam</option>
+                            <option value="epic">Epic Games</option>
+                            <option value="gog">GOG</option>
+                            <option value="console">Konsol (PS/Xbox/Switch)</option>
+                            <option value="mobile">Mobil (Android/iOS)</option>
+                            <option value="browser">Tarayıcı (Web)</option>
+                        </select>
+                    </div>
+                    <!-- Giveaway Type Filter -->
+                    <div class="filter-box" id="giveaway-type-filter-box">
+                        <label for="filter-game-type">Tür:</label>
+                        <select id="filter-game-type" class="glass-select">
+                            <option value="all">Tümü (Tür)</option>
+                            <option value="game">Tam Oyun</option>
+                            <option value="dlc">DLC / Eklenti</option>
+                            <option value="loot">Loot / Paket</option>
+                            <option value="beta">Beta / Erken Erişim</option>
+                        </select>
+                    </div>
+                    <!-- F2P Genre Filter -->
+                    <div class="filter-box" id="genre-filter-box" style="display: none;">
+                        <label for="filter-game-genre">Kategori:</label>
+                        <select id="filter-game-genre" class="glass-select">
+                            <option value="all">Tümü (Kategori)</option>
+                            <option value="shooter">Nişancı (Shooter)</option>
+                            <option value="mmorpg">MMORPG</option>
+                            <option value="strategy">Strateji</option>
+                            <option value="racing">Yarış</option>
+                            <option value="sports">Spor</option>
+                            <option value="action">Aksiyon</option>
+                            <option value="anime">Anime</option>
+                            <option value="card">Kart Oyunu</option>
+                            <option value="mmo">MMO</option>
+                            <option value="moba">MOBA</option>
+                        </select>
+                    </div>
+                    <!-- Sort Filter for Games -->
+                    <div class="filter-box">
+                        <label for="sort-games-select">Sırala:</label>
+                        <select id="sort-games-select" class="glass-select">
+                            <option value="default">Varsayılan</option>
+                            <option value="alpha">A-Z (Alfabetik)</option>
+                            <option value="alpha-desc">Z-A</option>
+                            <option value="popularity">Popülerlik</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Giveaways List (GamerPower) -->
+                <div id="games-giveaways-container" class="games-grid-layout active">
+                    <!-- Dynamic game cards -->
+                    <div class="loading-state">
+                        <div class="spinner"></div>
+                        <p>Kampanyalar yükleniyor...</p>
+                    </div>
+                </div>
+
+                <!-- Permanently Free-to-Play List (FreeToGame) -->
+                <div id="games-f2p-tab-content" class="games-tab-content" style="display: none; flex-direction: column; gap: 20px;">
+                    <div id="games-f2p-container" class="games-grid-layout">
+                        <!-- Dynamic game cards -->
+                    </div>
+                    <div class="load-more-container" id="f2p-load-more-container" style="display: none; justify-content: center; margin-top: 20px; margin-bottom: 20px;">
+                        <button type="button" id="load-more-f2p-btn" class="glass-btn primary-btn"><i class="fa-solid fa-circle-chevron-down"></i> Daha Fazla Oyun Yükle</button>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- SETTINGS / BACKGROUNDS CUSTOMIZER POPUP -->
+    <div id="settings-modal" class="modal-overlay hidden">
+        <div class="modal-card glass-modal">
+            <div class="modal-header">
+                <h3>Dashboard Görünüm Ayarları</h3>
+                <button id="close-settings-btn" class="close-btn"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div class="modal-body">
+                <!-- Wallpaper settings -->
+                <div class="settings-section">
+                    <h4>Arka Plan Resmi</h4>
+                    <div class="wallpaper-options">
+                        <button class="wallpaper-thumb preset-bg-1" data-bg="preset1" title="Preset 1"></button>
+                        <button class="wallpaper-thumb preset-bg-2" data-bg="preset2" title="Preset 2"></button>
+                        <button class="wallpaper-thumb preset-bg-3" data-bg="preset3" title="Preset 3"></button>
+                        <button class="wallpaper-thumb custom-bg-thumb" id="custom-bg-trigger">
+                            <i class="fa-solid fa-plus"></i> Custom
+                        </button>
+                    </div>
+                    
+                    <div id="custom-bg-form" class="custom-bg-form hidden">
+                        <input type="text" id="custom-bg-url" class="glass-input" placeholder="Resim URL'si girin...">
+                        <button id="apply-custom-bg" class="glass-btn small-btn">Uygula</button>
+                    </div>
+                </div>
+                
+                <!-- Slideshow settings -->
+                <div class="settings-section">
+                    <h4>Windows Slayt Gösterisi Modu</h4>
+                    <p class="description">Duvar kağıtları belirli aralıklarla otomatik olarak değişsin.</p>
+                    <div class="toggle-row">
+                        <label>Slayt Gösterisini Etkinleştir:</label>
+                        <label class="switch">
+                            <input type="checkbox" id="slideshow-toggle">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div class="form-group hidden" id="slideshow-interval-group">
+                        <label>Değişim Aralığı (Saniye):</label>
+                        <select id="slideshow-interval" class="glass-select">
+                            <option value="10">10 Saniye</option>
+                            <option value="30">30 Saniye</option>
+                            <option value="60">1 Dakika</option>
+                            <option value="300">5 Dakika</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PASSWORD PROMPT FOR ENCRYPTED NOTES -->
+    <div id="password-modal" class="modal-overlay hidden">
+        <div class="modal-card glass-modal prompt-modal">
+            <div class="modal-header">
+                <h3 id="pwd-modal-title">Şifre Girin</h3>
+                <button id="close-pwd-btn" class="close-btn"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <p id="pwd-modal-desc">Bu not şifrelenmiştir. Lütfen kilidi açmak için şifrenizi girin.</p>
+                <div class="form-group">
+                    <input type="password" id="note-password-input" class="glass-input" placeholder="Şifrenizi yazın...">
+                </div>
+                <div class="modal-footer">
+                    <button id="cancel-pwd-btn" class="glass-btn danger-btn">Vazgeç</button>
+                    <button id="confirm-pwd-btn" class="glass-btn primary-btn">Onayla</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- GOOGLE DRIVE APP CREDENTIALS GUIDE MODAL -->
+    <div id="drive-setup-modal" class="modal-overlay hidden">
+        <div class="modal-card glass-modal wide-modal">
+            <div class="modal-header">
+                <h3>Google Drive API Kurulum Kılavuzu</h3>
+                <button id="close-setup-btn" class="close-btn"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body markdown-content">
+                <p>Google Drive entegrasyonunu kullanabilmek için, kendi Google Cloud Projenizden indireceğiniz <code>credentials.json</code> dosyasını uygulamanın ana dizinine yerleştirmeniz gerekmektedir.</p>
+                <ol>
+                    <li><a href="https://console.cloud.google.com/" target="_blank">Google Cloud Console</a>'a gidin ve yeni bir proje oluşturun.</li>
+                    <li><strong>Google Drive API</strong>'yi aratın ve projeniz için etkinleştirin.</li>
+                    <li><strong>OAuth consent screen</strong> (OAuth onay ekranı) ayarlayın. Uygulama türünü <strong>External</strong> seçin. Test kullanıcıları kısmına kendi Gmail adresinizi ekleyin.</li>
+                    <li><strong>Credentials</strong> (Kimlik Bilgileri) sekmesine tıklayın, <strong>Create Credentials</strong> > <strong>OAuth client ID</strong> seçeneğini seçin.</li>
+                    <li>Application type (Uygulama türü) olarak <strong>Desktop App</strong> (Masaüstü Uygulaması) seçin ve isim verin.</li>
+                    <li>Oluşturulan istemcinin sağ tarafındaki indirme ikonuna tıklayarak JSON dosyasını indirin.</li>
+                    <li>Dosya adını tam olarak <code>credentials.json</code> yapın ve <code>c:\Users\Birin\Birin\AntiGravity\</code> klasörünün içine yerleştirin.</li>
+                    <li>Bu işlemleri yaptıktan sonra sayfayı yenileyip "Hesabı Bağla" butonuna basarak yetkilendirmeyi tamamlayabilirsiniz.</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOLDER DETAIL MODAL -->
+    <div id="folder-modal" class="modal-overlay hidden">
+        <div class="modal-card glass-modal prompt-modal">
+            <div class="modal-header">
+                <h3 id="folder-modal-title">Klasör Oluştur</h3>
+                <button type="button" id="close-folder-modal-btn" class="close-btn"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group" style="margin-bottom: 12px;">
+                    <label>Klasör Adı:</label>
+                    <input type="text" id="folder-name-input" class="glass-input" placeholder="Klasör adı yazın...">
+                </div>
+                <div class="form-group" style="margin-bottom: 12px;">
+                    <label>Simge Seçin:</label>
+                    <div class="icon-selector-grid">
+                        <button type="button" class="folder-icon-btn active" data-icon="fa-folder"><i class="fa-solid fa-folder"></i></button>
+                        <button type="button" class="folder-icon-btn" data-icon="fa-briefcase"><i class="fa-solid fa-briefcase"></i></button>
+                        <button type="button" class="folder-icon-btn" data-icon="fa-user"><i class="fa-solid fa-user"></i></button>
+                        <button type="button" class="folder-icon-btn" data-icon="fa-lightbulb"><i class="fa-solid fa-lightbulb"></i></button>
+                        <button type="button" class="folder-icon-btn" data-icon="fa-code"><i class="fa-solid fa-code"></i></button>
+                        <button type="button" class="folder-icon-btn" data-icon="fa-heart"><i class="fa-solid fa-heart"></i></button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Renk Seçin:</label>
+                    <div class="color-selector-grid">
+                        <button type="button" class="folder-color-btn active" data-color="accent-blue" style="background-color: #3b82f6;"></button>
+                        <button type="button" class="folder-color-btn" data-color="accent-purple" style="background-color: #a855f7;"></button>
+                        <button type="button" class="folder-color-btn" data-color="accent-pink" style="background-color: #f472b6;"></button>
+                        <button type="button" class="folder-color-btn" data-color="accent-green" style="background-color: #10b981;"></button>
+                        <button type="button" class="folder-color-btn" data-color="accent-yellow" style="background-color: #fbbf24;"></button>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="cancel-folder-btn" class="glass-btn danger-btn">İptal</button>
+                    <button type="button" id="save-folder-btn" class="glass-btn primary-btn">Kaydet</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/static/js/crypto.js"></script>
+    <script src="/static/js/notes.js"></script>
+    <script src="/static/js/drive.js"></script>
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
