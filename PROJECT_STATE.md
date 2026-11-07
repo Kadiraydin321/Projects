@@ -8,7 +8,13 @@
   2. Hermes Agent (Nous Research) Orkestrasyon Yapısı Kurulumu (Tamamlandı).
   3. 5 GitHub Reposu Beceri, Araç ve MCP Entegrasyonu (Tamamlandı - Antigravity + Hermes Agent).
   4. REA (Reverse Engineer Anything) CLI Başlatıcısı Geliştirildi (Tamamlandı - run_rea.ps1).
-  5. Visual Studio 2022 Community & Çok Dilli Geliştirme Paketi (C++, C#, Web API, Python, Go Hibrit) Yapılandırıldı (Tamamlandı - Masaüstü Başlatıcısı & Rehber Hazır).
+  5. Visual Studio 2022 Community & Çok Dilli Geliştirme Paketi Yapılandırıldı.
+  6. Granblue Fantasy Relink Türkçe Yama Genişletmesi & Mod Kurulumu:
+     - Eksik 52 dosya ve arşiv yapısı FlatBuffers/LZ4 üzerinden çözüldü.
+     - Öncelikli diyalog dosyaları (`text_dialog.msg`, `text_telop.msg`, `text_fate_episode.msg`, `text_communication.msg` - toplam 1.793 satır) yerel `gemma4:12b` (Ollama/RTX 5060 Ti) ile %100 Türkçeleştirildi.
+     - MessagePack yapıları ve tag dosyaları derlenip `data/system/table/text/en/` dizinine aktarıldı, `data.i` indeksi güncellendi.
+     - VRAM tamamen tahliye edildi (701 MB boşa çekildi).
+     - Nexus Mods 765 (`gbfr.unlocking.msp` 1.0.1 - MSP Cap Unlock) Reloaded-II'ye kurulup aktifleştirildi.
 
 ---
 
