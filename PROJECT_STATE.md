@@ -168,12 +168,8 @@
     - Akıllı Teşhis: Ghidra/IDA eksikliğinde `inspect-pe-imports` ve alternatif PE analiz komutlarını rehberlik olarak sunma.
     - Doğrulama: PowerShell AST Parse Testi ve E2E Doctor/Electron/Overview testleri başarıyla tamamlandı (PASS).
 - **7. Visual Studio 2022 & Çok Dilli Geliştirme Ortamı (C++, C#, Web API, Python, Go Hibrit):**
-  - **Masaüstü Başlatıcısı:** `C:\Users\Birin\Desktop\VS2022_Kurulum.bat`
-    - Otomatik UAC yönetici yetkisi denetimi ve yükseltmesi (`powershell Start-Process -Verb RunAs`).
-    - Microsoft Web Önyükleyicisi (`vs_community.exe`) ile en kararlı v17.14.x sürüm kurulumu.
-    - 4 Kritik Workload: `NativeDesktop` (MSVC v143, Windows SDK, CMake, ASan), `ManagedDesktop` (.NET 8/9, WPF, WinForms), `NetWeb` (ASP.NET Core, Minimal APIs, Blazor), `Python` (Python araçları, karma mod debug, profilleyici).
-  - **Go Hibrit Mimarisi:**
-    - Sistemdeki Go v1.27.3 x64 desteği korundu.
-    - Visual Studio "Open Folder" modu ile MSVC v143 ve Cgo tam uyumu sağlandı.
-    - VS Code için `golang.go`, `ms-vscode.cpptools`, `ms-dotnettools.csdevkit`, `ms-dotnettools.csharp` eklentileri yapılandırıldı.
+  - **.NET SDK Entegrasyonu:** En güncel .NET 9.0.320 SDK (`C:\Users\Birin\AppData\Local\Microsoft\dotnet`) sisteme kuruldu ve `DOTNET_ROOT` ile kullanıcı PATH'ine kalıcı olarak eklendi.
+  - **Masaüstü Başlatıcısı & Yükleyici:** `C:\Users\Birin\Desktop\VS2022_Kurulum.bat` ve `vs_community.exe` masaüstüne yerleştirildi; mutlak yol ve hata teşhisiyle güçlendirildi.
+  - **İş Yükleri:** `NativeDesktop` (MSVC v143, Windows SDK, CMake), `ManagedDesktop` (.NET 8/9, WPF), `NetWeb` (ASP.NET Core), `Python` (Python araçları, karma debug).
+  - **Go Dili:** Sistemdeki Go v1.27.3 x64 korundu; VS Code için `golang.go`, `ms-vscode.cpptools`, `ms-dotnettools.csdevkit` eklentileri kuruldu.
   - **Dokümantasyon:** `c:\Users\Birin\Birin\Projeler\VS2022_COK_DILLI_GELISTIRME_ORTAMI_REHBERI.md` oluşturuldu.
