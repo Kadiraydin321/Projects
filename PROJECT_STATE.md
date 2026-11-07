@@ -125,13 +125,11 @@
 - Sıralama ve çoklu-seçim düğmelerine eksik olan görsel stiller eklendi; HTML/IPC davranışına dokunulmadı.
 - Dosya tabanlı tarayıcı önizlemesinde boş durumlar ve kontrol stilleri doğrulandı. `cargo test --manifest-path desktop-native\Cargo.toml`, ortamda MSVC `link.exe` bulunmadığı için çalıştırılamadı.
 
-## GitHub Copilot CLI /remote Kılavuzu ve Başlatıcı Sistemi (2026-11-05)
-- `docs/copilot-cli-remote-rehberi.md`: GitHub Copilot CLI `/remote` ve `copilot --remote` uzaktan kontrol protokolü hazırlandı (Node.js 22+, `/login`, Mission Control, QR kod `Ctrl+O`, `/keep-alive`, telefon/web üzerinden onay ve yönlendirme akışı).
-- `baslaticilar/start-copilot-remote.ps1`: Copilot CLI `/remote` modu için akıllı PowerShell başlatıcısı geliştirildi.
-  - Git deposu (`git rev-parse`) ve remote origin (`git config --get remote.origin.url`) akıllı doğrulaması eklendi.
-  - `--connect <session-id>`, `--trust-folder`, `--model` ve serbest argüman desteği entegre edildi.
-  - `-InstallProfile` anahtarı ile PowerShell profiline (`$PROFILE`) `copilot-remote`, `cop-remote` ve `copremote` aliasları kalıcı olarak eklendi.
-- `baslaticilar/start-copilot-remote.bat`: Windows Gezgini ve CMD ortamı için tek tıkla çalıştırma desteği sağlandı.
+## GitHub Copilot Kaldırma & Temizlik Operasyonu (2026-11-07)
+- GitHub Copilot CLI extension ve ekosistem kalıntıları tamamen temizlendi.
+- `%LOCALAPPDATA%\copilot`, `%LOCALAPPDATA%\github-copilot*`, `%USERPROFILE%\.copilot` dizinleri ve önbellekleri silindi.
+- Hermes Agent (`config.yaml`) içerisindeki `github-copilot` eklentisi kaldırıldı.
+- PowerShell profili (`$PROFILE`), kullanıcı PATH değişkenleri (`GitHubCopilotCLI`, `copilot-shim`) ve yerel başlatıcılar (`baslaticilar/start-copilot-remote.*`) temizlendi.
 
 ## İtch.io Oyunları Yerel Türkçe Yama ve Yerelleştirme Entegrasyonu (2026-11-06)
 - **Hedef Konum:** `C:\Users\Birin\AppData\Roaming\itch\apps\`
