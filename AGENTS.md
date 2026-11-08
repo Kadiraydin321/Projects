@@ -49,3 +49,15 @@ Set-AuthenticodeSignature -FilePath "<dosya>" -Certificate $cert
   - `graphify-out/wiki/index.md` varsa ham kaynak kodları taramak yerine bu wiki üzerinden navigasyon yapılır.
   - Kod değişiklikleri sonrasında grafı güncel tutmak için `graphify update .` komutu çalıştırılır (AST-only, sıfır API maliyeti).
   - `graphify-out/graph.json` her derlemede baştan yazıldığı için PR diff'lerindeki büyük değişiklikler normal karşılanır.
+
+## 6. Zorunlu ECC ve Graphify Protokolü (Mandatory ECC & Graphify Protocol)
+- **TÜM İSTEKLERDE İSTİSNASIZ ZORUNLU:**
+  - Kullanıcının her isteğinde, görevinde veya kodlama adımında ECC kural ve iş akışları ile Graphify bilgi grafiği zorunlu kılınmıştır.
+  - **ECC Disiplini:**
+    - Kod yazmadan önce mutlaka ECC planlama adımı uygulanır (planner / rchitect).
+    - Geliştirmeler TDD döngüsü ile yürütülür (	dd-guide, %80+ test kapsamı).
+    - Her kodlama adımının ardından code-reviewer ve güvenlik gerektiren yerlerde security-reviewer kullanılır.
+    - Tüm üretilen scriptler Authenticode ile imzalanır.
+  - **Graphify Disiplini:**
+    - Kod tabanı mimarisi sorgulanırken daima graphify query, graphify path ve graphify explain kullanılır.
+    - Değişiklikler sonrasında graphify update . tetiklenerek bilgi grafiği güncel tutulur.

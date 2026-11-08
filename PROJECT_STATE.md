@@ -4,8 +4,8 @@
 - **Tarih:** 08 Kasım 2026
 - **Ortam:** Windows 11 (x64), PowerShell, RTX 5060 Ti 16 GB, i5-13400F, 64 GB RAM
 - **Son İşlemler:**
-  1. Granblue Fantasy: Relink v2.0.5 Türkçe Yama Genişletmesi Tamamlandı:
-     - 349 eksik Kader Bölümü (Fate Episodes) ve diyalog satırı ile 20 dövüş/telsiz repliği %100 Türkçeleştirildi.
+  1. ECC ve Graphify Protokolü Tüm İstekler İçin Zorunlu Kılındı (Antigravity & Hermes):
+     - Global ve yerel kural dosyalarına (GEMINI.md, AGENTS.md, Hermes AGENTS.md) ECC (Plan-Before-Build, TDD %80+, code-reviewer/security-reviewer) ve Graphify bilgi grafiği (graphify query/path/update) kuralları kalıcı olarak işlendi.
      - 58 adet dil tablosu tarandı ve oyunda lisans bildirimleri harici 0 (sıfır) İngilizce metin kaldığı doğrulandı.
   2. D Diski Kurulum & Entegrasyon Eşitlemesi:
      - C'deki mükemmel yama dosyaları D'ye aktarıldı, data.i indeksi 3.881 harici dosya ile sorunsuz güncellendi.

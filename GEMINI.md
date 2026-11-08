@@ -84,3 +84,9 @@ ASLA "Kodlayıcı 1, 2" gibi jenerik roller verme. 32 rolden projenin katmanlar�
 
 ## 11. Alt Agent Sonrası Otomatik GitHub Yedekleme Protokolü (Mandatory GitHub Auto-Backup)
 - Alt agent'ların tüm işlemleri, testleri ve doğrulamaları bittikten sonra yapılan değişiklikler istisnasız olarak yerel Git deposunda anlamlı bir commit mesajıyla paketlenir (`git commit`) ve GitHub uzak deposuna (`git push origin <dal>`) aktarılarak yedeklenir. Kullanıcıya işlem hash'i raporlanır.
+
+## 12. Zorunlu ECC ve Graphify Protokolü (Mandatory ECC & Graphify Protocol)
+- **TÜM İSTEKLERDE İSTİSNASIZ ZORUNLU:**
+  - Kullanıcı tarafından iletilen her istekte ECC ve Graphify standartları zorunlu olarak devrededir.
+  - **ECC Standartları:** Planlama (planner), Test-Güdümlü Geliştirme (	dd-guide, %80+ test kapsamı), Kod Kalitesi & Güvenlik İncelemesi (code-reviewer, security-reviewer), Değişmezlik (immutability).
+  - **Graphify Standartları:** Bilgi grafiği tabanlı sembol arama (graphify query, graphify path, graphify explain), kör dosya okumalarının yasaklanması, her kodlama adımı sonrasında AST güncellemesi (graphify update .).
