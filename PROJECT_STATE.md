@@ -1,4 +1,4 @@
-# PROJECT_STATE.md
+﻿# PROJECT_STATE.md
 
 ## Genel Durum (Status)
 - **Tarih:** 08 Kasım 2026
@@ -56,10 +56,10 @@
 
 2. **Dağıtım İstatistikleri:**
    - Antigravity Global: `C:\Users\Birin\.gemini\config\skills\` (105 beceri)
-   - Antigravity Workspace: `c:\Users\Birin\Birin\Projeler\.agents\skills\` (74 beceri)
-   - Hermes Global: `C:\Users\Birin\.hermes\skills\` (74 beceri)
-   - Hermes Workspace: `C:\Users\Birin\hermes-workspace\.hermes\skills\` (74 beceri)
-   - Hermes Toplam Aktif: **128 Beceri** (51 builtin + 77 local).
+   - Antigravity Workspace: `c:\Users\Birin\Birin\Projeler\.agents\skills\` (371 beceri, 125 kural dosyası)
+   - Hermes Global: `C:\Users\Birin\.hermes\skills\` (137 beceri, 122 kural dosyası)
+   - Hermes Workspace: `C:\Users\Birin\hermes-workspace\.hermes\skills\` (137 beceri, 122 kural dosyası)
+   - Hermes Toplam Aktif: **188+ Beceri** (builtin + ECC tam profil).
 
 3. **CLI ve MCP Durumu:**
    - `uipro` (v2.5.0): Global Node.js CLI hazır.
