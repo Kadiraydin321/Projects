@@ -22,11 +22,20 @@
 
   6. Granblue Fantasy: Relink - Anlatim Bozukluklari, Kaptan Adi Hizalamalari & 144 FPS Kilit Acimi:
      - BetterDescriptions Modunun Ingilizce Override Cakismasi Giderildi: Reloaded-II altindaki text.json ve text_ui.json dosyalari .disabled yapildi; temp onbellegi temizlendi.
-     - Saha Notlari (Field Notes): text_note_tag.msg icindeki 47 kaptan enjeksiyonunun ofsetleri Turkcelestirildi. 93 canavar aciklamasinda 54 karakter word-wrap uygulandi.
+     - Saha Notlari (Field Notes): text_note_tag.msg icindeki 47 kaptan enjeksiyonunun ofsetleri Turkcelestirildi.
      - Kader Hikayeleri (Fate Episodes): text_fate_episode_tag.msg icindeki 60 girdi ve 91 kaptan adi enjeksiyonu Turkceye uyarlandi; bolunmus kelime (split words) 53'ten 0'a indirildi.
      - Envanter, Esya ve Silah Duzeltmeleri: Fortitude Shard -> Kuvvet Parcacigi, Cobblestone -> Parke Tasi, Whorlshroom -> Girdap Mantari, Tempestone -> Firtina Tasi, Landbeast Claw -> Kara Canavari Pencesi, Prism Chip -> Prizma Kirintisi, Rainbow Prism -> Gokkusagi Prizmasi, Rafale Coin -> Rafale Parasi, Little Witch Scepter -> Kucuk Cadi Asasi, Flintspike -> Cakmaktasi Dikeni, Egoism -> Egoizm.
      - 144+ FPS Sinir Kaldirma: GBFRelinkFix (v1.1.5) Reloaded-II mod listesine ve bagimsiz (winmm.dll) olarak hem D hem C oyun dizinlerine kuruldu; 144+ FPS tam desteklendi.
      - Her iki oyun klasorunde NEXUS_GBFR_KURULUM.ps1 calistirildi (3.885 harici dosya guncellendi), Authenticode sertifikasiyla imzalandi.
+
+  7. Granblue Fantasy: Relink - Genel UI Kutu Taşmalarının Sıfırlanması, Otomatik \n Sarmaları & Silah/Düşman/Karakter Kartı Düzenlemeleri:
+     - Oyun motorunun kutularda otomatik word-wrap yapmaması nedeniyle ekrandan taşan tüm uzun metinlere merkezi Python betiği (ix_box_overflows_and_weapons.py) ile tam kutu geometrisi uygulandı:
+     - Mürettebat Kartları (Fraux & 28 Karakter): TXT_PROF_PL*_LOAD tek satırlık devasa yapıdan kurtarılıp width=50 (orijinal UI kutu genişliği) ile sarıldı; Fraux tam 4 satır ve maksimum 46 karakter olarak kutu içine kusursuz hizalandı.
+     - Saha Notları - Düşmanlar (Quakadile & 93 Canavar): 54 karakter yerine width=74 ile sarıldı; Quakadile tam 4 satır yapılarak yukarı taşıp 'Zayıf Element: Rüzgâr' başlığı ile çakışması engellendi.
+     - Saha Notları - Silahlar: TXT_WEP_EXPLAIN_PL0400_01 (Küçük Cadı Asası) edebi 4 satıra dönüştürüldü, sondaki sarkan \n. temizlendi; TXT_WEP_NAME_PL0500_01 'Dreys' -> 'Dreyse' düzeltildi; tüm 221 silah width=70 ile sarıldı.
+     - Envanter & Eşyalar: Gökyüzü Haritası Parçası (TXT_ITEM_INFO_70_0003_01/02) ve 309 eşya açıklaması width=70 ile sarıldı.
+     - Yetenekler, Eğitim ve İpuçları: Tüm 204 beceri/yetenek açıklaması (TXT_SKILL_*, TXT_ABIF_*) width=68, 55 eğitim metni (	ext_tutorial.msg) width=70, 28 ipucu (	ext_tips.msg) width=68 ile kutulara hizalandı.
+     - Her iki oyun dizininde (D:\ ve C:\) data.i indeksleri hatasız inşa edildi; %100 CPU çalışıldı, GPU (RTX 5060 Ti) oyuna özel tamamen serbest bırakıldı.
 
 ---
 
