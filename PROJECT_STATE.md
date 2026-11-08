@@ -20,6 +20,14 @@
      - BetterDescriptions modundaki text_tips.json ve text_tips_tag.json tablolarındaki satır kayması (index offset: 41. satırdan sonra başlık alanlarına çok satırlı açıklamaların binmesi) giderildi: moddaki bozuk json dosyaları devre dışı bırakıldı (.disabled) ve Reloaded-II geçici önbelleği (temp) temizlenerek oyunun doğrudan 533 satırlık hatasız Türkçe text_tips.msg tablosunu kullanması sağlandı.
      - text_story.msg msgpack ile açıldı; Ana Hikaye ve bölüm açıklamalarındaki (özellikle uzunluğu > 60 olan tek satırlı metinler dahil 389 kayıt) kelime sınırlarından (word boundary) maksimum 62 karakterde bir \n eklenerek UI metin kutularına tam sığması sağlandı. Orijinal tablo yedek\text_story.msg.bak olarak yedeklendi, güncellenmiş dosya kaydedildi ve TR yama diziniyle eşitlendi.
 
+  6. Granblue Fantasy: Relink - Anlatim Bozukluklari, Kaptan Adi Hizalamalari & 144 FPS Kilit Acimi:
+     - BetterDescriptions Modunun Ingilizce Override Cakismasi Giderildi: Reloaded-II altindaki text.json ve text_ui.json dosyalari .disabled yapildi; temp onbellegi temizlendi.
+     - Saha Notlari (Field Notes): text_note_tag.msg icindeki 47 kaptan enjeksiyonunun ofsetleri Turkcelestirildi. 93 canavar aciklamasinda 54 karakter word-wrap uygulandi.
+     - Kader Hikayeleri (Fate Episodes): text_fate_episode_tag.msg icindeki 60 girdi ve 91 kaptan adi enjeksiyonu Turkceye uyarlandi; bolunmus kelime (split words) 53'ten 0'a indirildi.
+     - Envanter, Esya ve Silah Duzeltmeleri: Fortitude Shard -> Kuvvet Parcacigi, Cobblestone -> Parke Tasi, Whorlshroom -> Girdap Mantari, Tempestone -> Firtina Tasi, Landbeast Claw -> Kara Canavari Pencesi, Prism Chip -> Prizma Kirintisi, Rainbow Prism -> Gokkusagi Prizmasi, Rafale Coin -> Rafale Parasi, Little Witch Scepter -> Kucuk Cadi Asasi, Flintspike -> Cakmaktasi Dikeni, Egoism -> Egoizm.
+     - 144+ FPS Sinir Kaldirma: GBFRelinkFix (v1.1.5) Reloaded-II mod listesine ve bagimsiz (winmm.dll) olarak hem D hem C oyun dizinlerine kuruldu; 144+ FPS tam desteklendi.
+     - Her iki oyun klasorunde NEXUS_GBFR_KURULUM.ps1 calistirildi (3.885 harici dosya guncellendi), Authenticode sertifikasiyla imzalandi.
+
 ---
 
 ## Otonom Beceri, Araç ve İş Akışı Entegrasyonu (5 Repo)
