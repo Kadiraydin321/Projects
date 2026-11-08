@@ -21,7 +21,23 @@
 - Proje başlangıcında tüm dosyaları okumak yerine yalnızca kökteki `PROJECT_STATE.md` okunur.
 - Görev tamamlandığında yapılan değişiklikler `PROJECT_STATE.md` içerisine işlenerek teslim edilir.
 
-## 4. Alt Agent Sonrası Otomatik GitHub Yedekleme Protokolü
+## 4. Script İmzalama Kuralı — Tüm Agent'lar İçin Zorunlu
+Her agent ve subagent, ürettiği desteklenen script dosyalarını teslimattan önce mutlaka imzalamalıdır.
+
+- **Sertifika Thumbprint:** `18BDDE60A34E2F5E2AF49A9420F71C55445DE6F4`
+- **Store:** `Cert:\CurrentUser\My`
+- **İmzalanabilir uzantılar:** `.ps1`, `.psm1`, `.psd1`, `.vbs`, `.js`
+- **İmzalanamaz uzantılar:** `.bat`, `.cmd`, `.py`, `.exe` (Authenticode desteklemez)
+
+```powershell
+# Tek dosya imzalama
+$cert = Get-Item "Cert:\CurrentUser\My\18BDDE60A34E2F5E2AF49A9420F71C55445DE6F4"
+Set-AuthenticodeSignature -FilePath "<dosya>" -Certificate $cert
+```
+- İmzasız script teslim etmek KESİNLİKLE YASAKTIR.
+- İmza sonrası `Status = Valid` olduğu doğrulanır.
+
+## 5. Alt Agent Sonrası Otomatik GitHub Yedekleme Protokolü
 - Alt agent'ların tüm işlemleri ve canlı testleri bittiğinde yapılan değişiklikler derleme artıklarından arındırılarak temiz bir commit oluşturulur ve doğrudan GitHub uzak deposuna (`git push`) aktarılarak yedeklenir.
 
 ## 5. Graphify Bilgi Grafiği ve Kod Tabanı Mimarisi (/graphify)

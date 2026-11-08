@@ -1,20 +1,24 @@
 # PROJECT_STATE.md
 
 ## Genel Durum (Status)
-- **Tarih:** 07 Kasım 2026
+- **Tarih:** 08 Kasım 2026
 - **Ortam:** Windows 11 (x64), PowerShell, RTX 5060 Ti 16 GB, i5-13400F, 64 GB RAM
 - **Son İşlemler:**
-  1. Claude Desktop Kurulumu ve Çevre Yapılandırması (Tamamlandı).
-  2. Hermes Agent (Nous Research) Orkestrasyon Yapısı Kurulumu (Tamamlandı).
-  3. 5 GitHub Reposu Beceri, Araç ve MCP Entegrasyonu (Tamamlandı - Antigravity + Hermes Agent).
-  4. REA (Reverse Engineer Anything) CLI Başlatıcısı Geliştirildi (Tamamlandı - run_rea.ps1).
-  5. Visual Studio 2022 Community & Çok Dilli Geliştirme Paketi Yapılandırıldı.
-  6. Granblue Fantasy Relink Türkçe Yama Genişletmesi & Mod Kurulumu:
-     - Eksik 52 dosya ve arşiv yapısı FlatBuffers/LZ4 üzerinden çözüldü.
-     - Öncelikli diyalog dosyaları (`text_dialog.msg`, `text_telop.msg`, `text_fate_episode.msg`, `text_communication.msg` - toplam 1.793 satır) yerel `gemma4:12b` (Ollama/RTX 5060 Ti) ile %100 Türkçeleştirildi.
-     - MessagePack yapıları ve tag dosyaları derlenip `data/system/table/text/en/` dizinine aktarıldı, `data.i` indeksi güncellendi.
-     - VRAM tamamen tahliye edildi (701 MB boşa çekildi).
-     - Nexus Mods 765 (`gbfr.unlocking.msp` 1.0.1 - MSP Cap Unlock) Reloaded-II'ye kurulup aktifleştirildi.
+  1. Granblue Fantasy: Relink v2.0.5 Türkçe Yama Genişletmesi Tamamlandı:
+     - 349 eksik Kader Bölümü (Fate Episodes) ve diyalog satırı ile 20 dövüş/telsiz repliği %100 Türkçeleştirildi.
+     - 58 adet dil tablosu tarandı ve oyunda lisans bildirimleri harici 0 (sıfır) İngilizce metin kaldığı doğrulandı.
+  2. D Diski Kurulum & Entegrasyon Eşitlemesi:
+     - C'deki mükemmel yama dosyaları D'ye aktarıldı, data.i indeksi 3.881 harici dosya ile sorunsuz güncellendi.
+  3. Kayıp Save Dosyası Kurtarıldı (SaveData1 SteamID Eşitlemesi):
+     - Oyunun yeni Steam emülatör ID'si (76561198866384432) ile eski save dosyasındaki ID eşitlendi, 1. Yuva ilerlemesi geri getirildi.
+  4. Reloaded-II Modlu Başlatıcı & BetterDescriptions Yerelleştirmesi:
+     - Modlu başlatmada Türkçe yamayı bozan GBFR.UI.BetterDescriptions tespit edildi.
+     - En güncel yerel model olan Qwen 3.8 (eriktonon/qwen3.8-uncensored:latest) ile 92 özel yetenek/mühür açıklaması Türkçeleştirildi.
+     - 7.070 satır oyunun asıl Türkçe tablolarıyla birleştirilerek mod %100 Türkçe yapıldı ve Reloaded-II'de yeniden aktifleştirildi.
+
+  5. GBFR İpuçları (Tips) Başlık Çakışması & Ana Hikaye (Story) Metin Kutusu Sığdırma:
+     - BetterDescriptions modundaki text_tips.json ve text_tips_tag.json tablolarındaki satır kayması (index offset: 41. satırdan sonra başlık alanlarına çok satırlı açıklamaların binmesi) giderildi: moddaki bozuk json dosyaları devre dışı bırakıldı (.disabled) ve Reloaded-II geçici önbelleği (temp) temizlenerek oyunun doğrudan 533 satırlık hatasız Türkçe text_tips.msg tablosunu kullanması sağlandı.
+     - text_story.msg msgpack ile açıldı; Ana Hikaye ve bölüm açıklamalarındaki (özellikle uzunluğu > 60 olan tek satırlı metinler dahil 389 kayıt) kelime sınırlarından (word boundary) maksimum 62 karakterde bir \n eklenerek UI metin kutularına tam sığması sağlandı. Orijinal tablo yedek\text_story.msg.bak olarak yedeklendi, güncellenmiş dosya kaydedildi ve TR yama diziniyle eşitlendi.
 
 ---
 
@@ -38,6 +42,10 @@
    - `ecc`: Global Node.js CLI ve durum denetçisi hazır.
    - `ecc-memory-mcp`: Stdio tabanlı JSON-RPC 2.0 MCP sunucusu aktif (4 araç: `memory_save`, `memory_search`, `memory_read`, `memory_doctor`).
    - Doğrulama: 12/12 E2E Smoke Test Başarılı (PASS).
+
+  5. GBFR İpuçları (Tips) Başlık Çakışması & Ana Hikaye (Story) Metin Kutusu Sığdırma:
+     - BetterDescriptions modundaki text_tips.json ve text_tips_tag.json tablolarındaki satır kayması (index offset: 41. satırdan sonra başlık alanlarına çok satırlı açıklamaların binmesi) giderildi: moddaki bozuk json dosyaları devre dışı bırakıldı (.disabled) ve Reloaded-II geçici önbelleği (temp) temizlenerek oyunun doğrudan 533 satırlık hatasız Türkçe text_tips.msg tablosunu kullanması sağlandı.
+     - text_story.msg msgpack ile açıldı; Ana Hikaye ve bölüm açıklamalarındaki (özellikle uzunluğu > 60 olan tek satırlı metinler dahil 389 kayıt) kelime sınırlarından (word boundary) maksimum 62 karakterde bir \n eklenerek UI metin kutularına tam sığması sağlandı. Orijinal tablo yedek\text_story.msg.bak olarak yedeklendi, güncellenmiş dosya kaydedildi ve TR yama diziniyle eşitlendi.
 
 ---
 
@@ -68,6 +76,10 @@
    - Plan Takip: `C:\Users\Birin\hermes-workspace\docs\PLAN.md`
    - Başlatıcılar: `C:\Users\Birin\hermes-workspace\start-hermes.ps1` ve `start-hermes.bat`
 
+  5. GBFR İpuçları (Tips) Başlık Çakışması & Ana Hikaye (Story) Metin Kutusu Sığdırma:
+     - BetterDescriptions modundaki text_tips.json ve text_tips_tag.json tablolarındaki satır kayması (index offset: 41. satırdan sonra başlık alanlarına çok satırlı açıklamaların binmesi) giderildi: moddaki bozuk json dosyaları devre dışı bırakıldı (.disabled) ve Reloaded-II geçici önbelleği (temp) temizlenerek oyunun doğrudan 533 satırlık hatasız Türkçe text_tips.msg tablosunu kullanması sağlandı.
+     - text_story.msg msgpack ile açıldı; Ana Hikaye ve bölüm açıklamalarındaki (özellikle uzunluğu > 60 olan tek satırlı metinler dahil 389 kayıt) kelime sınırlarından (word boundary) maksimum 62 karakterde bir \n eklenerek UI metin kutularına tam sığması sağlandı. Orijinal tablo yedek\text_story.msg.bak olarak yedeklendi, güncellenmiş dosya kaydedildi ve TR yama diziniyle eşitlendi.
+
 ---
 
 ## Gerçekleştirilen İşlemler ve Bileşenler
@@ -87,6 +99,10 @@
    - SHA256 ve dijital imza doğrulaması: Geçerli (Valid).
    - Yetki Seviyesi: Kullanıcı düzeyi (Non-elevated, UAC gereksinimi yok).
 
+  5. GBFR İpuçları (Tips) Başlık Çakışması & Ana Hikaye (Story) Metin Kutusu Sığdırma:
+     - BetterDescriptions modundaki text_tips.json ve text_tips_tag.json tablolarındaki satır kayması (index offset: 41. satırdan sonra başlık alanlarına çok satırlı açıklamaların binmesi) giderildi: moddaki bozuk json dosyaları devre dışı bırakıldı (.disabled) ve Reloaded-II geçici önbelleği (temp) temizlenerek oyunun doğrudan 533 satırlık hatasız Türkçe text_tips.msg tablosunu kullanması sağlandı.
+     - text_story.msg msgpack ile açıldı; Ana Hikaye ve bölüm açıklamalarındaki (özellikle uzunluğu > 60 olan tek satırlı metinler dahil 389 kayıt) kelime sınırlarından (word boundary) maksimum 62 karakterde bir \n eklenerek UI metin kutularına tam sığması sağlandı. Orijinal tablo yedek\text_story.msg.bak olarak yedeklendi, güncellenmiş dosya kaydedildi ve TR yama diziniyle eşitlendi.
+
 ---
 
 ## Çoklu Ajan Yönetimi & Yerel/Ücretsiz Model Orkestrasyonu
@@ -105,6 +121,10 @@
    - **Hermes Agent Testi:** `AsyncTaskQueue` (Deadlock korumalı worker, DLQ yönlendirmesi, üstel geri çekilme, 1000 görev bellek sızıntı denetimi).
    - **Claude Code Köprü Testi:** `RFC 7807 API` (Idempotency-Key koruması, 8-thread eşzamanlılık kilidi, SQL enjeksiyon koruması, LiteLLM Anthropic şema doğrulaması).
    - **Sonuç:** 25/25 somut birim testi eksiksiz geçti (`pytest 25 passed in 1.04s`).
+
+  5. GBFR İpuçları (Tips) Başlık Çakışması & Ana Hikaye (Story) Metin Kutusu Sığdırma:
+     - BetterDescriptions modundaki text_tips.json ve text_tips_tag.json tablolarındaki satır kayması (index offset: 41. satırdan sonra başlık alanlarına çok satırlı açıklamaların binmesi) giderildi: moddaki bozuk json dosyaları devre dışı bırakıldı (.disabled) ve Reloaded-II geçici önbelleği (temp) temizlenerek oyunun doğrudan 533 satırlık hatasız Türkçe text_tips.msg tablosunu kullanması sağlandı.
+     - text_story.msg msgpack ile açıldı; Ana Hikaye ve bölüm açıklamalarındaki (özellikle uzunluğu > 60 olan tek satırlı metinler dahil 389 kayıt) kelime sınırlarından (word boundary) maksimum 62 karakterde bir \n eklenerek UI metin kutularına tam sığması sağlandı. Orijinal tablo yedek\text_story.msg.bak olarak yedeklendi, güncellenmiş dosya kaydedildi ve TR yama diziniyle eşitlendi.
 
 ---
 
@@ -177,3 +197,19 @@
   - **İş Yükleri:** `NativeDesktop` (MSVC v143, Windows SDK, CMake), `ManagedDesktop` (.NET 8/9, WPF), `NetWeb` (ASP.NET Core), `Python` (Python araçları, karma debug).
   - **Go Dili:** Sistemdeki Go v1.27.3 x64 korundu; VS Code için `golang.go`, `ms-vscode.cpptools`, `ms-dotnettools.csdevkit` eklentileri kuruldu.
   - **Dokümantasyon:** `c:\Users\Birin\Birin\Projeler\VS2022_COK_DILLI_GELISTIRME_ORTAMI_REHBERI.md` oluşturuldu.
+
+
+## Granblue Fantasy: Relink Türkçe Yerelleştirme, Mod Entegrasyonu & UI Onarımı (2026-11-08)
+- **Hedef Konumlar:** `D:\Games\Granblue Fantasy Relink\` ve `C:\Games\Granblue Fantasy - Relink\`
+- **Save Dosyası Kurtarma:** Kullanıcının eski 23 MB'lık ilerleme kayıt dosyası (`SaveData1.dat`), SteamID64 başlık hizalaması yapılarak aktif emülatör ID'si (`76561198866384432`) ile eşleştirildi ve başarıyla yüklendi.
+- **BetterDescriptions Mod Çakışması Giderildi:**
+  - Mod klasöründeki yedek klasör çakışması (`GBFR.UI.BetterDescriptions.YEDEK`) temizlendi.
+  - Modun v1.1 sürümünden kalan hatalı ve satır kayması (index offset) içeren `text_tips.json` ve `text_tips_tag.json` dosyaları devre dışı bırakıldı (`.disabled`).
+  - İpuçları menüsündeki butonların ve başlıkların üst üste binme hatası tamamen çözüldü; oyun temiz 533 satırlık Türkçe `text_tips.msg` tablosuna bağlandı.
+- **Ana Hikâye Metin Kutusu Taşması (Word-Wrap) Çözüldü:**
+  - `text_story.msg` içerisindeki tüm 887 satır taranarak, sağ parşömen çerçevesinden taşan 389 satırlık hikaye özeti kelime bütünlüğü korunarak (`word boundary`) 60-62 karakter sınırından `\n` satır sonları ile sarıldı.
+- **Eksik Saha Notları ve Envanter Tablolarının Yerel LLM ile Çevirisi:**
+  - Nexus yamasında hiç bulunmayan `text_note.msg` (1.233 satır - Karakter profilleri, Boss/Canavar bilgileri, Silah hikayeleri, Hazine açıklamaları, Terimler Sözlüğü) ve `text.msg` (4.455 satır - Beceriler, Silahlar, Eşyalar ve Envanter) tabloları tespit edildi.
+  - **4X Turbo Paralel Çeviri Motoru:** Yerel Ollama üzerindeki `eriktonon/qwen3.8-uncensored:latest` modeli, RTX 5060 Ti 16 GB üzerinde 4 eşzamanlı worker ile çalıştırılarak dakikada ~200-400 metin hızıyla sıfır maliyetle eksiksiz Türkçe'ye çevrildi.
+  - Msgpack ile binary olarak paketlenerek her iki oyun dizinine (`D:` ve `C:`) `data\system\table\text\en\` altına yerleştirildi.
+  - `NEXUS_GBFR_KURULUM.ps1` çalıştırılarak oyunun ana arşiv indeksi (`data.i`) 3.881'den **3.885 harici kayda** güncellendi.
