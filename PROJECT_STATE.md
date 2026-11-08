@@ -37,6 +37,13 @@
      - Yetenekler, Eğitim ve İpuçları: Tüm 204 beceri/yetenek açıklaması (TXT_SKILL_*, TXT_ABIF_*) width=68, 55 eğitim metni (	ext_tutorial.msg) width=70, 28 ipucu (	ext_tips.msg) width=68 ile kutulara hizalandı.
      - Her iki oyun dizininde (D:\ ve C:\) data.i indeksleri hatasız inşa edildi; %100 CPU çalışıldı, GPU (RTX 5060 Ti) oyuna özel tamamen serbest bırakıldı.
 
+  8. Granblue Fantasy: Relink - Tüm Senaryo Tablolarının %100 Çevirisi ve Entegrasyonu (42/42 Dosya):
+     - Kullanıcının kesin talimatı doğrultusunda tüm senaryo dosyaları (Öncelik 1, 2, 3, Fate Episodes, Post-Game ve Yan Görevler) eksiksiz Türkçeleştirildi.
+     - Toplam 19.879 satır çeviri önbelleği oluşturuldu; 42 adet text_scenario_*.msg ve text_scenario_*_tag.msg dosyası (toplam 84 dosya) 68 karakterlik kutu taşması koruması (word-wrap) ve etiket bütünlüğü ile paketlendi.
+     - Hem D: (D:\Games\Granblue Fantasy Relink\data\system\table\scenario\en\) hem de C: (C:\Games\Granblue Fantasy - Relink\data\system\table\scenario\en\) sürücülerine eksiksiz senkronize edildi (dizindeki toplam dosya sayısı 106).
+     - Her iki oyun dizininde NEXUS_GBFR_KURULUM.ps1 çalıştırılarak data.i indeks kaydı 3.901'den 3.969 harici kayda çıkarıldı.
+     - Kurulum betikleri 18BDDE60A34E2F5E2AF49A9420F71C55445DE6F4 Authenticode sertifikası ile imzalanıp doğrulandı.
+
 ---
 
 ## Otonom Beceri, Araç ve İş Akışı Entegrasyonu (5 Repo)
@@ -230,3 +237,8 @@
   - **4X Turbo Paralel Çeviri Motoru:** Yerel Ollama üzerindeki `eriktonon/qwen3.8-uncensored:latest` modeli, RTX 5060 Ti 16 GB üzerinde 4 eşzamanlı worker ile çalıştırılarak dakikada ~200-400 metin hızıyla sıfır maliyetle eksiksiz Türkçe'ye çevrildi.
   - Msgpack ile binary olarak paketlenerek her iki oyun dizinine (`D:` ve `C:`) `data\system\table\text\en\` altına yerleştirildi.
   - `NEXUS_GBFR_KURULUM.ps1` çalıştırılarak oyunun ana arşiv indeksi (`data.i`) 3.881'den **3.885 harici kayda** güncellendi.
+- **Tüm Senaryo Dosyalarının (42/42) Çevrilmesi ve Entegrasyonu:**
+  - 42 senaryo dosyasının tamamı (Öncelik 1, 2, 3, Fate Episodes, Post-game, Yan Görevler) taranarak çevrildi. Toplam 19.879 satır önbellek kaydı oluşturuldu.
+  - UI kutularında metin taşması yaşanmaması için 68 karakterlik otomatik word-wrap ve etiket koruma algoritmaları uygulandı.
+  - 42 adet `text_scenario_*.msg` ve 42 adet `text_scenario_*_tag.msg` hem `D:\Games\Granblue Fantasy Relink\data\system\table\scenario\en\` hem de `C:\Games\Granblue Fantasy - Relink\data\system\table\scenario\en\` dizinlerine yazıldı.
+  - `NEXUS_GBFR_KURULUM.ps1` çalıştırılarak `data.i` indeks kaydı 3.901'den **3.969 harici kayda** çıkarıldı ve güncellendi. Kurulum scriptleri Authenticode ile imzalandı.
