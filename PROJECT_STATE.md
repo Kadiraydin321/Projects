@@ -4,8 +4,14 @@
 - **Tarih:** 08 Kasım 2026
 - **Ortam:** Windows 11 (x64), PowerShell, RTX 5060 Ti 16 GB, i5-13400F, 64 GB RAM
 - **Son İşlemler:**
-  1. ECC ve Graphify Protokolü Tüm İstekler İçin Zorunlu Kılındı (Antigravity & Hermes):
+  1. Go Motorlu Yerel Ağ & Sunucu Yönetim Konsolu Geliştirildi (yerel-ag-tarayici-go):
+     - Windows SendARP (iphlpapi.dll) ve goroutine eşzamanlılığı ile çalışan yüksek hızlı yerel ağ tarayıcısı inşa edildi.
+     - Web arayüzü: Modern koyu tema HTML5, CSS3, JavaScript ile Tüm Cihazlar, Sunucular ve 'Yerel Sunucu Başlat' sekmeleri eklendi.
+     - Canlı servis http://localhost:4321 üzerinde devreye alındı; baslat.bat ve imzalı baslat.ps1 oluşturuldu.
+  2. ECC ve Graphify Protokolü Tüm İstekler İçin Zorunlu Kılındı (Antigravity & Hermes):
      - Global ve yerel kural dosyalarına (GEMINI.md, AGENTS.md, Hermes AGENTS.md) ECC (Plan-Before-Build, TDD %80+, code-reviewer/security-reviewer) ve Graphify bilgi grafiği (graphify query/path/update) kuralları kalıcı olarak işlendi.
+  3. affaan-m/ECC Full Profil Dağıtımı Tamamlandı:
+     - Antigravity ortamına 371 beceri, 125 kural, 71 alt ajan ve 85 iş akışı; Hermes ortamına 137 beceri ve 122 kural kuruldu.
      - 58 adet dil tablosu tarandı ve oyunda lisans bildirimleri harici 0 (sıfır) İngilizce metin kaldığı doğrulandı.
   2. D Diski Kurulum & Entegrasyon Eşitlemesi:
      - C'deki mükemmel yama dosyaları D'ye aktarıldı, data.i indeksi 3.881 harici dosya ile sorunsuz güncellendi.
