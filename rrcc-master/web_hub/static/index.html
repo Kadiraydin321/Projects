@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#07090e">
+  <meta name="description" content="Roborock Q8 Max Pro Web Hub - Akıllı Robot Süpürge Canlı Kontrol ve Telemetri Paneli">
+  <title>Roborock Q8 Max Pro | Web Hub</title>
+  
+  <!-- Modern Tipografi & İkon Stilleri -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  
+  <!-- 3D Haritalama ve Modelleme Kütüphaneleri -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- Ambient Arka Plan Parlama Efektleri -->
+  <div class="ambient-glow glow-top-left" aria-hidden="true"></div>
+  <div class="ambient-glow glow-bottom-right" aria-hidden="true"></div>
+  <div class="ambient-glow glow-center" aria-hidden="true"></div>
+
+  <!-- Ana Uygulama Sarmalayıcı -->
+  <div class="app-container">
+    
+    <!-- 1. HEADER BAR -->
+    <header class="glass-header">
+      <div class="header-brand">
+        <div class="robot-avatar">
+          <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" class="robot-svg">
+            <circle cx="18" cy="18" r="16" stroke="url(#header-avatar-grad)" stroke-width="2" fill="rgba(6,182,212,0.08)"/>
+            <circle cx="18" cy="18" r="11" stroke="rgba(255,255,255,0.15)" stroke-width="1.5" stroke-dasharray="3 3"/>
+            <circle cx="18" cy="12" r="3.5" fill="#06b6d4" class="lds-turret"/>
+            <path d="M12 24C13.5 25.5 15.5 26.5 18 26.5C20.5 26.5 22.5 25.5 24 24" stroke="#10b981" stroke-width="2" stroke-linecap="round"/>
+            <defs>
+              <linearGradient id="header-avatar-grad" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#06b6d4"/>
+                <stop offset="1" stop-color="#10b981"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <span class="avatar-radar-ring"></span>
+        </div>
+        <div class="brand-info">
+          <div class="brand-title-wrap">
+            <h1 class="brand-title">Roborock Q8 Max Pro</h1>
+            <span class="badge badge-model" title="Cihaz Model Kimliği">roborock.vacuum.ss09</span>
+          </div>
+          <div class="brand-meta">
+            <span class="badge badge-ip" title="Yerel IP Adresi">
+              <svg viewBox="0 0 16 16" fill="currentColor" class="badge-icon"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 1.5a5.5 5.5 0 110 11 5.5 5.5 0 010-11zM7 4v3H4v2h3v3h2V9h3V7H9V4H7z"/></svg>
+              192.168.1.44
+            </span>
+            <span class="badge badge-port" title="miIO UDP Portu">:54321</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Canlı Bağlantı Rozeti -->
+        <div id="connection-status" class="connection-badge disconnected" title="Bağlantı Durumu">
+          <span class="pulse-dot"></span>
+          <span id="connection-text" class="status-label">Bağlanıyor...</span>
+        </div>
+
+        <!-- Robotu Bul Butonu -->
+        <button id="btn-find" class="btn btn-glass btn-find" title="Robotun ses çıkarmasını sağlar (find_me)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="btn-icon">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+          </svg>
+          <span>Robotu Bul</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- ANA İÇERİK IZGARASI -->
+    <main class="dashboard-grid">
+
+      <!-- 2. HERO TELEMETRİ PANELİ -->
+      <section class="glass-card hero-telemetry-card">
+        
+        <!-- Sol: Büyük Dairesel Radial Gösterge -->
+        <div class="gauge-container">
+          <div class="svg-gauge-wrapper">
+            <svg class="radial-gauge" viewBox="0 0 220 220" width="220" height="220">
+              <defs>
+                <linearGradient id="battery-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#06b6d4" />
+                  <stop offset="50%" stop-color="#10b981" />
+                  <stop offset="100%" stop-color="#22d3ee" />
+                </linearGradient>
+                <linearGradient id="battery-gradient-low" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#f43f5e" />
+                  <stop offset="100%" stop-color="#f59e0b" />
+                </linearGradient>
+                <filter id="gauge-glow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feGaussianBlur stdDeviation="6" result="blur" />
+                  <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                </filter>
+              </defs>
+              
+              <!-- Arka Plan Rayı -->
+              <circle class="gauge-track" cx="110" cy="110" r="90" />
+              <!-- Dinamik İlerleme Çemberi -->
+              <circle id="battery-progress" class="gauge-fill" cx="110" cy="110" r="90" />
+            </svg>
+
+            <!-- Gösterge İçi Merkez Bilgisi -->
+            <div class="gauge-center-content">
+              <div id="status-icon-box" class="gauge-status-icon pulse-soft">
+                <!-- Dinamik SVG İkon Yerleşimi -->
+                <svg id="status-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                </svg>
+              </div>
+              <div class="gauge-value-wrap">
+                <span id="battery-percent" class="gauge-value">--</span>
+                <span class="gauge-symbol">%</span>
+              </div>
+              <span class="gauge-label">Batarya Seviyesi</span>
+              <div id="status-badge" class="state-pill state-idle">
+                <span class="pill-dot"></span>
+                <span id="status-text">Yükleniyor...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sağ: 3 Hızlı Metrik Kartı -->
+        <div class="quick-metrics-container">
+          
+          <!-- Metrik 1: Temizlenen Alan -->
+          <div class="metric-card glass-subcard">
+            <div class="metric-icon-box icon-cyan">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                <line x1="3" y1="9" x2="21" y2="9"/>
+                <line x1="9" y1="21" x2="9" y2="9"/>
+              </svg>
+            </div>
+            <div class="metric-info">
+              <span class="metric-label">Temizlenen Alan</span>
+              <div class="metric-value-row">
+                <span id="metric-area" class="metric-value">0.0</span>
+                <span class="metric-unit">m²</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Metrik 2: Temizlik Süresi -->
+          <div class="metric-card glass-subcard">
+            <div class="metric-icon-box icon-emerald">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+              </svg>
+            </div>
+            <div class="metric-info">
+              <span class="metric-label">Temizlik Süresi</span>
+              <div class="metric-value-row">
+                <span id="metric-time" class="metric-value">00:00</span>
+                <span class="metric-unit">dk:sn</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Metrik 3: Güncel Emiş Modu -->
+          <div class="metric-card glass-subcard">
+            <div class="metric-icon-box icon-amber">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/>
+              </svg>
+            </div>
+            <div class="metric-info">
+              <span class="metric-label">Güncel Emiş Modu</span>
+              <div class="metric-value-row">
+                <span id="metric-fan" class="metric-value">Dengeli</span>
+                <span id="metric-fan-level" class="metric-unit">(102)</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- 3. ANA KONTROL ÇUBUĞU (ACTION BAR) -->
+      <section class="glass-card action-bar-card">
+        <div class="section-header">
+          <div class="section-title-wrap">
+            <h2 class="section-title">Temizlik Kontrolleri</h2>
+            <p class="section-subtitle">Robotu anında yönetmek için bir komut seçin</p>
+          </div>
+          <div id="action-spinner" class="action-loader hidden">
+            <span class="spinner-ring"></span>
+            <span class="spinner-label">Komut iletiliyor...</span>
+          </div>
+        </div>
+
+        <div class="action-buttons-grid">
+          <!-- Başlat / Devam Et -->
+          <button id="btn-start" class="btn btn-action btn-start" data-action="start">
+            <div class="btn-action-glow"></div>
+            <div class="btn-action-content">
+              <div class="btn-action-icon">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <polygon points="5 3 19 12 5 21 5 3"/>
+                </svg>
+              </div>
+              <span class="btn-action-label">Başlat</span>
+              <span class="btn-action-sub">Tüm Evi Temizle</span>
+            </div>
+          </button>
+
+          <!-- Duraklat -->
+          <button id="btn-pause" class="btn btn-action btn-pause" data-action="pause">
+            <div class="btn-action-glow"></div>
+            <div class="btn-action-content">
+              <div class="btn-action-icon">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <rect x="6" y="4" width="4" height="16" rx="1"/>
+                  <rect x="14" y="4" width="4" height="16" rx="1"/>
+                </svg>
+              </div>
+              <span class="btn-action-label">Duraklat</span>
+              <span class="btn-action-sub">Geçici Bekleme</span>
+            </div>
+          </button>
+
+          <!-- Durdur -->
+          <button id="btn-stop" class="btn btn-action btn-stop" data-action="stop">
+            <div class="btn-action-glow"></div>
+            <div class="btn-action-content">
+              <div class="btn-action-icon">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <rect x="5" y="5" width="14" height="14" rx="2"/>
+                </svg>
+              </div>
+              <span class="btn-action-label">Durdur</span>
+              <span class="btn-action-sub">Görevi Bitir</span>
+            </div>
+          </button>
+
+          <!-- Şarja Dön -->
+          <button id="btn-charge" class="btn btn-action btn-charge" data-action="charge">
+            <div class="btn-action-glow"></div>
+            <div class="btn-action-content">
+              <div class="btn-action-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                </svg>
+              </div>
+              <span class="btn-action-label">Şarja Dön</span>
+              <span class="btn-action-sub">İstasyona Git</span>
+            </div>
+          </button>
+
+          <!-- Spot Temizlik -->
+          <button id="btn-spot" class="btn btn-action btn-spot" data-action="spot">
+            <div class="btn-action-glow"></div>
+            <div class="btn-action-content">
+              <div class="btn-action-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"/>
+                  <circle cx="12" cy="12" r="6"/>
+                  <circle cx="12" cy="12" r="2"/>
+                </svg>
+              </div>
+              <span class="btn-action-label">Bölgesel (Spot)</span>
+              <span class="btn-action-sub">1.5m² Alan</span>
+            </div>
+          </button>
+        </div>
+      </section>
+
+      <!-- 3.1. 3D ODA MODELLEME VE ODA BAZLI TEMİZLİK PANELİ -->
+      <section class="glass-card map3d-card" id="room-mapping-section">
+        <div class="section-header">
+          <div class="section-title-wrap">
+            <div class="title-with-icon">
+              <span class="header-icon-box icon-purple">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="12 2 2 7 12 12 22 7 12 2"/>
+                  <polyline points="2 17 12 22 22 17"/>
+                  <polyline points="2 12 12 17 22 12"/>
+                </svg>
+              </span>
+              <h2 class="section-title">3D Ev & Oda Modelleme Görünümü</h2>
+            </div>
+            <p class="section-subtitle">Odanızı 3D sahnede fareyle döndürüp seçin veya aşağıdaki listeden tıklayarak temizliği başlatın</p>
+          </div>
+          <div class="map-camera-controls">
+            <button id="btn-cam-3d" class="btn-cam active" title="3D İzometrik Bakış">3D</button>
+            <button id="btn-cam-2d" class="btn-cam" title="2D Üstten Bakış">2D</button>
+            <button id="btn-cam-reset" class="btn-cam" title="Kamerayı Sıfırla">⟲ Sıfırla</button>
+          </div>
+        </div>
+
+        <!-- 3D WebGL Canvas Görünümü -->
+        <div class="map3d-viewport-wrapper">
+          <div id="map3d-canvas-container" class="map3d-container"></div>
+          
+          <!-- Canlı 3D Overlay HUD -->
+          <div class="map3d-hud-overlay">
+            <div class="hud-left">
+              <span class="hud-badge pulse-cyan">
+                <span class="hud-dot"></span> 3D Kat Planı Aktif
+              </span>
+              <div id="hud-selected-room" class="hud-room-name">Seçim: Bir odaya tıklayın</div>
+            </div>
+            <div class="hud-right">
+              <button id="btn-clean-selected-room" class="btn btn-clean-room" disabled>
+                <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+                  <polygon points="5 3 19 12 5 21 5 3"/>
+                </svg>
+                <span id="btn-clean-room-label">Odayı Temizle</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hızlı Oda Seçim Çipleri -->
+        <div class="room-selector-panel">
+          <div class="room-selector-title">Kayıtlı Odalar (Tıklayarak Seçin):</div>
+          <div class="room-chips-grid" id="room-chips-container">
+            <!-- Dinamik olarak JS tarafından doldurulacak -->
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. AYARLAR BÖLÜMÜ: FAN & SU SEVİYESİ -->
+      <div class="settings-two-col">
+        
+        <!-- Emiş Gücü Seçici (Fan Speed) -->
+        <section class="glass-card settings-card">
+          <div class="section-header">
+            <div class="section-title-wrap">
+              <div class="title-with-icon">
+                <span class="header-icon-box icon-cyan">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                  </svg>
+                </span>
+                <h2 class="section-title">Emiş Gücü (Fan Speed)</h2>
+              </div>
+              <p class="section-subtitle">Farklı zemin tiplerine göre vakum gücünü ayarlayın</p>
+            </div>
+          </div>
+
+          <div class="segmented-control" id="fan-selector" role="radiogroup" aria-label="Emiş Gücü Seviyesi">
+            <button class="segment-btn" data-fan="101" role="radio" aria-checked="false">
+              <span class="seg-icon">🍃</span>
+              <span class="seg-label">Sessiz</span>
+              <span class="seg-code">101</span>
+            </button>
+            <button class="segment-btn active" data-fan="102" role="radio" aria-checked="true">
+              <span class="seg-icon">🌀</span>
+              <span class="seg-label">Dengeli</span>
+              <span class="seg-code">102</span>
+            </button>
+            <button class="segment-btn" data-fan="103" role="radio" aria-checked="false">
+              <span class="seg-icon">⚡</span>
+              <span class="seg-label">Turbo</span>
+              <span class="seg-code">103</span>
+            </button>
+            <button class="segment-btn" data-fan="104" role="radio" aria-checked="false">
+              <span class="seg-icon">🔥</span>
+              <span class="seg-label">Max</span>
+              <span class="seg-code">104</span>
+            </button>
+            <button class="segment-btn" data-fan="105" role="radio" aria-checked="false">
+              <span class="seg-icon">🚀</span>
+              <span class="seg-label">Max+</span>
+              <span class="seg-code">105</span>
+            </button>
+          </div>
+        </section>
+
+        <!-- Paspas Su Seviyesi (Water Box Level) -->
+        <section class="glass-card settings-card">
+          <div class="section-header">
+            <div class="section-title-wrap">
+              <div class="title-with-icon">
+                <span class="header-icon-box icon-emerald">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
+                  </svg>
+                </span>
+                <h2 class="section-title">Paspas Su Seviyesi (Water Level)</h2>
+              </div>
+              <p class="section-subtitle">Elektronik kontrollü su haznesi debi ayarı</p>
+            </div>
+          </div>
+
+          <div class="segmented-control" id="water-selector" role="radiogroup" aria-label="Su Seviyesi">
+            <button class="segment-btn" data-water="200" role="radio" aria-checked="false">
+              <span class="seg-icon">🚫</span>
+              <span class="seg-label">Kapalı</span>
+              <span class="seg-code">200</span>
+            </button>
+            <button class="segment-btn active" data-water="201" role="radio" aria-checked="true">
+              <span class="seg-icon">💧</span>
+              <span class="seg-label">Düşük</span>
+              <span class="seg-code">201</span>
+            </button>
+            <button class="segment-btn" data-water="202" role="radio" aria-checked="false">
+              <span class="seg-icon">💧💧</span>
+              <span class="seg-label">Orta</span>
+              <span class="seg-code">202</span>
+            </button>
+            <button class="segment-btn" data-water="203" role="radio" aria-checked="false">
+              <span class="seg-icon">🌊</span>
+              <span class="seg-label">Yüksek</span>
+              <span class="seg-code">203</span>
+            </button>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- 5. SARF MALZEME SAĞLIK KARTLARI (CONSUMABLES HEALTH) -->
+      <section class="glass-card consumables-section">
+        <div class="section-header">
+          <div class="section-title-wrap">
+            <div class="title-with-icon">
+              <span class="header-icon-box icon-rose">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+                </svg>
+              </span>
+              <h2 class="section-title">Sarf Malzeme Durumu & Bakım</h2>
+            </div>
+            <p class="section-subtitle">Aşınma takibi, kalan kullanım saatleri ve parça ömrü</p>
+          </div>
+        </div>
+
+        <div class="consumables-grid">
+          
+          <!-- Kart 1: Ana Fırça -->
+          <div class="consumable-card glass-subcard" id="card-main-brush">
+            <div class="consumable-header">
+              <div class="consumable-title-box">
+                <div class="consumable-icon icon-cyan">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="7" width="20" height="10" rx="2"/>
+                    <line x1="6" y1="7" x2="6" y2="17"/>
+                    <line x1="10" y1="7" x2="10" y2="17"/>
+                    <line x1="14" y1="7" x2="14" y2="17"/>
+                    <line x1="18" y1="7" x2="18" y2="17"/>
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="consumable-name">Ana Fırça (Main Brush)</h3>
+                  <span class="consumable-lifetime-target">Toplam Ömür: 300 Saat</span>
+                </div>
+              </div>
+              <span class="consumable-percent text-cyan" id="pct-main-brush">100%</span>
+            </div>
+
+            <!-- İlerleme Çubuğu -->
+            <div class="progress-bar-wrap">
+              <div class="progress-bar-track">
+                <div class="progress-bar-fill fill-cyan" id="bar-main-brush" style="width: 100%;"></div>
+              </div>
+            </div>
+
+            <div class="consumable-footer">
+              <div class="consumable-time-stat">
+                <span class="stat-label">Kalan Süre</span>
+                <span class="stat-value" id="time-main-brush">300.0 sa</span>
+              </div>
+              <button class="btn btn-reset" data-consumable-key="main_brush_work_time" data-consumable-label="Ana Fırça">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="23 4 23 10 17 10"/>
+                  <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+                </svg>
+                <span>Sıfırla</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Kart 2: Yan Fırça -->
+          <div class="consumable-card glass-subcard" id="card-side-brush">
+            <div class="consumable-header">
+              <div class="consumable-title-box">
+                <div class="consumable-icon icon-emerald">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M12 2v7M12 15v7M2 12h7M15 12h7M4.93 4.93l4.95 4.95M14.12 14.12l4.95 4.95M4.93 19.07l4.95-4.95M14.12 9.88l4.95-4.95"/>
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="consumable-name">Yan Fırça (Side Brush)</h3>
+                  <span class="consumable-lifetime-target">Toplam Ömür: 200 Saat</span>
+                </div>
+              </div>
+              <span class="consumable-percent text-emerald" id="pct-side-brush">100%</span>
+            </div>
+
+            <!-- İlerleme Çubuğu -->
+            <div class="progress-bar-wrap">
+              <div class="progress-bar-track">
+                <div class="progress-bar-fill fill-emerald" id="bar-side-brush" style="width: 100%;"></div>
+              </div>
+            </div>
+
+            <div class="consumable-footer">
+              <div class="consumable-time-stat">
+                <span class="stat-label">Kalan Süre</span>
+                <span class="stat-value" id="time-side-brush">200.0 sa</span>
+              </div>
+              <button class="btn btn-reset" data-consumable-key="side_brush_work_time" data-consumable-label="Yan Fırça">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="23 4 23 10 17 10"/>
+                  <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+                </svg>
+                <span>Sıfırla</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Kart 3: HEPA Filtre -->
+          <div class="consumable-card glass-subcard" id="card-filter">
+            <div class="consumable-header">
+              <div class="consumable-title-box">
+                <div class="consumable-icon icon-amber">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="consumable-name">HEPA Filtre (Filter)</h3>
+                  <span class="consumable-lifetime-target">Toplam Ömür: 150 Saat</span>
+                </div>
+              </div>
+              <span class="consumable-percent text-amber" id="pct-filter">100%</span>
+            </div>
+
+            <!-- İlerleme Çubuğu -->
+            <div class="progress-bar-wrap">
+              <div class="progress-bar-track">
+                <div class="progress-bar-fill fill-amber" id="bar-filter" style="width: 100%;"></div>
+              </div>
+            </div>
+
+            <div class="consumable-footer">
+              <div class="consumable-time-stat">
+                <span class="stat-label">Kalan Süre</span>
+                <span class="stat-value" id="time-filter">150.0 sa</span>
+              </div>
+              <button class="btn btn-reset" data-consumable-key="filter_work_time" data-consumable-label="HEPA Filtre">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="23 4 23 10 17 10"/>
+                  <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+                </svg>
+                <span>Sıfırla</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Kart 4: Sensörler -->
+          <div class="consumable-card glass-subcard" id="card-sensor">
+            <div class="consumable-header">
+              <div class="consumable-title-box">
+                <div class="consumable-icon icon-rose">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="7"/>
+                    <path d="M12 9v3l2 2"/>
+                    <path d="M5 3a2 2 0 0 0-2 2"/>
+                    <path d="M19 3a2 2 0 0 1 2 2"/>
+                    <path d="M5 21a2 2 0 0 1-2-2"/>
+                    <path d="M19 21a2 2 0 0 0 2-2"/>
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="consumable-name">Sensörler (Sensors)</h3>
+                  <span class="consumable-lifetime-target">Temizlik Periyodu: 30 Saat</span>
+                </div>
+              </div>
+              <span class="consumable-percent text-rose" id="pct-sensor">100%</span>
+            </div>
+
+            <!-- İlerleme Çubuğu -->
+            <div class="progress-bar-wrap">
+              <div class="progress-bar-track">
+                <div class="progress-bar-fill fill-rose" id="bar-sensor" style="width: 100%;"></div>
+              </div>
+            </div>
+
+            <div class="consumable-footer">
+              <div class="consumable-time-stat">
+                <span class="stat-label">Kalan Süre</span>
+                <span class="stat-value" id="time-sensor">30.0 sa</span>
+              </div>
+              <button class="btn btn-reset" data-consumable-key="sensor_dirty_time" data-consumable-label="Sensörler">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="23 4 23 10 17 10"/>
+                  <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+                </svg>
+                <span>Sıfırla</span>
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    </main>
+
+    <!-- FOOTER BİLGİLENDİRME -->
+    <footer class="app-footer">
+      <div class="footer-left">
+        <span class="footer-brand">Roborock Web Hub Engine</span>
+        <span class="footer-sep">•</span>
+        <span class="footer-text">Q8 Max Pro Yerel miIO Kontrolcüsü</span>
+      </div>
+      <div class="footer-right">
+        <span class="footer-sync">Son Telemetri: <strong id="last-sync-time">--:--:--</strong></span>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- 6. SARF MALZEME SIFIRLAMA ONAY MODALI -->
+  <div id="confirm-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-card glass-card">
+      <div class="modal-icon-header">
+        <div class="modal-icon-circle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+        </div>
+      </div>
+      <h3 id="modal-title" class="modal-title">Sarf Malzeme Sıfırlama</h3>
+      <p class="modal-body-text">
+        <strong id="modal-part-name" class="text-cyan">Seçili Parça</strong> sayacını sıfırlamak ve parça sağlığını %100'e çekmek üzeresiniz. Yeni parça taktığınızdan veya temizlediğinizden emin misiniz?
+      </p>
+      <div class="modal-actions">
+        <button id="modal-cancel-btn" class="btn btn-glass modal-btn">Vazgeç</button>
+        <button id="modal-confirm-btn" class="btn btn-danger modal-btn">Evet, Sıfırla</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. TOAST BİLDİRİM KATMANI -->
+  <div id="toast-container" class="toast-stack" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- SCRIPT YÜKLEMELERİ -->
+  <script src="js/websocket.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

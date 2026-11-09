@@ -1,0 +1,12 @@
+rrcc.pro.user*
+roborock_mock_server/target/
+*.jsonl
+*.log
+__pycache__/
+*.pyc
+.pytest_cache/
+*.apk
+*.exe
+*.zip
+*.pdb
+
