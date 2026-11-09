@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::io::{Read, Write};
+use std::io::Read;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr, TcpStream, UdpSocket};
 use std::sync::{Arc, Mutex, RwLock};
 use std::time::{Duration, Instant};
@@ -49,6 +49,7 @@ pub struct ScanRequest {
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct ServerToggleRequest {
+    pub host: Option<String>,
     pub port: Option<u16>,
     pub message: Option<String>,
 }
@@ -56,7 +57,9 @@ pub struct ServerToggleRequest {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct ServerToggleResponse {
     pub running: bool,
+    pub host: String,
     pub port: u16,
+    pub url: String,
 }
 
 struct AppState {
@@ -64,7 +67,9 @@ struct AppState {
     status: Mutex<ScanStatus>,
     oui_db: HashMap<&'static str, &'static str>,
     server_running: Mutex<bool>,
+    server_host: Mutex<String>,
     server_port: Mutex<u16>,
+    server_msg: Mutex<String>,
 }
 
 impl AppState {
@@ -100,7 +105,9 @@ impl AppState {
             }),
             oui_db: oui,
             server_running: Mutex::new(false),
+            server_host: Mutex::new("192.168.1.6".to_string()),
             server_port: Mutex::new(8088),
+            server_msg: Mutex::new("🦀 Rust Yerel Sunucusu Devrede!".to_string()),
         }
     }
 
@@ -119,7 +126,6 @@ impl AppState {
 // Windows SendARP Safe Wrapper
 fn send_arp(ip: Ipv4Addr) -> Option<(String, f64)> {
     let octets = ip.octets();
-    // Little-endian u32 IP representation
     let dest_ip = u32::from_ne_bytes(octets);
     let mut mac_buf = [0u8; 6];
     let mut mac_len = 6u32;
@@ -147,8 +153,8 @@ fn send_arp(ip: Ipv4Addr) -> Option<(String, f64)> {
 }
 
 // Port Tarayıcı
-fn scan_ports(ip: Ipv4Addr) -> Vec<PortInfo> {
-    let common_ports: &[(u16, &str)] = &[
+fn scan_ports(ip: Ipv4Addr, custom_server_port: Option<u16>) -> Vec<PortInfo> {
+    let mut common_ports: Vec<(u16, &str)> = vec![
         (21, "FTP Server"),
         (22, "SSH Remote Shell"),
         (80, "HTTP Web Server"),
@@ -166,8 +172,14 @@ fn scan_ports(ip: Ipv4Addr) -> Vec<PortInfo> {
         (27017, "MongoDB Database"),
     ];
 
+    if let Some(cp) = custom_server_port {
+        if !common_ports.iter().any(|&(p, _)| p == cp) {
+            common_ports.push((cp, "Özel Yerel Sunucu (Custom HTTP)"));
+        }
+    }
+
     let mut open_ports = Vec::new();
-    for &(port, name) in common_ports {
+    for &(port, name) in &common_ports {
         let addr = SocketAddr::new(IpAddr::V4(ip), port);
         if let Ok(_stream) = TcpStream::connect_timeout(&addr, Duration::from_millis(150)) {
             open_ports.push(PortInfo {
@@ -182,7 +194,6 @@ fn scan_ports(ip: Ipv4Addr) -> Vec<PortInfo> {
 
 // NetBIOS & DNS ile Hostname Çözümleme
 fn resolve_hostname(ip: Ipv4Addr) -> String {
-    // NetBIOS Query (Port 137 UDP)
     let socket = UdpSocket::bind("0.0.0.0:0");
     if let Ok(s) = socket {
         s.set_read_timeout(Some(Duration::from_millis(200))).ok();
@@ -209,9 +220,8 @@ fn resolve_hostname(ip: Ipv4Addr) -> String {
     "Bilinmiyor".to_string()
 }
 
-// Gerçek Yerel Ağ IP'si (Ethernet / Wi-Fi) Tespiti
+// Gerçek Yerel Ağ IP'si (Ethernet) Tespiti
 fn detect_local_network() -> (String, Ipv4Addr) {
-    // 192.168.1.1 gateway veya router bağlantısı üzerinden yerel IP bul
     if let Ok(stream) = TcpStream::connect_timeout(
         &SocketAddr::new(IpAddr::V4(Ipv4Addr::new(192, 168, 1, 1)), 80),
         Duration::from_millis(300),
@@ -223,7 +233,6 @@ fn detect_local_network() -> (String, Ipv4Addr) {
             }
         }
     }
-    // Fallback: Doğrudan tespit edilen 192.168.1.6
     (
         "192.168.1.0/24".to_string(),
         Ipv4Addr::new(192, 168, 1, 6),
@@ -232,6 +241,16 @@ fn detect_local_network() -> (String, Ipv4Addr) {
 
 fn execute_scan(state: Arc<AppState>, cidr: String) {
     std::thread::spawn(move || {
+        let active_custom_port = {
+            let running = *state.server_running.lock().unwrap();
+            let port = *state.server_port.lock().unwrap();
+            if running {
+                Some(port)
+            } else {
+                None
+            }
+        };
+
         {
             let mut st = state.status.lock().unwrap();
             if st.is_scanning {
@@ -240,7 +259,7 @@ fn execute_scan(state: Arc<AppState>, cidr: String) {
             st.is_scanning = true;
             st.current = 0;
             st.total = 254;
-            st.status_message = "Rust motoru ile ultra hızlı ARP taraması başlatıldı...".to_string();
+            st.status_message = "Rust motoru ile ultra hızlı ARP ve servis taraması yapılıyor...".to_string();
         }
 
         {
@@ -270,7 +289,7 @@ fn execute_scan(state: Arc<AppState>, cidr: String) {
             if let Some((mac, rtt)) = send_arp(target_ip) {
                 let vendor = state.get_vendor(&mac);
                 let hostname = resolve_hostname(target_ip);
-                let ports = scan_ports(target_ip);
+                let ports = scan_ports(target_ip, active_custom_port);
 
                 let is_server = !ports.is_empty()
                     || vendor.contains("Server")
@@ -302,6 +321,44 @@ fn execute_scan(state: Arc<AppState>, cidr: String) {
             let count = state.devices.read().unwrap().len();
             st.status_message = format!("Taranıyor: {}/254 IP ({} Cihaz Bulundu)", st.current, count);
         });
+
+        // Kendi başlattığımız yerel sunucu varsa ve listedeki IP'miz henüz sunucu olarak işaretlenmediyse güncelle
+        if let Some(srv_port) = active_custom_port {
+            let local_ip_str = "192.168.1.6";
+            let mut dev_list = state.devices.write().unwrap();
+            let mut found_local = false;
+            for d in dev_list.iter_mut() {
+                if d.ip == local_ip_str {
+                    d.is_server = true;
+                    d.device_type = "Sunucu (Yerel)".to_string();
+                    if !d.open_ports.iter().any(|p| p.port == srv_port) {
+                        d.open_ports.push(PortInfo {
+                            port: srv_port,
+                            service_name: "Rust Başlatılan Sunucu".to_string(),
+                            state: "Açık".to_string(),
+                        });
+                    }
+                    found_local = true;
+                    break;
+                }
+            }
+            if !found_local {
+                dev_list.push(Device {
+                    ip: local_ip_str.to_string(),
+                    mac: "74:56:3C:04:41:1B".to_string(),
+                    vendor: "Yerel Makine".to_string(),
+                    hostname: "BIRIN".to_string(),
+                    device_type: "Sunucu (Yerel)".to_string(),
+                    is_server: true,
+                    response_time_ms: 0.1,
+                    open_ports: vec![PortInfo {
+                        port: srv_port,
+                        service_name: "Rust Başlatılan Sunucu".to_string(),
+                        state: "Açık".to_string(),
+                    }],
+                });
+            }
+        }
 
         let mut st = state.status.lock().unwrap();
         st.is_scanning = false;
@@ -353,10 +410,11 @@ const HTML_CONTENT: &str = r#"<!DOCTYPE html>
     .controls { display: flex; gap: 12px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
     input[type="text"] { background: var(--bg-surface); border: 1px solid var(--border); color: var(--text); padding: 8px 14px; border-radius: 8px; font-size: 14px; outline: none; }
     input[type="text"]:focus { border-color: var(--accent); }
-    .btn { background: var(--accent); color: #fff; border: none; padding: 8px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px; transition: opacity 0.2s; }
+    .btn { background: var(--accent); color: #fff; border: none; padding: 8px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px; transition: opacity 0.2s; display: inline-flex; align-items: center; gap: 6px; }
     .btn:hover { opacity: 0.9; }
     .btn-green { background: var(--accent-green); }
     .btn-danger { background: var(--accent-danger); }
+    .btn-refresh { background: var(--accent-cyan); color: #000; font-weight: bold; }
     
     .progress-bar-container { width: 100%; height: 6px; background: var(--bg-surface); border-radius: 4px; overflow: hidden; margin-bottom: 15px; }
     .progress-fill { height: 100%; width: 0%; background: var(--accent); transition: width 0.3s; }
@@ -371,10 +429,11 @@ const HTML_CONTENT: &str = r#"<!DOCTYPE html>
     .tag-client { background: rgba(0, 173, 181, 0.15); color: var(--accent-cyan); border: 1px solid var(--accent-cyan); }
     .port-chip { display: inline-block; background: var(--bg-surface); padding: 2px 6px; border-radius: 4px; margin: 2px; font-size: 11px; border: 1px solid var(--border); }
     
-    .server-creator { background: var(--bg-surface); border-radius: 10px; padding: 20px; border: 1px solid var(--border); max-width: 600px; }
+    .server-creator { background: var(--bg-surface); border-radius: 10px; padding: 20px; border: 1px solid var(--border); max-width: 650px; }
     .form-group { margin-bottom: 15px; }
     .form-group label { display: block; font-size: 13px; margin-bottom: 6px; color: var(--text-muted); }
     .server-status-box { margin-top: 20px; padding: 15px; border-radius: 8px; background: var(--bg-card); border: 1px solid var(--border); }
+    .panel-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
   </style>
 </head>
 <body>
@@ -392,9 +451,9 @@ const HTML_CONTENT: &str = r#"<!DOCTYPE html>
   </div>
 
   <div class="nav-tabs">
-    <button class="tab-btn active" onclick="switchTab('tab-all')">🌐 Tüm Ağ Cihazları</button>
-    <button class="tab-btn" onclick="switchTab('tab-servers')">🖥️ Sunucular & Servisler</button>
-    <button class="tab-btn" onclick="switchTab('tab-create')">➕ Yerel Sunucu Başlat</button>
+    <button class="tab-btn active" onclick="switchTab('tab-all', event)">🌐 Tüm Ağ Cihazları</button>
+    <button class="tab-btn" onclick="switchTab('tab-servers', event)">🖥️ Sunucular & Servisler</button>
+    <button class="tab-btn" onclick="switchTab('tab-create', event)">➕ Yerel Sunucu Başlat</button>
   </div>
 
   <!-- TAB 1: Tüm Cihazlar -->
@@ -428,7 +487,10 @@ const HTML_CONTENT: &str = r#"<!DOCTYPE html>
 
   <!-- TAB 2: Sunucular -->
   <div id="tab-servers" class="panel" style="display: none;">
-    <h3 style="margin-bottom: 12px; color: var(--accent-server);">Ağda Tespit Edilen Aktif Sunucu ve Servisler</h3>
+    <div class="panel-header-row">
+      <h3 style="color: var(--accent-server);">Ağda Tespit Edilen Aktif Sunucu ve Servisler</h3>
+      <button class="btn btn-refresh" onclick="refreshServersTab()">🔄 Sunucuları Yenile</button>
+    </div>
     <table>
       <thead>
         <tr>
@@ -447,6 +509,11 @@ const HTML_CONTENT: &str = r#"<!DOCTYPE html>
   <div id="tab-create" class="panel" style="display: none;">
     <h3 style="margin-bottom: 15px; color: var(--accent);">Yerel Ağda Yeni Bir Web / Test Sunucusu Başlat</h3>
     <div class="server-creator">
+      <div class="form-group">
+        <label>Bağlanacak IP Adresi (Host):</label>
+        <input type="text" id="serverHostInput" value="192.168.1.6" style="width: 100%;" placeholder="Örn: 0.0.0.0, 192.168.1.6 veya 127.0.0.1">
+        <small style="color:var(--text-muted); font-size:11px;">Tüm yerel ağdan erişim için 0.0.0.0 veya 192.168.1.6 yazabilirsiniz.</small>
+      </div>
       <div class="form-group">
         <label>Sunucu Portu (Örn: 8088, 9090, 5000):</label>
         <input type="text" id="serverPortInput" value="8088" style="width: 100%;">
@@ -467,11 +534,19 @@ const HTML_CONTENT: &str = r#"<!DOCTYPE html>
   <script>
     let allDevices = [];
 
-    function switchTab(tabId) {
+    function switchTab(tabId, ev) {
       document.querySelectorAll('.panel').forEach(p => p.style.display = 'none');
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
       document.getElementById(tabId).style.display = 'block';
-      event.target.classList.add('active');
+      if (ev && ev.target) ev.target.classList.add('active');
+
+      if (tabId === 'tab-servers') {
+        refreshServersTab();
+      }
+    }
+
+    function refreshServersTab() {
+      fetchDevices();
     }
 
     function startScan() {
@@ -550,6 +625,10 @@ const HTML_CONTENT: &str = r#"<!DOCTYPE html>
         }
       });
 
+      if (srvCount === 0) {
+        tbodySrv.innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:20px;">Henüz aktif bir sunucu tespit edilmedi. "Yerel Sunucu Başlat" sekmesinden yeni bir sunucu açabilir veya "Yenile" butonuna tıklayabilirsiniz.</td></tr>';
+      }
+
       document.getElementById('statDevices').innerText = 'Toplam Cihaz: ' + allDevices.length;
       document.getElementById('statServers').innerText = 'Aktif Sunucu: ' + srvCount;
     }
@@ -563,12 +642,13 @@ const HTML_CONTENT: &str = r#"<!DOCTYPE html>
     }
 
     function toggleLocalServer() {
+      const host = document.getElementById('serverHostInput').value;
       const port = document.getElementById('serverPortInput').value;
       const msg = document.getElementById('serverMsgInput').value;
       fetch('/api/server/toggle', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({port: parseInt(port), message: msg})
+        body: JSON.stringify({host: host, port: parseInt(port), message: msg})
       })
       .then(res => res.json())
       .then(data => {
@@ -577,12 +657,12 @@ const HTML_CONTENT: &str = r#"<!DOCTYPE html>
         const btn = document.getElementById('btnToggleServer');
 
         if (data.running) {
-          statusLbl.innerText = 'Çalışıyor (Port: ' + data.port + ')';
+          statusLbl.innerText = 'Çalışıyor (' + data.host + ':' + data.port + ')';
           statusLbl.style.color = 'var(--accent-green)';
           btn.innerText = 'Sunucuyu Durdur';
           btn.className = 'btn btn-danger';
           urlBox.style.display = 'block';
-          urlBox.innerHTML = 'Erişim: <a href="http://192.168.1.6:' + data.port + '" target="_blank" style="color:var(--accent-cyan);">http://192.168.1.6:' + data.port + '</a>';
+          urlBox.innerHTML = 'Erişim Adresi: <a href="' + data.url + '" target="_blank" style="color:var(--accent-cyan);">' + data.url + '</a>';
         } else {
           statusLbl.innerText = 'Kapalı';
           statusLbl.style.color = 'var(--text-muted)';
@@ -590,10 +670,13 @@ const HTML_CONTENT: &str = r#"<!DOCTYPE html>
           btn.className = 'btn btn-green';
           urlBox.style.display = 'none';
         }
+
+        // Cihaz ve sunucu listesini anında güncelle
+        fetchDevices();
       });
     }
 
-    // Sayfa açıldığında otomatik ilk listeyi çek
+    // Sayfa açıldığında otomatik verileri çek
     fetchDevices();
   </script>
 </body>
@@ -613,7 +696,6 @@ fn main() {
 
     let server = tiny_http::Server::http("0.0.0.0:54321").unwrap();
 
-    // Tarayıcıyı aç
     let _ = std::process::Command::new("rundll32")
         .args(&["url.dll,FileProtocolHandler", "http://localhost:54321"])
         .spawn();
@@ -658,7 +740,7 @@ fn main() {
                     .with_header(tiny_http::Header::from_bytes(&b"Content-Disposition"[..], &b"attachment; filename=yerel_ag_rust.json"[..]).unwrap());
                 request.respond(response).ok();
             } else {
-                let mut csv_data = vec![0xEF, 0xBB, 0xBF]; // UTF-8 BOM
+                let mut csv_data = vec![0xEF, 0xBB, 0xBF];
                 csv_data.extend_from_slice(b"IP,MAC,Uretici,Hostname,Tur,Sunucu Mu,Gecikme (ms),Portlar\n");
                 for d in devs.iter() {
                     let ports: Vec<String> = d.open_ports.iter().map(|p| format!("{} ({})", p.port, p.service_name)).collect();
@@ -683,7 +765,8 @@ fn main() {
         } else if url == "/api/server/toggle" && method == "POST" {
             let mut body = String::new();
             request.as_reader().read_to_string(&mut body).ok();
-            let req: ServerToggleRequest = serde_json::from_str(&body).unwrap_or(ServerToggleRequest { port: None, message: None });
+            let req: ServerToggleRequest = serde_json::from_str(&body).unwrap_or(ServerToggleRequest { host: None, port: None, message: None });
+            let host = req.host.unwrap_or_else(|| "192.168.1.6".to_string());
             let port = req.port.unwrap_or(8088);
             let msg = req.message.unwrap_or_else(|| "Rust Yerel Sunucusu Devrede!".to_string());
 
@@ -692,22 +775,86 @@ fn main() {
             let current_running = *running;
 
             if current_running {
+                *state.server_host.lock().unwrap() = host.clone();
                 *state.server_port.lock().unwrap() = port;
+                *state.server_msg.lock().unwrap() = msg.clone();
+
+                let bind_addr = if host == "0.0.0.0" {
+                    format!("0.0.0.0:{}", port)
+                } else {
+                    format!("{}:{}", host, port)
+                };
+
+                let msg_clone = msg.clone();
                 std::thread::spawn(move || {
-                    if let Ok(local_srv) = tiny_http::Server::http(format!("0.0.0.0:{}", port)) {
+                    if let Ok(local_srv) = tiny_http::Server::http(bind_addr) {
                         for req in local_srv.incoming_requests() {
-                            let resp_body = format!("<h1>{}</h1><p>Rust Yerel Test Sunucusu</p>", msg);
+                            let resp_body = format!("<h1>{}</h1><p>Rust Yerel Test Sunucusu</p>", msg_clone);
                             let resp = tiny_http::Response::from_string(resp_body)
                                 .with_header(tiny_http::Header::from_bytes(&b"Content-Type"[..], &b"text/html; charset=utf-8"[..]).unwrap());
                             req.respond(resp).ok();
                         }
                     }
                 });
+
+                // Cihaz listesine de sunucu olarak hemen kaydet/güncelle
+                let mut dev_list = state.devices.write().unwrap();
+                let display_ip = if host == "0.0.0.0" { "192.168.1.6".to_string() } else { host.clone() };
+                let mut updated = false;
+                for d in dev_list.iter_mut() {
+                    if d.ip == display_ip {
+                        d.is_server = true;
+                        d.device_type = "Sunucu (Yerel)".to_string();
+                        if !d.open_ports.iter().any(|p| p.port == port) {
+                            d.open_ports.push(PortInfo {
+                                port,
+                                service_name: "Rust Başlatılan Sunucu".to_string(),
+                                state: "Açık".to_string(),
+                            });
+                        }
+                        updated = true;
+                        break;
+                    }
+                }
+                if !updated {
+                    dev_list.push(Device {
+                        ip: display_ip,
+                        mac: "74:56:3C:04:41:1B".to_string(),
+                        vendor: "Yerel Makine (Rust Host)".to_string(),
+                        hostname: "BIRIN".to_string(),
+                        device_type: "Sunucu (Yerel)".to_string(),
+                        is_server: true,
+                        response_time_ms: 0.1,
+                        open_ports: vec![PortInfo {
+                            port,
+                            service_name: "Rust Başlatılan Sunucu".to_string(),
+                            state: "Açık".to_string(),
+                        }],
+                    });
+                }
+            } else {
+                // Sunucu durdurulduğunda cihaz listesindeki ilgili port kaydını temizle
+                let mut dev_list = state.devices.write().unwrap();
+                let display_ip = if host == "0.0.0.0" { "192.168.1.6".to_string() } else { host.clone() };
+                for d in dev_list.iter_mut() {
+                    if d.ip == display_ip {
+                        d.open_ports.retain(|p| p.port != port);
+                        if d.open_ports.is_empty() {
+                            d.is_server = false;
+                            d.device_type = "İstemci / Bilgisayar".to_string();
+                        }
+                    }
+                }
             }
+
+            let display_host = if host == "0.0.0.0" { "192.168.1.6".to_string() } else { host.clone() };
+            let access_url = format!("http://{}:{}", display_host, port);
 
             let resp_obj = ServerToggleResponse {
                 running: current_running,
+                host,
                 port,
+                url: access_url,
             };
             let json = serde_json::to_string(&resp_obj).unwrap();
             let response = tiny_http::Response::from_string(json)
