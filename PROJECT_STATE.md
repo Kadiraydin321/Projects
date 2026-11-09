@@ -4,10 +4,10 @@
 - **Tarih:** 08 Kasım 2026
 - **Ortam:** Windows 11 (x64), PowerShell, RTX 5060 Ti 16 GB, i5-13400F, 64 GB RAM
 - **Son İşlemler:**
-  1. Go Motorlu Yerel Ağ & Sunucu Yönetim Konsolu Geliştirildi (yerel-ag-tarayici-go):
-     - Windows SendARP (iphlpapi.dll) ve goroutine eşzamanlılığı ile çalışan yüksek hızlı yerel ağ tarayıcısı inşa edildi.
-     - Web arayüzü: Modern koyu tema HTML5, CSS3, JavaScript ile Tüm Cihazlar, Sunucular ve 'Yerel Sunucu Başlat' sekmeleri eklendi.
-     - Canlı servis http://localhost:4321 üzerinde devreye alındı; baslat.bat ve imzalı baslat.ps1 oluşturuldu.
+  1. Rust Motorlu Yerel Ağ & Sunucu Yönetim Konsolu Geliştirildi (yerel-ag-tarayici-rust):
+     - Gerçek yerel IP netleştirildi: 192.168.1.6 (Kaspersky VPN 172.21.x sanal arayüzü filtrelendi, gerçek LAN Ethernet 192.168.1.0/24 kilitlendi).
+     - Rust (Cargo) release optimizasyonu, Rayon paralel thread havuzu ve Windows kernel SendARP API'si ile sıfırdan derlendi.
+     - Web Arayüzü: HTML5/CSS3/JS; Tüm Cihazlar, Sunucular ve Yerel Sunucu Başlat sekmeleriyle http://localhost:54321 üzerinde canlıya alındı; Authenticode imzalı baslat.ps1 hazırlandı.
   2. ECC ve Graphify Protokolü Tüm İstekler İçin Zorunlu Kılındı (Antigravity & Hermes):
      - Global ve yerel kural dosyalarına (GEMINI.md, AGENTS.md, Hermes AGENTS.md) ECC (Plan-Before-Build, TDD %80+, code-reviewer/security-reviewer) ve Graphify bilgi grafiği (graphify query/path/update) kuralları kalıcı olarak işlendi.
   3. affaan-m/ECC Full Profil Dağıtımı Tamamlandı:
