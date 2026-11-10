@@ -1,0 +1,15 @@
+[package]
+name = "multitool"
+version = "2.0.0"
+edition = "2021"
+description = "Keysight Tech MultiTool - Windows cihaz/ağ/USB yönetim aracı"
+
+[[bin]]
+name = "multitool"
+path = "src/main.rs"
+
+[profile.release]
+opt-level = "z"
+lto = true
+panic = "abort"
+strip = true
