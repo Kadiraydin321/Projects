@@ -1,0 +1,103 @@
+Sen kıdemli bir Android & Kotlin yazılım mimarısın.
+Görevin: MoonNovelDownloader projesi için "NovelBin (EN)" web novel kaynak adaptörünü (`NovelBinAdapter.kt`) yazmak.
+
+### 📌 PROJE BAĞLAMLARI VE MEVCUT MODEL TANIMLARI
+Projede aşağıdaki veri modelleri ve arayüz `com.birin.moonnovel.sources.NovelSourceModels.kt` içerisinde tanımlıdır:
+
+```kotlin
+package com.birin.moonnovel.sources
+
+data class NovelSourceItem(
+    val name: String,
+    val author: String,
+    val slug: String,
+    val sourceId: String, // "novelbin"
+    val sourceLanguage: String = "EN",
+    val coverUrl: String? = null
+)
+
+data class ChapterSourceItem(
+    val number: String,
+    val title: String,
+    val url: String,
+    val sourceId: String = "novelbin"
+)
+
+interface NovelSourceAdapter {
+    val sourceId: String
+    val sourceDisplayName: String
+    val language: String
+    suspend fun search(query: String): List<NovelSourceItem>
+    suspend fun getChapters(novel: NovelSourceItem): List<ChapterSourceItem>
+    suspend fun getChapterContent(novel: NovelSourceItem, chapter: ChapterSourceItem): Pair<String, String> // Pair<Title, CleanHtmlContent>
+}
+```
+
+Ağ istekleri için projedeki mevcut AdGuard DoH korumalı OkHttpClient istemcisi kullanılmalıdır:
+`import com.birin.moonnovel.SecureNetworkClient` -> `SecureNetworkClient.client`
+
+---
+
+### ⚠️ KESİN KRİTİK KURALLAR VE KISITLAMALAR:
+1. **JSOUP KESİNLİKLE KULLANILMAYACAKTIR!** Projenin `build.gradle.kts` bağımlılıklarında Jsoup YOKTUR. HTML parsing ve ayıklama işlemleri YALNIZCA `java.util.regex.Pattern`, `java.util.regex.Matcher`, `android.text.Html.fromHtml` ve string fonksiyonları ile yapılmalıdır.
+2. **Paket Adı:** `package com.birin.moonnovel.sources`
+3. **Sınıf Tanımı:** `class NovelBinAdapter : NovelSourceAdapter`
+4. **Sabit Değerler:**
+   - `override val sourceId: String = "novelbin"`
+   - `override val sourceDisplayName: String = "NovelBin (EN)"`
+   - `override val language: String = "EN"`
+5. **Thread Güvenliği:** Bütün `suspend` fonksiyonlar `withContext(Dispatchers.IO)` bloğu içerisinde çalıştırılmalıdır (Main thread kesinlikle bloke edilmemelidir).
+6. **Hata & Crash Güvenliği:** Ağ hataları, regex uyumsuzlukları veya parse sorunları karşısında uygulamanın çökmesini önlemek için tüm adımlar uygun `try-catch` bloklarıyla korunmalı ve boş liste / güvenli fallback döndürülmelidir.
+7. **Bellek Güvenliği (OOM Önleme):** Regex matcher veya string builder işlemlerinde aşırı bellek tüketimini önlemek için döngülere makul sınırlar (örn. maksimum 15 arama sonucu, maksimum 1000 bölüm vb.) konulmalıdır.
+
+---
+
+### 🌐 NOVELBIN KAYNAK MİMARİSİ VE FONKSİYON DETAYLARI:
+
+1. **`search(query: String): List<NovelSourceItem>`**
+   - URL: `https://novelbin.me/search?keyword=${URLEncoder.encode(query, "UTF-8")}`
+   - Request Header: `User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36`
+   - HTML regex ayıklama:
+     NovelBin arama sonuçlarında her roman için başlık, URL ve kapak görseli bulunur:
+     Örnek Regex: `<h3[^>]*class=["']novel-title["'][^>]*>\s*<a[^>]*href=["']([^"']+)["'][^>]*title=["']([^"']*)["'][^>]*>(.*?)</a>` veya `<div[^>]*class=["'][^"']*col-novel[^"']*["'][^>]*>`
+     Kapak için: `<img[^>]*src=["']([^"']+)["'][^>]*class=["'][^"']*cover[^"']*["']` veya `<img[^>]*data-src=["']([^"']+)["']`
+     Slug: Linkten ayıklanabilir (`fullUrl.substringAfterLast("/").substringBefore(".html")`)
+     Her bulunan sonuç `NovelSourceItem(name = cleanTitle, author = "NovelBin (EN)", slug = fullUrl, sourceId = sourceId, sourceLanguage = "EN", coverUrl = coverUrl)` olarak listeye eklenir (en fazla 15 adet).
+   - Eğer arama sonucu boş gelirse veya bir istisna fırlatılırsa popüler fallback İngilizce romanlar listesi döndürülmelidir (`Shadow Slave`, `Lord of the Mysteries`, `The Beginning After the End`, `Reverend Insanity`, `Omniscient Reader's Viewpoint`).
+
+2. **`getChapters(novel: NovelSourceItem): List<ChapterSourceItem>`**
+   - Adım 1: Roman detay sayfasına istek gönder:
+     URL: `if (novel.slug.startsWith("http")) novel.slug else "https://novelbin.me/novel-book/${novel.slug}"`
+   - Adım 2: Novel ID tespiti:
+     NovelBin sayfasında bölüm arşivi AJAX ile yüklenir. Sayfa HTML'inden roman ID'sini regex ile yakala:
+     Regex: `data-novel-id=["'](\d+)["']` veya `id=["']rating["'][^>]*data-novel-id=["'](\d+)["']` veya `novelId\s*[:=]\s*["']?(\d+)["']?`
+   - Adım 3: Eğer novelId bulunduysa:
+     AJAX Arşiv Endpoint'ine istek gönder:
+     `https://novelbin.me/ajax/chapter-archive?novelId=$novelId`
+     Request Header ekle: `"X-Requested-With", "XMLHttpRequest"`, `"Referer", novelUrl`
+     Dönen HTML içeriğindeki bölüm bağlantılarını regex ile tara:
+     Regex: `<a[^>]*href=["']([^"']+)["'][^>]*title=["']([^"']*)["'][^>]*>(.*?)</a>` veya `<li[^>]*>\s*<a[^>]*href=["']([^"']+)["'][^>]*>(.*?)</a>`
+   - Adım 4: Eğer novelId bulunamazsa veya AJAX başarısız olursa (Fallback):
+     Roman sayfasının doğrudan kendi HTML'indeki bölüm bağlantılarını ara:
+     Regex: `<a[^>]*href=["']([^"']+(?:/chapter[\\-_\\d]+|/c\\d+)[^"']*)["'][^>]*>(.*?)</a>`
+   - Her bölüm için `ChapterSourceItem(number = count.toString(), title = cleanTitle, url = fullUrl, sourceId = sourceId)` oluşturulmalıdır.
+   - Eğer liste hala boş kalırsa zarif bir şekilde 1..50 örnek bölüm (fallback) oluşturulmalıdır.
+
+3. **`getChapterContent(novel: NovelSourceItem, chapter: ChapterSourceItem): Pair<String, String>`**
+   - Bölüm URL'ine istek gönder.
+   - Başlık ayıklama: `<h2[^>]*class=["'][^"']*chr-title[^"']*["'][^>]*>(.*?)</h2>` veya `<span[^>]*class=["'][^"']*chr-text[^"']*["'][^>]*>(.*?)</span>` veya `<h1[^>]*>(.*?)</h1>` regex ile aranır; bulunamazsa `chapter.title` kullanılır. `Html.fromHtml` ile temizlenir.
+   - Metin/İçerik ayıklama:
+     NovelBin metin kapsayıcısı: `<div[^>]*id=["']chr-content["'][^>]*>(.*?)</div>` veya `<div[^>]*id=["']chapter-content["'][^>]*>(.*?)</div>`
+     Kapsayıcı içindeki `<p>(.*?)</p>` etiketleri StringBuilder ile toplanır.
+     Kapsayıcı bulunamazsa sayfa genelindeki `<p>` etiketleri taranır.
+   - Filtreleme ve Temizlik:
+     Watermark ve reklam satırlarını atla: Metin "novelbin", "report chapter", "sponsor", "pirated", "If you find any errors" gibi ibareler içeriyorsa bu paragrafları dahil etme.
+     HTML `<script>`, `<style>`, `<div>` reklam bloklarını temizle.
+   - Dönen Değer: `Pair(cleanTitle, cleanHtml)`
+   - Hata durumunda: `Pair(chapter.title, "<p>Chapter content could not be loaded (${e.localizedMessage}).</p>")`
+
+---
+
+### 📤 ÇIKTI FORMATI:
+- YALNIZCA eksiksiz, derlenebilir Kotlin kodunu tek bir ````kotlin ... ```` markdown kod bloğu içinde ver.
+- Kod bloğu dışında hiçbir selamlama, önsöz, açıklama veya not ekleme. Doğrudan `package com.birin.moonnovel.sources` ile başla.

@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_bottom_toast"
+    android:padding="20dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Başlık -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="⚙️ Uygulama &amp; Okuma Tercihleri"
+            android:textColor="@color/text_white"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="16dp" />
+
+        <!-- 1. TEMA SEÇİMİ BAŞLIĞI -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🎨 Tema Seçenekleri (3 Karanlık • 3 Aydınlık)"
+            android:textColor="@color/crimson_light"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Tek RadioGroup içinde tüm temalar (Mutual Exclusion) -->
+        <RadioGroup
+            android:id="@+id/rgTheme"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="16dp">
+
+            <!-- A. KARANLIK TEMALAR -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🌙 KARANLIK TEMALAR:"
+                android:textColor="@color/text_muted"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="4dp" />
+
+            <RadioButton
+                android:id="@+id/rbThemeDark"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="1. Obsidyen &amp; Kırmızı (Varsayılan Koyu)"
+                android:textColor="@color/text_white"
+                android:textSize="13sp"
+                android:buttonTint="@color/crimson_red" />
+
+            <RadioButton
+                android:id="@+id/rbThemeAmoled"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="2. Saf AMOLED Siyah (Sıfır Işık &amp; Pil Tasarrufu)"
+                android:textColor="@color/text_white"
+                android:textSize="13sp"
+                android:buttonTint="@color/crimson_red" />
+
+            <RadioButton
+                android:id="@+id/rbThemeMidnight"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="3. Gece Mavisi &amp; Derin Uzay (Yumuşak İndigo)"
+                android:textColor="@color/text_white"
+                android:textSize="13sp"
+                android:buttonTint="@color/crimson_red" />
+
+            <!-- B. AYDINLIK TEMALAR -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="☀️ AYDINLIK TEMALAR:"
+                android:textColor="@color/text_muted"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="4dp" />
+
+            <RadioButton
+                android:id="@+id/rbThemeSepia"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="4. Sepya Kitap Dokusu (Göz Dinlendiren Sıcak Kağıt)"
+                android:textColor="@color/text_white"
+                android:textSize="13sp"
+                android:buttonTint="@color/crimson_red" />
+
+            <RadioButton
+                android:id="@+id/rbThemeLightWhite"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="5. Kutup Beyazı &amp; Temiz Aydınlık (Yüksek Kontrast)"
+                android:textColor="@color/text_white"
+                android:textSize="13sp"
+                android:buttonTint="@color/crimson_red" />
+
+            <RadioButton
+                android:id="@+id/rbThemeMint"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="6. Pastel Nane &amp; Adaçayı Yeşili (E-Okuyucu Mat)"
+                android:textColor="@color/text_white"
+                android:textSize="13sp"
+                android:buttonTint="@color/crimson_red" />
+        </RadioGroup>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/card_stroke"
+            android:layout_marginBottom="16dp" />
+
+        <!-- 2. VARSAYILAN KAYNAK -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Varsayılan İçerik Kaynağı"
+            android:textColor="@color/crimson_light"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
+
+        <RadioGroup
+            android:id="@+id/rgDefaultSource"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="16dp">
+
+            <RadioButton
+                android:id="@+id/rbSourceAll"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tüm Kaynaklar (TR &amp; EN Birleşik)"
+                android:textColor="@color/text_white"
+                android:buttonTint="@color/crimson_red" />
+
+            <RadioButton
+                android:id="@+id/rbSourceTR"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sadece Türkçe (NovelGecesi)"
+                android:textColor="@color/text_white"
+                android:buttonTint="@color/crimson_red" />
+
+            <RadioButton
+                android:id="@+id/rbSourceEN"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sadece İngilizce (WuxiaWorld / WebNovel)"
+                android:textColor="@color/text_white"
+                android:buttonTint="@color/crimson_red" />
+        </RadioGroup>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/card_stroke"
+            android:layout_marginBottom="16dp" />
+
+        <!-- 3. SESLİ OKUMA (TTS) AYARLARI -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sesli Okuma (TTS) Tercihleri"
+            android:textColor="@color/crimson_light"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Okuma Dili:"
+            android:textColor="@color/text_muted"
+            android:textSize="12sp"
+            android:layout_marginBottom="4dp" />
+
+        <RadioGroup
+            android:id="@+id/rgTtsLang"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="12dp">
+
+            <RadioButton
+                android:id="@+id/rbLangTR"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Türkçe (tr-TR)"
+                android:textColor="@color/text_white"
+                android:buttonTint="@color/crimson_red"
+                android:layout_marginEnd="16dp" />
+
+            <RadioButton
+                android:id="@+id/rbLangEN"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="İngilizce (en-US)"
+                android:textColor="@color/text_white"
+                android:buttonTint="@color/crimson_red" />
+        </RadioGroup>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Varsayılan Hız:"
+            android:textColor="@color/text_muted"
+            android:textSize="12sp"
+            android:layout_marginBottom="4dp" />
+
+        <RadioGroup
+            android:id="@+id/rgTtsSpeed"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="12dp">
+
+            <RadioButton
+                android:id="@+id/rbSpeed08"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0.8x"
+                android:textColor="@color/text_white"
+                android:buttonTint="@color/crimson_red"
+                android:layout_marginEnd="12dp" />
+
+            <RadioButton
+                android:id="@+id/rbSpeed10"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="1.0x"
+                android:textColor="@color/text_white"
+                android:buttonTint="@color/crimson_red"
+                android:layout_marginEnd="12dp" />
+
+            <RadioButton
+                android:id="@+id/rbSpeed12"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="1.2x"
+                android:textColor="@color/text_white"
+                android:buttonTint="@color/crimson_red"
+                android:layout_marginEnd="12dp" />
+
+            <RadioButton
+                android:id="@+id/rbSpeed15"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="1.5x"
+                android:textColor="@color/text_white"
+                android:buttonTint="@color/crimson_red" />
+        </RadioGroup>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Ses Tonu (Pitch):"
+            android:textColor="@color/text_muted"
+            android:textSize="12sp"
+            android:layout_marginBottom="4dp" />
+
+        <RadioGroup
+            android:id="@+id/rgSettingsPitch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp">
+
+            <RadioButton
+                android:id="@+id/rbSettingsPitchLow"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Kalın (0.8x)"
+                android:textColor="@color/text_white"
+                android:buttonTint="@color/crimson_red"
+                android:layout_marginEnd="12dp" />
+
+            <RadioButton
+                android:id="@+id/rbSettingsPitchNormal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Normal (1.0x)"
+                android:textColor="@color/text_white"
+                android:buttonTint="@color/crimson_red"
+                android:layout_marginEnd="12dp" />
+
+            <RadioButton
+                android:id="@+id/rbSettingsPitchHigh"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="İnce (1.2x)"
+                android:textColor="@color/text_white"
+                android:buttonTint="@color/crimson_red" />
+        </RadioGroup>
+
+        <!-- Cihaz Ses Profili Butonu -->
+        <Button
+            android:id="@+id/btnOpenVoiceProfiles"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:text="🎧 Cihaz Seslerini Yönet &amp; Test Et"
+            android:background="@drawable/bg_chapter_card"
+            android:textColor="@color/crimson_light"
+            android:textSize="13sp"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Kapat & Kaydet Butonu -->
+        <Button
+            android:id="@+id/btnSaveSettings"
+            android:layout_width="match_parent"
+            android:layout_height="46dp"
+            android:text="Kaydet ve Uygula ✨"
+            android:background="@drawable/bg_btn_accent"
+            android:textColor="@color/text_white"
+            android:textStyle="bold"
+            android:layout_marginTop="4dp" />
+
+    </LinearLayout>
+</ScrollView>

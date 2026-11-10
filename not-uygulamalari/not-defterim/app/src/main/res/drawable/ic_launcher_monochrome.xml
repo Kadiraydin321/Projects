@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Sayfa Gövdesi -->
+    <path
+        android:fillColor="#000000"
+        android:pathData="M37,24 L61,24 L76,39 L76,74 C76,78.4 72.4,82 68,82 L37,82 C32.6,82 29,78.4 29,74 L29,32 C29,27.6 32.6,24 37,24 Z" />
+    <!-- Yer İmi Kurdelesi -->
+    <path
+        android:fillColor="#000000"
+        android:pathData="M37,22 L46,22 L46,47 L41.5,43 L37,47 Z" />
+    <!-- Kalem -->
+    <path
+        android:fillColor="#000000"
+        android:pathData="M65.5,74.5 L81.5,58.5 C82.3,57.7 83.7,57.7 84.5,58.5 L85,59 C85.8,59.8 85.8,61.2 85,62 L69,78 L63,80.5 Z" />
+</vector>

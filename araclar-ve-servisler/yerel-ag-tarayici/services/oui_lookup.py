@@ -1,0 +1,107 @@
+OUI_DATABASE = {
+    # Ağ Cihazları & Sunucular
+    "E0:9D:1E": "TP-Link Corporation Limited",
+    "26:77:D8": "Xiaomi Communications",
+    "00:15:5D": "Microsoft Hyper-V Virtual",
+    "00:50:56": "VMware Virtual Infrastructure",
+    "00:0C:29": "VMware Virtual Machine",
+    "08:00:27": "Oracle VirtualBox",
+    "52:54:00": "QEMU/KVM Virtual NIC",
+    "B8:27:EB": "Raspberry Pi Foundation",
+    "DC:A6:32": "Raspberry Pi Trading Ltd",
+    "E4:5F:01": "Raspberry Pi (Trading) Ltd",
+    "D8:3A:DD": "Raspberry Pi (Trading) Ltd",
+    
+    # Sunucu & Kurumsal Donanımlar
+    "00:1E:67": "Intel Corporation (Server)",
+    "00:25:90": "Super Micro Computer Inc.",
+    "00:30:48": "Super Micro Computer Inc.",
+    "0C:C4:7A": "Super Micro Computer Inc.",
+    "AC:1F:6B": "Super Micro Computer Inc.",
+    "00:1A:64": "HP (Hewlett Packard Enterprise)",
+    "00:24:81": "HP ProLiant Server",
+    "70:5A:0F": "HP Enterprise",
+    "18:66:DA": "Dell Inc. (PowerEdge)",
+    "14:18:77": "Dell Inc.",
+    "D4:AE:52": "Dell Inc.",
+    "00:14:22": "Dell Inc. Server",
+    "00:1D:09": "Dell Inc.",
+    "BC:30:5B": "Dell Inc.",
+    "00:11:43": "Dell Inc.",
+    "00:26:55": "Dell Inc.",
+    "00:10:18": "Broadcom Corporation",
+    "00:24:E8": "Dell Inc.",
+    "00:08:74": "Dell Inc.",
+    "00:18:FE": "Hewlett Packard Enterprise",
+    "3C:D9:2B": "Hewlett Packard",
+    "9C:B6:54": "Hewlett Packard Enterprise",
+    "00:1B:78": "Hewlett Packard",
+    "00:0B:CD": "Compaq / HP ProLiant",
+    "48:0F:CF": "Cisco Systems",
+    "00:00:0C": "Cisco Systems",
+    "00:01:42": "Cisco Systems",
+    "00:01:C7": "Cisco Systems",
+    "00:02:16": "Cisco Systems",
+    "00:08:2F": "Cisco Systems",
+    "00:0E:D7": "Cisco Systems",
+    "00:14:1C": "Cisco Systems",
+    "00:1A:A1": "Cisco Systems",
+    "00:22:BD": "Cisco Systems",
+    "00:26:0B": "Cisco Systems",
+    "2C:3F:0B": "Synology Inc. (NAS/Server)",
+    "00:11:32": "Synology Inc. (NAS/Server)",
+    "90:09:D0": "Synology Inc. (NAS/Server)",
+    "00:08:9B": "QNAP Systems, Inc. (NAS/Server)",
+    "24:5E:BE": "QNAP Systems, Inc. (NAS/Server)",
+
+    # Tüketici & Bilgisayar Donanımları
+    "00:1A:2B": "Ayecom Technology Co., Ltd.",
+    "00:23:24": "Giga-Byte Technology Co., Ltd.",
+    "04:D4:C4": "ASUSTek Computer Inc.",
+    "10:7C:61": "ASUSTek Computer Inc.",
+    "24:4B:FE": "ASUSTek Computer Inc.",
+    "40:16:7E": "ASUSTek Computer Inc.",
+    "04:42:1A": "Apple, Inc.",
+    "00:03:93": "Apple, Inc.",
+    "00:05:02": "Apple, Inc.",
+    "00:0A:95": "Apple, Inc.",
+    "00:0A:27": "Apple, Inc.",
+    "F0:18:98": "Apple, Inc.",
+    "AC:BC:32": "Apple, Inc.",
+    "3C:06:30": "Apple, Inc.",
+    "A4:83:E7": "Apple, Inc.",
+    "98:01:A7": "Apple, Inc.",
+    "18:65:90": "Apple, Inc.",
+    "80:6C:1B": "Apple, Inc.",
+    "D8:0D:17": "TP-Link Corporation Limited",
+    "50:C7:BF": "TP-Link Corporation Limited",
+    "74:05:A5": "TP-Link Corporation Limited",
+    "C0:06:C3": "TP-Link Corporation Limited",
+    "00:0C:43": "Ralink Technology, Corp.",
+    "00:1E:58": "D-Link Corporation",
+    "14:D6:4D": "D-Link Corporation",
+    "00:26:5A": "D-Link Corporation",
+    "00:17:88": "Philips Lighting (Hue Bridge)",
+    "EC:FA:BC": "Espressif Systems (IoT)",
+    "24:0A:C4": "Espressif Systems (ESP32/ESP8266)",
+    "30:AE:A4": "Espressif Systems (IoT)",
+    "84:F3:EB": "Espressif Systems (IoT)",
+    "A4:CF:12": "Espressif Systems (IoT)",
+    "00:1D:BA": "Sony Interactive Entertainment",
+    "F8:46:1C": "Sony Interactive Entertainment (PlayStation)",
+    "00:50:F2": "Microsoft Corporation (Xbox)",
+    "58:82:A8": "Nintendo Co., Ltd.",
+}
+
+def lookup_vendor(mac_address: str) -> str:
+    """MAC adresinin ilk 3 baytına göre üretici adını döndürür."""
+    if not mac_address:
+        return "Bilinmiyor"
+    
+    clean_mac = mac_address.replace("-", ":").upper().strip()
+    parts = clean_mac.split(":")
+    if len(parts) >= 3:
+        prefix = f"{parts[0]}:{parts[1]}:{parts[2]}"
+        return OUI_DATABASE.get(prefix, "Bilinmeyen Üretici")
+    
+    return "Bilinmiyor"

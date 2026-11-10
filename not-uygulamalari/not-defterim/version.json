@@ -1,0 +1,13 @@
+{
+  "appName": "NotDefterim",
+  "version": "1.5.0",
+  "versionName": "1.5.0",
+  "versionCode": 37,
+  "apkFileName": "NoteApp-release.apk",
+  "apkPath": "C:\\Users\\Birin\\Birin\\Projeler\\not-uygulamalari\\not-defterim\\NoteApp-release.apk",
+  "sha256": "FBB5FB6C64766063A6BECCDC81FBA3C00AB3DC7C7E05420245A2638DFD794A30",
+  "minSdk": 26,
+  "targetSdk": 35,
+  "buildDate": "2026-11-06",
+  "notes": "APK NotDefterim kok dizininde saklanmakta ve tum surum bilgisi bu dosyadan dinamik cekilmektedir."
+}

@@ -1,0 +1,188 @@
+{
+  "app/build.gradle.kts": {
+    "mtime": 1793118305.9380875,
+    "seen": 1793894110.0789373,
+    "ast_hash": "7b700b4c992104890d6d473f2078b125",
+    "semantic_hash": "7b700b4c992104890d6d473f2078b125"
+  },
+  "app/src/main/java/com/omnibackup/transfer/MainActivity.kt": {
+    "mtime": 1793117785.799612,
+    "seen": 1793894110.0789433,
+    "ast_hash": "5980155d85b4bbedc912ea4377a22934",
+    "semantic_hash": "5980155d85b4bbedc912ea4377a22934"
+  },
+  "app/src/main/java/com/omnibackup/transfer/OmniBackupApplication.kt": {
+    "mtime": 1793117502.3001802,
+    "seen": 1793894110.0789459,
+    "ast_hash": "74fc4bf3578ed50b3adeec75452f3d40",
+    "semantic_hash": "74fc4bf3578ed50b3adeec75452f3d40"
+  },
+  "app/src/main/java/com/omnibackup/transfer/core/network/NetworkUtils.kt": {
+    "mtime": 1793118101.516417,
+    "seen": 1793894110.078947,
+    "ast_hash": "a259c1dc1ed7725eaf6f849bd6d5a298",
+    "semantic_hash": "a259c1dc1ed7725eaf6f849bd6d5a298"
+  },
+  "app/src/main/java/com/omnibackup/transfer/core/permission/StoragePermissionManager.kt": {
+    "mtime": 1793117511.1954906,
+    "seen": 1793894110.078948,
+    "ast_hash": "961a4bdc5233dec4c31590f3d63eba04",
+    "semantic_hash": "961a4bdc5233dec4c31590f3d63eba04"
+  },
+  "app/src/main/java/com/omnibackup/transfer/core/scanner/AppBackupScanner.kt": {
+    "mtime": 1793123448.4860823,
+    "seen": 1793894110.0789492,
+    "ast_hash": "7d154dccf8e4800f2a8647342e9ee91f",
+    "semantic_hash": "7d154dccf8e4800f2a8647342e9ee91f"
+  },
+  "app/src/main/java/com/omnibackup/transfer/core/scanner/MediaCategoryScanner.kt": {
+    "mtime": 1793123486.995228,
+    "seen": 1793894110.07895,
+    "ast_hash": "4b724722c6c1adbb29f01c5de745fe7d",
+    "semantic_hash": "4b724722c6c1adbb29f01c5de745fe7d"
+  },
+  "app/src/main/java/com/omnibackup/transfer/core/scanner/WhatsAppScanner.kt": {
+    "mtime": 1793123401.9753656,
+    "seen": 1793894110.078951,
+    "ast_hash": "5cdaa3e00ec1d9334fcbb4fbac82ae40",
+    "semantic_hash": "5cdaa3e00ec1d9334fcbb4fbac82ae40"
+  },
+  "app/src/main/java/com/omnibackup/transfer/core/security/AuthSecurity.kt": {
+    "mtime": 1793118069.5210762,
+    "seen": 1793894110.0789518,
+    "ast_hash": "97e31e4eececaad1930c3fe4aa403216",
+    "semantic_hash": "97e31e4eececaad1930c3fe4aa403216"
+  },
+  "app/src/main/java/com/omnibackup/transfer/core/server/KtorTransferServer.kt": {
+    "mtime": 1793123534.093326,
+    "seen": 1793894110.078953,
+    "ast_hash": "cdc09160c43bcf341ae4767f25e3a33f",
+    "semantic_hash": "cdc09160c43bcf341ae4767f25e3a33f"
+  },
+  "app/src/main/java/com/omnibackup/transfer/core/server/UploadManager.kt": {
+    "mtime": 1793120846.19792,
+    "seen": 1793894110.0789537,
+    "ast_hash": "09ca459cf90afc1e1e6d9ecf77869149",
+    "semantic_hash": "09ca459cf90afc1e1e6d9ecf77869149"
+  },
+  "app/src/main/java/com/omnibackup/transfer/core/service/TransferForegroundService.kt": {
+    "mtime": 1793120666.386238,
+    "seen": 1793894110.078955,
+    "ast_hash": "52ab7665e69722053e9118434d7833fc",
+    "semantic_hash": "52ab7665e69722053e9118434d7833fc"
+  },
+  "app/src/main/java/com/omnibackup/transfer/core/stream/OnTheFlyZipStreamer.kt": {
+    "mtime": 1793120503.5237699,
+    "seen": 1793894110.078956,
+    "ast_hash": "fd8e4f25e04eab330c53b438c8d49b81",
+    "semantic_hash": "fd8e4f25e04eab330c53b438c8d49b81"
+  },
+  "app/src/main/java/com/omnibackup/transfer/core/web/WebAssets.kt": {
+    "mtime": 1793123549.2491157,
+    "seen": 1793894110.0789568,
+    "ast_hash": "417b1ea6dd7fbb1e1a917d20eb615652",
+    "semantic_hash": "417b1ea6dd7fbb1e1a917d20eb615652"
+  },
+  "app/src/main/java/com/omnibackup/transfer/ui/components/QrCodeDialog.kt": {
+    "mtime": 1793117718.034596,
+    "seen": 1793894110.0789578,
+    "ast_hash": "f1e4c2f8ee1c53ab20597e1ff45ccef1",
+    "semantic_hash": "f1e4c2f8ee1c53ab20597e1ff45ccef1"
+  },
+  "app/src/main/java/com/omnibackup/transfer/ui/screens/DashboardScreen.kt": {
+    "mtime": 1793120775.1574738,
+    "seen": 1793894110.0789585,
+    "ast_hash": "9964fa3fcd3cdc1da69749e5664c81e3",
+    "semantic_hash": "9964fa3fcd3cdc1da69749e5664c81e3"
+  },
+  "app/src/main/java/com/omnibackup/transfer/ui/screens/DashboardViewModel.kt": {
+    "mtime": 1793120688.8034708,
+    "seen": 1793894110.0789597,
+    "ast_hash": "b80deaff0686109b8149f2ad3df4392f",
+    "semantic_hash": "b80deaff0686109b8149f2ad3df4392f"
+  },
+  "app/src/main/java/com/omnibackup/transfer/ui/theme/Color.kt": {
+    "mtime": 1793120632.6317668,
+    "seen": 1793894110.0789607,
+    "ast_hash": "8c0eab419cd7bf12aeb271c6996048ad",
+    "semantic_hash": "8c0eab419cd7bf12aeb271c6996048ad"
+  },
+  "app/src/main/java/com/omnibackup/transfer/ui/theme/Theme.kt": {
+    "mtime": 1793120638.0279253,
+    "seen": 1793894110.0789614,
+    "ast_hash": "d703a0ac40290314be8f3759a3c003b3",
+    "semantic_hash": "d703a0ac40290314be8f3759a3c003b3"
+  },
+  "app/src/main/java/com/omnibackup/transfer/ui/theme/Type.kt": {
+    "mtime": 1793117693.107348,
+    "seen": 1793894110.0789623,
+    "ast_hash": "5293b9ce8117d500c288a20e8511ddf4",
+    "semantic_hash": "5293b9ce8117d500c288a20e8511ddf4"
+  },
+  "app/src/test/java/com/omnibackup/transfer/AppBackupScannerTest.kt": {
+    "mtime": 1793120583.0200443,
+    "seen": 1793894110.0789635,
+    "ast_hash": "9ee3f40538fa9f8c0e099aa57f26764d",
+    "semantic_hash": "9ee3f40538fa9f8c0e099aa57f26764d"
+  },
+  "app/src/test/java/com/omnibackup/transfer/AuthSecurityTest.kt": {
+    "mtime": 1793118180.202206,
+    "seen": 1793894110.0789642,
+    "ast_hash": "538bf89a280d1cf800bcebc8f38d30e4",
+    "semantic_hash": "538bf89a280d1cf800bcebc8f38d30e4"
+  },
+  "app/src/test/java/com/omnibackup/transfer/KtorTransferServerTest.kt": {
+    "mtime": 1793123744.9538233,
+    "seen": 1793894110.0789654,
+    "ast_hash": "f433d2aeb6cbe3159dd3b80c1a0c2ffd",
+    "semantic_hash": "f433d2aeb6cbe3159dd3b80c1a0c2ffd"
+  },
+  "app/src/test/java/com/omnibackup/transfer/MediaCategoryScannerTest.kt": {
+    "mtime": 1793123513.7054255,
+    "seen": 1793894110.0789664,
+    "ast_hash": "951e2e1c8f88381090e7ba0e78119cee",
+    "semantic_hash": "951e2e1c8f88381090e7ba0e78119cee"
+  },
+  "app/src/test/java/com/omnibackup/transfer/NetworkUtilsTest.kt": {
+    "mtime": 1793118166.1918137,
+    "seen": 1793894110.0789673,
+    "ast_hash": "41700ef464d2ab6dd9b5101e7e30f2d9",
+    "semantic_hash": "41700ef464d2ab6dd9b5101e7e30f2d9"
+  },
+  "app/src/test/java/com/omnibackup/transfer/OnTheFlyZipStreamerTest.kt": {
+    "mtime": 1793121233.8544128,
+    "seen": 1793894110.0789683,
+    "ast_hash": "5ee90db4a2d3c478c6d310e66b0c80cd",
+    "semantic_hash": "5ee90db4a2d3c478c6d310e66b0c80cd"
+  },
+  "app/src/test/java/com/omnibackup/transfer/UploadManagerTest.kt": {
+    "mtime": 1793121185.6520607,
+    "seen": 1793894110.0789692,
+    "ast_hash": "f23f2d2d1156f8b7c65def2c56c1d437",
+    "semantic_hash": "f23f2d2d1156f8b7c65def2c56c1d437"
+  },
+  "app/src/test/java/com/omnibackup/transfer/WhatsAppScannerTest.kt": {
+    "mtime": 1793123499.2535453,
+    "seen": 1793894110.0789702,
+    "ast_hash": "d979b2723f176c1d1a8cf54f991a1ddb",
+    "semantic_hash": "d979b2723f176c1d1a8cf54f991a1ddb"
+  },
+  "build.gradle.kts": {
+    "mtime": 1793117403.8278563,
+    "seen": 1793894110.0789711,
+    "ast_hash": "80fe21382d328fd01397d291e211e375",
+    "semantic_hash": "80fe21382d328fd01397d291e211e375"
+  },
+  "gradlew": {
+    "mtime": 1793117798.2776394,
+    "seen": 1793894110.0789719,
+    "ast_hash": "139417ce3d459c367c01a5b930abfc33",
+    "semantic_hash": "139417ce3d459c367c01a5b930abfc33"
+  },
+  "settings.gradle.kts": {
+    "mtime": 1793117400.887197,
+    "seen": 1793894110.0789728,
+    "ast_hash": "a3cbcfbafcdccaf3f6cf63bcdfe3c098",
+    "semantic_hash": "a3cbcfbafcdccaf3f6cf63bcdfe3c098"
+  }
+}

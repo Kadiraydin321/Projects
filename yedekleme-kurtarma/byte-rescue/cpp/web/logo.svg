@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" fill="none">
+  <defs>
+    <!-- Modern SaaS Primary Gradient -->
+    <linearGradient id="logoBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2563eb"/>
+      <stop offset="100%" stop-color="#0284c7"/>
+    </linearGradient>
+    <!-- Soft Accent Glow (Subtle, non-cyber) -->
+    <linearGradient id="arrowGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#e0f2fe"/>
+    </linearGradient>
+    <filter id="softShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#0f172a" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+
+  <!-- Modern Rounded Squircle Base -->
+  <rect x="8" y="8" width="112" height="112" rx="28" fill="url(#logoBg)" filter="url(#softShadow)"/>
+
+  <!-- Subtle Inner Surface Card -->
+  <rect x="10" y="10" width="108" height="108" rx="26" stroke="#ffffff" stroke-opacity="0.18" stroke-width="1.5" fill="none"/>
+
+  <!-- Clean Minimalist File/Drive Symbol with Folded Corner -->
+  <path d="M40 32 H74 L90 48 V92 C90 95.3 87.3 98 84 98 H40 C36.7 98 34 95.3 34 92 V38 C34 34.7 36.7 32 40 32 Z" 
+        fill="#ffffff" fill-opacity="0.14" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round"/>
+  
+  <!-- File Corner Fold -->
+  <path d="M74 32 V48 H90" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round" fill="#ffffff" fill-opacity="0.25"/>
+
+  <!-- Rescued Data Sector Lines -->
+  <line x1="46" y1="52" x2="66" y2="52" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-opacity="0.7"/>
+  <line x1="46" y1="62" x2="62" y2="62" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-opacity="0.7"/>
+
+  <!-- Dynamic Circular Rescue Arrow (Counter-Clockwise Recovery Loop) -->
+  <path d="M78 84 C73.5 88 67 90 60 89 C47.5 87 38 76 39 63 C40 50.5 50.5 41 63 41 C73 41 81.5 47.5 85 57" 
+        stroke="url(#arrowGrad)" stroke-width="5" stroke-linecap="round" fill="none"/>
+  
+  <!-- Arrow Head Pointing Clockwise / Upward Recovery -->
+  <path d="M78 57 H87 V48" 
+        stroke="url(#arrowGrad)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+
+  <!-- Center Rescued Byte Dot -->
+  <circle cx="62" cy="65" r="4.5" fill="#38bdf8"/>
+</svg>

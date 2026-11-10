@@ -1,0 +1,61 @@
+package com.example.noteapp.domain.repository
+
+import com.example.noteapp.domain.model.Category
+import com.example.noteapp.domain.model.Note
+import com.example.noteapp.domain.model.NoteHistory
+import com.example.noteapp.domain.util.NoteDraft
+import kotlinx.coroutines.flow.Flow
+
+interface NoteRepository {
+    fun getActiveNotes(): Flow<List<Note>>
+    suspend fun getActiveNotesList(): List<Note>
+    suspend fun getPinnedNotesList(): List<Note>
+    fun getArchivedNotes(): Flow<List<Note>>
+    fun getTrashNotes(): Flow<List<Note>>
+    fun getNotesByCategory(categoryId: Long): Flow<List<Note>>
+    suspend fun getNoteById(id: Long): Note?
+    suspend fun getNoteByTitle(title: String): Note?
+    suspend fun getNotesLinkingTo(noteTitle: String, excludeId: Long): List<Note>
+    suspend fun insertNote(note: Note): Long
+    suspend fun updateNote(note: Note)
+    suspend fun deleteNote(note: Note)
+    suspend fun emptyTrash()
+
+    suspend fun getAllNotes(): List<Note>
+    suspend fun insertNotes(notes: List<Note>): List<Long>
+    suspend fun deleteAllNotes()
+
+    fun getAllCategories(): Flow<List<Category>>
+    suspend fun getAllCategoriesList(): List<Category>
+    suspend fun insertCategory(category: Category): Long
+    suspend fun insertCategories(categories: List<Category>)
+    suspend fun deleteAllCategories()
+    suspend fun deleteCategory(category: Category)
+
+    suspend fun moveNotesToTrash(noteIds: List<Long>, deletedAt: Long = System.currentTimeMillis())
+    suspend fun cleanUpOldTrashNotes(threshold: Long)
+    suspend fun updateNotesCategory(noteIds: List<Long>, categoryId: Long?)
+    suspend fun deleteNotesPermanently(noteIds: List<Long>)
+
+    // Note Version History
+    fun getHistoryForNote(noteId: Long): Flow<List<NoteHistory>>
+    suspend fun getHistoryListForNote(noteId: Long): List<NoteHistory>
+    suspend fun getHistoryById(historyId: Long): NoteHistory?
+    suspend fun insertNoteHistory(history: NoteHistory): Long
+    suspend fun pruneOldHistory(noteId: Long, keepCount: Int = 30)
+    suspend fun deleteHistoryForNote(noteId: Long)
+    suspend fun getAllNoteHistory(): List<NoteHistory>
+    suspend fun insertNoteHistories(histories: List<NoteHistory>)
+
+    // Folders
+    fun getNotesByFolder(folderId: Long): Flow<List<Note>>
+    suspend fun getNotesByFolderList(folderId: Long): List<Note>
+    suspend fun updateNotesFolder(noteIds: List<Long>, folderId: Long?)
+
+    // Draft Persistence & Crash Recovery
+    suspend fun getDraft(noteId: Long?): NoteDraft?
+    suspend fun saveDraft(noteId: Long?, title: String, content: String, timestamp: Long = System.currentTimeMillis())
+    suspend fun deleteDraft(noteId: Long?)
+    suspend fun getAllDrafts(): List<NoteDraft>
+    suspend fun deleteAllDrafts()
+}

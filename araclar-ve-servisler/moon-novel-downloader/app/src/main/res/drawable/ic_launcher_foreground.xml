@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Stylized Book & Crimson Crescent Moon -->
+    <!-- Left Book Page (White) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M30,38 C38,36 46,38 52,44 L52,78 C46,72 38,70 30,72 Z" />
+    
+    <!-- Right Book Page (Pure White with shadow line) -->
+    <path
+        android:fillColor="#E2E8F0"
+        android:pathData="M78,38 C70,36 62,38 56,44 L56,78 C62,72 70,70 78,72 Z" />
+    
+    <!-- Spine center divider -->
+    <path
+        android:fillColor="#E11D48"
+        android:pathData="M52.5,42 L55.5,42 L55.5,79 L52.5,79 Z" />
+
+    <!-- Aggressive Crimson Moon Rising Above the Book -->
+    <path
+        android:fillColor="#E11D48"
+        android:pathData="M54,22 C61.18,22 67,27.82 67,35 C67,39.8 64.4,43.99 60.55,46.25 C63.29,43.5 65,39.46 65,35 C65,28.92 60.08,24 54,24 C50.78,24 47.9,25.38 45.9,27.58 C47.95,24.23 50.72,22 54,22 Z" />
+
+    <!-- Stylized Red Glow Mark at Book Corner -->
+    <path
+        android:fillColor="#BE123C"
+        android:pathData="M54,45 L50,49 L54,53 L58,49 Z" />
+</vector>

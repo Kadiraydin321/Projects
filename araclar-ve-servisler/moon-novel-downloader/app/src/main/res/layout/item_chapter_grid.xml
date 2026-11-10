@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/bg_chapter_card"
+    android:padding="14dp">
+
+    <TextView
+        android:id="@+id/tvCardChapterNum"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Bölüm 168"
+        android:textColor="@color/crimson_light"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="4dp" />
+
+    <TextView
+        android:id="@+id/tvCardChapterTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Dönüm Noktası 4"
+        android:textColor="@color/text_white"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:singleLine="true"
+        android:ellipsize="end"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="⚡ Hemen Oku / İndir"
+        android:textColor="@color/crimson_red"
+        android:textSize="11sp" />
+
+</LinearLayout>

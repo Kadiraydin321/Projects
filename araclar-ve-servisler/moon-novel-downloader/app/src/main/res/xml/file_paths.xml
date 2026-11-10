@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <files-path name="internal_files" path="." />
+    <files-path name="epubs" path="epubs/" />
+    <files-path name="zips" path="zips/" />
+    <files-path name="internal_updates" path="updates/" />
+    <external-files-path name="ext_files" path="." />
+    <external-files-path name="ext_epubs" path="epubs/" />
+    <external-files-path name="ext_zips" path="zips/" />
+    <external-files-path name="ext_updates" path="updates/" />
+    <cache-path name="cache_files" path="." />
+    <cache-path name="cache_epubs" path="epubs/" />
+    <cache-path name="cache_updates" path="updates/" />
+    <external-cache-path name="ext_cache_updates" path="." />
+</paths>

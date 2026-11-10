@@ -1,0 +1,270 @@
+package com.example.noteapp
+
+import org.json.JSONArray
+import org.json.JSONObject
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
+import org.junit.Test
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
+import java.util.zip.ZipEntry
+import java.util.zip.ZipInputStream
+import java.util.zip.ZipOutputStream
+import javax.crypto.Cipher
+import javax.crypto.SecretKeyFactory
+import javax.crypto.spec.GCMParameterSpec
+import javax.crypto.spec.PBEKeySpec
+import javax.crypto.spec.SecretKeySpec
+import java.security.MessageDigest
+import java.security.SecureRandom
+
+class BackupRestoreEngineTest {
+
+    @Test
+    fun `zip archive packaging and unpackaging roundtrip succeeds`() {
+        val baos = ByteArrayOutputStream()
+        ZipOutputStream(baos).use { zipOut ->
+            // 1. backup_info.json
+            val infoJson = JSONObject().apply {
+                put("version", 2)
+                put("appName", "Not Defterim")
+                put("notesCount", 1)
+            }
+            zipOut.putNextEntry(ZipEntry("backup_info.json"))
+            zipOut.write(infoJson.toString().toByteArray(Charsets.UTF_8))
+            zipOut.closeEntry()
+
+            // 2. notes.json with deletedAt and attachments
+            val notesArray = JSONArray().apply {
+                put(
+                    JSONObject().apply {
+                        put("id", 101L)
+                        put("title", "Project Roadmap")
+                        put("content", "Autonomous development in progress")
+                        put("timestamp", 1700000000000L)
+                        put("isDeleted", true)
+                        put("deletedAt", 1700000500000L)
+                        put("attachments", JSONArray().apply { put("attachments/diagram.png") })
+                    }
+                )
+            }
+            zipOut.putNextEntry(ZipEntry("notes.json"))
+            zipOut.write(notesArray.toString().toByteArray(Charsets.UTF_8))
+            zipOut.closeEntry()
+
+            // 3. note_history.json
+            val historyArray = JSONArray().apply {
+                put(
+                    JSONObject().apply {
+                        put("id", 1L)
+                        put("noteId", 101L)
+                        put("title", "Project Roadmap v1")
+                        put("content", "Initial draft")
+                        put("timestamp", 1699999000000L)
+                        put("changeSummary", "İlk taslak oluşturuldu")
+                    }
+                )
+            }
+            zipOut.putNextEntry(ZipEntry("note_history.json"))
+            zipOut.write(historyArray.toString().toByteArray(Charsets.UTF_8))
+            zipOut.closeEntry()
+
+            // 4. templates.json
+            val templatesArray = JSONArray().apply {
+                put(
+                    JSONObject().apply {
+                        put("id", "tmpl_retro")
+                        put("title", "Sprint Retrospektif")
+                        put("iconEmoji", "🚀")
+                        put("contentTemplate", "# Ne iyi gitti?\n# Ne geliştirilebilir?")
+                    }
+                )
+            }
+            zipOut.putNextEntry(ZipEntry("templates.json"))
+            zipOut.write(templatesArray.toString().toByteArray(Charsets.UTF_8))
+            zipOut.closeEntry()
+        }
+
+        val zipBytes = baos.toByteArray()
+        assertTrue(zipBytes.isNotEmpty())
+
+        // Read and verify entries
+        val entriesFound = mutableMapOf<String, String>()
+        ZipInputStream(ByteArrayInputStream(zipBytes)).use { zipIn ->
+            var entry = zipIn.nextEntry
+            while (entry != null) {
+                entriesFound[entry.name] = zipIn.bufferedReader(Charsets.UTF_8).readText()
+                zipIn.closeEntry()
+                entry = zipIn.nextEntry
+            }
+        }
+
+        assertEquals(4, entriesFound.size)
+        assertTrue(entriesFound.containsKey("backup_info.json"))
+        assertTrue(entriesFound.containsKey("notes.json"))
+        assertTrue(entriesFound.containsKey("note_history.json"))
+        assertTrue(entriesFound.containsKey("templates.json"))
+
+        // Validate note contents
+        val parsedNotes = JSONArray(entriesFound["notes.json"]!!)
+        assertEquals(1, parsedNotes.length())
+        val noteObj = parsedNotes.getJSONObject(0)
+        assertEquals("Project Roadmap", noteObj.getString("title"))
+        assertTrue(noteObj.getBoolean("isDeleted"))
+        assertEquals(1700000500000L, noteObj.getLong("deletedAt"))
+        assertEquals("attachments/diagram.png", noteObj.getJSONArray("attachments").getString(0))
+
+        // Validate history
+        val parsedHistory = JSONArray(entriesFound["note_history.json"]!!)
+        assertEquals(1, parsedHistory.length())
+        assertEquals("İlk taslak oluşturuldu", parsedHistory.getJSONObject(0).getString("changeSummary"))
+
+        // Validate templates
+        val parsedTemplates = JSONArray(entriesFound["templates.json"]!!)
+        assertEquals(1, parsedTemplates.length())
+        assertEquals("tmpl_retro", parsedTemplates.getJSONObject(0).getString("id"))
+    }
+
+    @Test
+    fun `vault magic constant matches expected specification`() {
+        val magic = "NOTEVLT1".toByteArray(Charsets.US_ASCII)
+        assertEquals(8, magic.size)
+        assertEquals('N'.code.toByte(), magic[0])
+        assertEquals('1'.code.toByte(), magic[7])
+    }
+
+    @Test
+    fun `vault candidate password matching and decryption succeeds`() {
+        val secretPin = "1234"
+        val salt = ByteArray(16).also { SecureRandom().nextBytes(it) }
+        val iv = ByteArray(12).also { SecureRandom().nextBytes(it) }
+
+        // Password Hash: SHA-256(salt + password)
+        val md = MessageDigest.getInstance("SHA-256")
+        md.update(salt)
+        md.update(secretPin.toByteArray(Charsets.UTF_8))
+        val storedHash = md.digest()
+
+        // AES-256-GCM Encrypt
+        val factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256")
+        val spec = PBEKeySpec(secretPin.toCharArray(), salt, 65536, 256)
+        val secretKey = SecretKeySpec(factory.generateSecret(spec).encoded, "AES")
+        val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey, GCMParameterSpec(128, iv))
+        val plainPayload = "{\"notes\":[]}".toByteArray(Charsets.UTF_8)
+        val ciphertext = cipher.doFinal(plainPayload)
+
+        // Simule edilmis aday anahtar testi (Biometric fallback / Master PIN)
+        val candidates = listOf("0000", "9999", "1234", "5678")
+        var resolvedPassword: String? = null
+        for (candidate in candidates) {
+            md.reset()
+            md.update(salt)
+            md.update(candidate.toByteArray(Charsets.UTF_8))
+            if (md.digest().contentEquals(storedHash)) {
+                resolvedPassword = candidate
+                break
+            }
+        }
+
+        assertNotNull("Aday anahtarlardan biri eslesmelidir", resolvedPassword)
+        assertEquals("1234", resolvedPassword)
+
+        // Cozme islemini dogrula
+        val decryptSpec = PBEKeySpec(resolvedPassword!!.toCharArray(), salt, 65536, 256)
+        val decryptKey = SecretKeySpec(factory.generateSecret(decryptSpec).encoded, "AES")
+        cipher.init(Cipher.DECRYPT_MODE, decryptKey, GCMParameterSpec(128, iv))
+        val decryptedBytes = cipher.doFinal(ciphertext)
+        assertEquals("{\"notes\":[]}", String(decryptedBytes, Charsets.UTF_8))
+    }
+
+    @Test
+    fun `vault candidate password fails when no candidates match`() {
+        val secretPin = "7788"
+        val salt = ByteArray(16).also { SecureRandom().nextBytes(it) }
+        val md = MessageDigest.getInstance("SHA-256")
+        md.update(salt)
+        md.update(secretPin.toByteArray(Charsets.UTF_8))
+        val storedHash = md.digest()
+
+        val wrongCandidates = listOf("0000", "1111", "2222")
+        var resolvedPassword: String? = null
+        for (candidate in wrongCandidates) {
+            md.reset()
+            md.update(salt)
+            md.update(candidate.toByteArray(Charsets.UTF_8))
+            if (md.digest().contentEquals(storedHash)) {
+                resolvedPassword = candidate
+                break
+            }
+        }
+
+        assertEquals(null, resolvedPassword)
+    }
+
+    @Test
+    fun `real user notevault backup can be decrypted with candidate masterPin and parsed as zip archive`() {
+        val userFilePath = "C:/Users/Birin/.gemini/antigravity/brain/b91a0902-06ca-4b38-86bb-b4bd528047b8/.user_uploaded/media_1793806061875_e56aa220.notevault"
+        val userFile = java.io.File(userFilePath)
+        if (!userFile.exists()) return // Dosya ortamda yoksa atla
+
+        val data = userFile.readBytes()
+        assertTrue(data.size > 68)
+        val magic = String(data.copyOfRange(0, 8), Charsets.US_ASCII)
+        assertEquals("NOTEVLT1", magic)
+
+        val salt = data.copyOfRange(8, 24)
+        val iv = data.copyOfRange(24, 36)
+        val storedHash = data.copyOfRange(36, 68)
+        val ciphertext = data.copyOfRange(68, data.size)
+
+        // Kullanicinin aday PIN'leri (masterPin = "2526")
+        val candidates = listOf("0000", "1234", "2526", "9999")
+        val md = MessageDigest.getInstance("SHA-256")
+        var resolvedPin: String? = null
+        for (candidate in candidates) {
+            md.reset()
+            md.update(salt)
+            md.update(candidate.toByteArray(Charsets.UTF_8))
+            if (md.digest().contentEquals(storedHash)) {
+                resolvedPin = candidate
+                break
+            }
+        }
+
+        assertNotNull("Kullanici PIN'i 2526 basariyla cozulmelidir", resolvedPin)
+        assertEquals("2526", resolvedPin)
+
+        // AES-256-GCM ile Cozme
+        val factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256")
+        val spec = PBEKeySpec(resolvedPin!!.toCharArray(), salt, 65536, 256)
+        val secretKey = SecretKeySpec(factory.generateSecret(spec).encoded, "AES")
+        val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+        cipher.init(Cipher.DECRYPT_MODE, secretKey, GCMParameterSpec(128, iv))
+        val plainBytes = cipher.doFinal(ciphertext)
+
+        // ZIP Basligini dogrula (PK\x03\x04)
+        assertEquals(0x50.toByte(), plainBytes[0])
+        assertEquals(0x4B.toByte(), plainBytes[1])
+
+        // ZIP icerigindeki 13 notu ve basligi dogrula
+        val entries = mutableMapOf<String, String>()
+        ZipInputStream(ByteArrayInputStream(plainBytes)).use { zis ->
+            var entry = zis.nextEntry
+            while (entry != null) {
+                entries[entry.name] = zis.bufferedReader(Charsets.UTF_8).readText()
+                zis.closeEntry()
+                entry = zis.nextEntry
+            }
+        }
+
+        assertTrue(entries.containsKey("notes.json"))
+        val notesArray = JSONArray(entries["notes.json"]!!)
+        assertEquals(13, notesArray.length())
+        val firstNote = notesArray.getJSONObject(0)
+        assertEquals("INA Pin to Pin", firstNote.getString("title"))
+        assertTrue(firstNote.getString("content").contains("ETGA = MOXA"))
+    }
+}

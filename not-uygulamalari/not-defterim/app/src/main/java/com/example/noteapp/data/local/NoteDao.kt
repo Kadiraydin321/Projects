@@ -1,0 +1,152 @@
+package com.example.noteapp.data.local
+
+import androidx.room.*
+import com.example.noteapp.domain.model.Category
+import com.example.noteapp.domain.model.Note
+import com.example.noteapp.domain.model.NoteHistory
+import kotlinx.coroutines.flow.Flow
+
+@Dao
+interface NoteDao {
+    @Query("SELECT * FROM notes WHERE isDeleted = 0 AND isArchived = 0 ORDER BY isPinned DESC, timestamp DESC")
+    fun getActiveNotes(): Flow<List<Note>>
+
+    @Query("SELECT * FROM notes WHERE isDeleted = 0 AND isArchived = 0 ORDER BY isPinned DESC, timestamp DESC")
+    suspend fun getActiveNotesList(): List<Note>
+
+    @Query("SELECT * FROM notes WHERE isDeleted = 0 AND isArchived = 0 AND isPinned = 1 ORDER BY timestamp DESC")
+    suspend fun getPinnedNotesList(): List<Note>
+
+    @Query("SELECT * FROM notes WHERE isArchived = 1 AND isDeleted = 0 ORDER BY timestamp DESC")
+    fun getArchivedNotes(): Flow<List<Note>>
+
+    @Query("SELECT * FROM notes WHERE isDeleted = 1 ORDER BY timestamp DESC")
+    fun getTrashNotes(): Flow<List<Note>>
+
+    @Query("SELECT * FROM notes WHERE categoryId = :categoryId AND isDeleted = 0 AND isArchived = 0 ORDER BY timestamp DESC")
+    fun getNotesByCategory(categoryId: Long): Flow<List<Note>>
+
+    @Query("SELECT * FROM notes WHERE id = :id")
+    suspend fun getNoteById(id: Long): Note?
+
+    @Query("SELECT * FROM notes WHERE isDeleted = 0 AND title = :title LIMIT 1")
+    suspend fun getNoteByTitle(title: String): Note?
+
+    @Query("SELECT * FROM notes WHERE isDeleted = 0 AND isArchived = 0 AND (content LIKE '%' || :linkToken || '%' OR content LIKE '%' || :rawTitle || '%') AND id != :excludeId")
+    suspend fun getNotesLinkingTo(linkToken: String, rawTitle: String, excludeId: Long): List<Note>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertNote(note: Note): Long
+
+    @Update
+    suspend fun updateNote(note: Note)
+
+    @Delete
+    suspend fun deleteNote(note: Note)
+
+    @Query("DELETE FROM notes WHERE isDeleted = 1")
+    suspend fun emptyTrash()
+
+    @Query("SELECT * FROM notes WHERE isDeleted = 1 AND ((deletedAt IS NOT NULL AND deletedAt <= :thresholdTimestamp) OR (deletedAt IS NULL AND timestamp <= :thresholdTimestamp))")
+    suspend fun getExpiredTrashNotes(thresholdTimestamp: Long): List<Note>
+
+    @Query("DELETE FROM notes WHERE isDeleted = 1 AND ((deletedAt IS NOT NULL AND deletedAt <= :thresholdTimestamp) OR (deletedAt IS NULL AND timestamp <= :thresholdTimestamp))")
+    suspend fun deleteExpiredTrashNotes(thresholdTimestamp: Long): Int
+
+    @Query("SELECT * FROM notes")
+    suspend fun getAllNotes(): List<Note>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertNotes(notes: List<Note>): List<Long>
+
+    @Query("DELETE FROM notes")
+    suspend fun deleteAllNotes()
+
+    // Categories
+    @Query("SELECT * FROM categories ORDER BY name ASC")
+    fun getAllCategories(): Flow<List<Category>>
+
+    @Query("SELECT * FROM categories")
+    suspend fun getAllCategoriesList(): List<Category>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertCategory(category: Category): Long
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertCategories(categories: List<Category>)
+
+    @Query("DELETE FROM categories")
+    suspend fun deleteAllCategories()
+
+    @Query("UPDATE notes SET isDeleted = 1, deletedAt = :deletedAt WHERE id IN (:noteIds)")
+    suspend fun moveNotesToTrash(noteIds: List<Long>, deletedAt: Long = System.currentTimeMillis())
+
+    @Query("DELETE FROM notes WHERE isDeleted = 1 AND deletedAt IS NOT NULL AND deletedAt < :threshold")
+    suspend fun deleteOldTrashNotes(threshold: Long)
+
+    @Query("UPDATE notes SET categoryId = :categoryId WHERE id IN (:noteIds)")
+    suspend fun updateNotesCategory(noteIds: List<Long>, categoryId: Long?)
+
+    @Query("DELETE FROM notes WHERE id IN (:noteIds)")
+    suspend fun deleteNotesPermanently(noteIds: List<Long>)
+
+    @Query("UPDATE notes SET categoryId = NULL WHERE categoryId = :categoryId")
+    suspend fun clearCategoryFromNotes(categoryId: Long)
+
+    @Delete
+    suspend fun deleteCategory(category: Category)
+
+    // Note Version History
+    @Query("SELECT * FROM note_history WHERE noteId = :noteId ORDER BY timestamp DESC")
+    fun getHistoryForNote(noteId: Long): Flow<List<NoteHistory>>
+
+    @Query("SELECT * FROM note_history WHERE noteId = :noteId ORDER BY timestamp DESC")
+    suspend fun getHistoryListForNote(noteId: Long): List<NoteHistory>
+
+    @Query("SELECT * FROM note_history WHERE id = :historyId")
+    suspend fun getHistoryById(historyId: Long): NoteHistory?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertNoteHistory(history: NoteHistory): Long
+
+    @Query("DELETE FROM note_history WHERE noteId = :noteId AND id NOT IN (SELECT id FROM note_history WHERE noteId = :noteId ORDER BY timestamp DESC LIMIT :keepCount)")
+    suspend fun pruneOldHistory(noteId: Long, keepCount: Int = 30)
+
+    @Query("DELETE FROM note_history WHERE noteId = :noteId")
+    suspend fun deleteHistoryForNote(noteId: Long)
+
+    @Query("SELECT * FROM note_history")
+    suspend fun getAllNoteHistory(): List<NoteHistory>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertNoteHistories(histories: List<NoteHistory>)
+
+    // Folders
+    @Query("SELECT * FROM notes WHERE (folderId = :folderId OR categoryId = :folderId) AND isDeleted = 0 AND isArchived = 0 ORDER BY isPinned DESC, timestamp DESC")
+    fun getNotesByFolder(folderId: Long): Flow<List<Note>>
+
+    @Query("SELECT * FROM notes WHERE (folderId = :folderId OR categoryId = :folderId) AND isDeleted = 0 AND isArchived = 0 ORDER BY isPinned DESC, timestamp DESC")
+    suspend fun getNotesByFolderList(folderId: Long): List<Note>
+
+    @Query("UPDATE notes SET folderId = :folderId WHERE id IN (:noteIds)")
+    suspend fun updateNotesFolder(noteIds: List<Long>, folderId: Long?)
+
+    // Draft Persistence & Crash Recovery
+    @Query("SELECT * FROM note_drafts WHERE noteId = :noteId LIMIT 1")
+    suspend fun getDraft(noteId: Long): NoteDraftEntity?
+
+    @Query("SELECT * FROM note_drafts ORDER BY timestamp DESC")
+    suspend fun getAllDrafts(): List<NoteDraftEntity>
+
+    @Query("SELECT * FROM note_drafts ORDER BY timestamp DESC")
+    fun getAllDraftsFlow(): Flow<List<NoteDraftEntity>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertDraft(draft: NoteDraftEntity)
+
+    @Query("DELETE FROM note_drafts WHERE noteId = :noteId")
+    suspend fun deleteDraft(noteId: Long)
+
+    @Query("DELETE FROM note_drafts")
+    suspend fun deleteAllDrafts()
+}

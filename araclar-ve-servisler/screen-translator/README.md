@@ -1,106 +1,180 @@
-# Screen Translator AI (Google Lens Stili Anlık Ekran Çevirici)
+# 🔍 Screen Translator AI (Google Lens Stili Anlık Ekran Çevirici)
 
-Ekrandaki yazıları gerçek zamanlı olarak algılayıp yapay zekaya (Google Gemini Flash AI) aktaran, kullanıcının okuduğu metnin üzerinde yerinde ve **Google Lens benzeri kaydırmalı (swipe slider)** perde efektiyle gösteren ultra optimize edilmiş anlık ekran çeviri uygulaması.
-
-Windows masaüstü ve Android telefon ile tam uyumludur. **Kotlin, Node.js ve Electron kullanılmadan** saf, hafif ve yüksek performanslı mimarilerle (Python + Pure Java 17) inşa edilmiştir.
+Ekrandaki yazıları gerçek zamanlı olarak algılayıp yapay zeka modellerine (Google Gemini Flash AI, Ollama, Google Translate) aktaran, kullanıcının okuduğu metnin üzerinde yerinde ve **Google Lens benzeri kaydırmalı (swipe slider)** perde efektiyle gösteren ultra optimize edilmiş anlık ekran çeviri motoru.
 
 ---
 
-## 🚀 Öne Çıkan Özellikler
+## 🎯 1. Projenin Amacı ve Kapsamı
 
-1. **Google Lens Kaydırma Çubuğu (Swipe Slider Mode)**:
-   - Ekran üzerinde sürüklenebilir dikey perde çizgisi ve tutamağı (`◀ ▶`).
-   - Perdenin sağında yapay zeka çevirisi, solunda orijinal ekran içeriği dinamik olarak gösterilir.
-   - İstenirse tam ekran yerinde ikame (In-place replacement) moduna geçirilebilir.
-2. **Google Lens'ten Daha Hızlı Optimizasyon (0ms / 0% CPU Durağanlık)**:
-   - **Kare Farkı Dedektörü (FrameDiffDetector)**: Ekran sabitken veya kullanıcı okurken OCR ve Çeviri adımlarını atlayarak gereksiz CPU/GPU yükünü ve API maliyetini sıfıra indirir.
-   - **İki Kademeli LRU Önbellek**: Aynı metinler ve benzer koordinatlar 0ms içinde anında ekrana yansıtılır.
-   - **Akıllı Cümle/Paragraf Kümeleme**: Parçalanmış satırları anlamlı cümlelere birleştirerek yapay zekaya tek seferde gönderir (daha doğal çeviri + minimum API çağrısı).
-3. **Yapay Zeka ve Çeviri Motorları**:
-   - **Google Gemini 2.0 / 1.5 Flash**: ~150-200ms ultra düşük gecikme, ekran bağlamını ve terimleri koruyan toplu (batch) JSON çevirisi.
-   - **Google Translate**: Ücretsiz ve API anahtarsız yedek motor.
-   - **Ollama**: Yerel (offline) çalışan LLM'ler (Llama 3.2, Qwen vb.) ile çevrimdışı kullanım.
-4. **Çoklu OCR Motorları**:
-   - **Windows Media OCR (WinRT)**: Donanım hızlandırmalı yerel Windows OCR (~15ms).
-   - **RapidOCR (ONNX Runtime)**: Çapraz platform CPU/GPU ONNX OCR.
-5. **Modüler Eklenti Mimarisi (Plugin Registry)**:
-   - Yeni bir OCR, Çeviri veya Yakalama motoru tek bir sınıf miras alınarak (`BaseOCREngine`, `BaseTranslatorEngine`, `BaseCaptureEngine`) tek satırda sisteme kaydedilebilir veya çıkarılabilir.
-6. **Tıklama Geçirgenliği (Click-Through)**:
-   - `Ctrl + Shift + S` ile katman tıklama geçirgen hale gelir; kullanıcı arkadaki oyunu, videoyu veya uygulamayı kesintisiz kullanabilir.
+Screen Translator AI; yabancı dildeki oyunlar, çizgi romanlar/mangalar, PDF dökümanları, videolar ve masaüstü yazılımlarındaki metinleri kopyalamaya gerek kalmadan, doğrudan ekran yüzeyinde sıfır gecikmeyle kendi dilinize çevirmek amacıyla geliştirilmiştir.
+
+Uygulama iki platform için optimize edilmiştir:
+1. **Windows Masaüstü:** Python tabanlı, GPU hızlandırmalı WinRT/RapidOCR, PyQt saydam kaydırmalı perde katmanı, arka planda sıfır CPU tüketen pHash kare değişim dedektörü.
+2. **Android Platformu (`platforms/android`):** Kotlin/Electron/Node.js içermeyen, **saf Java 17** ile yazılmış hafif, kayan pencere (floating overlay) ve `MediaProjection` tabanlı mobil istemci.
 
 ---
 
-## 📁 Proje Dizin Yapısı
+## 🚀 2. Temel Özellikler
+
+- **Google Lens Kaydırma Çubuğu (Swipe Slider Mode):** Ekran üzerinde dikey olarak sürüklenebilir interaktif perde tutamacı (`◀ ▶`). Perdenin solunda orijinal yabancı dil metin, sağında ise yapay zekanın yerinde çevirisi gösterilir.
+- **Sıfır CPU & Durağanlık Koruması (0ms / 0% CPU):**
+  - **Kare Farkı Dedektörü (`FrameDiffDetector`):** Kullanıcı aynı sayfayı okurken veya ekran hareketsizken OCR ve LLM çağrılarını tamamen baypas eder; gereksiz API maliyetini ve güç tüketimini sıfıra indirir.
+  - **İki Kademeli LRU Önbellek (`CacheManager`):** Daha önce taranmış metin blokları ve koordinatlar 0 milisaniyede önbellekten yüklenir.
+  - **Akıllı Metin Kümeleme (`TextClusterer`):** Bölük pörçük satır ve kelimeleri tek bir anlamsal paragrafa birleştirerek yapay zekaya tekil istekte toplu (batch) gönderir.
+- **Çoklu Yapay Zeka & Çeviri Motorları:**
+  - **Google Gemini 2.0 / 1.5 Flash:** ~150-200ms ultra düşük gecikmeli, ekran bağlamını algılayan JSON tabanlı yapılandırılmış çevirmen.
+  - **Ollama LLM (Llama 3.2, Qwen 2.5):** Yerel çevrimdışı (offline) gizlilik odaklı çeviri motoru.
+  - **Google Translate:** Ücretsiz, kota ve API anahtarı gerektirmeyen yedek motor.
+- **Çoklu OCR Motorları:**
+  - **Windows Media OCR (WinRT):** Windows işletim sistemine gömülü donanım hızlandırmalı ~15ms OCR.
+  - **RapidOCR (ONNX Runtime):** CPU/GPU üzerinde çalışan derin öğrenme metin tanıyıcısı.
+- **Tıklama Geçirgenliği (Click-Through Guard):** Kısayol (`Ctrl + Shift + S`) ile çeviri katmanı şeffaf ve tıklama geçirgen hale gelir; oyun oynarken veya video izlerken kontrol kaybı yaşanmaz.
+- **Modüler Eklenti Mimarisi (`PluginRegistry`):** Yeni bir OCR, yakalama veya çeviri motorunu tek sınıf miras alarak tak-çalıştır ekleyebilme.
+
+---
+
+## 🏗️ 3. Mimari & Teknoloji Yığını (Stack)
+
+### 3.1. İşlem Hattı (Pipeline) ve Mimari Akış
+
+```mermaid
+graph LR
+    subgraph Capture_Phase["1. Ekran Yakalama"]
+        CapEngine["MSS / WinRT Capture<br/>[capture_base.py](file:///c:/Users/Birin/Birin/Projeler/araclar-ve-servisler/screen-translator/core/interfaces/capture_base.py)"]
+        FrameDiff["Frame Diff Dedektörü (pHash)<br/>[frame_diff.py](file:///c:/Users/Birin/Birin/Projeler/araclar-ve-servisler/screen-translator/core/optimizer/frame_diff.py)"]
+    end
+
+    subgraph OCR_Phase["2. Optik Karakter Tanıma"]
+        OCREngine["WinRT / RapidOCR ONNX<br/>[ocr_base.py](file:///c:/Users/Birin/Birin/Projeler/araclar-ve-servisler/screen-translator/core/interfaces/ocr_base.py)"]
+        Clusterer["Paragraf & Satır Kümeleme<br/>[text_clusterer.py](file:///c:/Users/Birin/Birin/Projeler/araclar-ve-servisler/screen-translator/core/optimizer/text_clusterer.py)"]
+    end
+
+    subgraph Trans_Phase["3. Akıllı Çeviri & Önbellek"]
+        Cache["İki Kademeli LRU Önbellek<br/>[cache_manager.py](file:///c:/Users/Birin/Birin/Projeler/araclar-ve-servisler/screen-translator/core/optimizer/cache_manager.py)"]
+        AIEngine["Gemini Flash / Ollama / Google<br/>[translator_base.py](file:///c:/Users/Birin/Birin/Projeler/araclar-ve-servisler/screen-translator/core/interfaces/translator_base.py)"]
+    end
+
+    subgraph Overlay_Phase["4. Kullanıcı Katmanı"]
+        LensOverlay["Google Lens Kaydırmalı Perde<br/>[lens_overlay.py](file:///c:/Users/Birin/Birin/Projeler/araclar-ve-servisler/screen-translator/platforms/windows/lens_overlay.py)"]
+    end
+
+    CapEngine --> FrameDiff
+    FrameDiff -- "Ekran Değiştiğinde" --> OCREngine
+    FrameDiff -- "Ekran Sabitse" --> LensOverlay
+    OCREngine --> Clusterer
+    Clusterer --> Cache
+    Cache -- "Önbellekte Yoksa" --> AIEngine
+    Cache -- "Önbellekte Varsa (0ms)" --> LensOverlay
+    AIEngine --> LensOverlay
+```
+
+### 3.2. Teknoloji Bileşenleri
+
+| Alan | Seçilen Teknoloji | Neden Seçildi? |
+| :--- | :--- | :--- |
+| **Programlama Dili** | Python 3.9+ / Java 17 | Masaüstünde hızlı prototip ve modülerlik; mobil tarafta saf performans |
+| **Masaüstü Katman (GUI)** | PyQt5 / PySide2 | Saydam pencere (transparent window), donanım hızlandırmalı QPainter perde efekti |
+| **Ekran Yakalama** | MSS / WinRT Graphics Capture | Düşük gecikmeli (sub-10ms) ekran görüntüsü alma |
+| **OCR Motorları** | Windows.Media.Ocr / RapidOCR (ONNX) | Harici Tesseract kurulumu gerektirmeyen gömülü çalışma |
+| **Yapay Zeka** | Google Generative AI (Gemini Flash), Ollama | Düşük token maliyeti, JSON şema çıktısı, yüksek dil kavrayışı |
+| **Android İstemci** | Saf Java 17 (0% Kotlin, 0% Electron) | Minimum APK boyutu, minimum pil tüketimi ve saf Android SDK optimizasyonu |
+
+---
+
+## 🗺️ 4. Proje Bilgi Grafiği & Sembol Haritası (Graphify / Yapı)
+
+### 4.1. Modül ve Dizin Ağacı
 
 ```
-screen_translator/
-│
-├── core/                         # Platform Bağımsız Çekirdek
-│   ├── config.py                 # Yapılandırma Yöneticisi (JSON)
-│   ├── registry.py               # Dinamik Eklenti Kayıt Defteri (PluginRegistry)
-│   ├── pipeline.py               # Eşzamansız Optimizasyon & Çeviri Hattı
-│   │
-│   ├── interfaces/               # Soyut Taban Sınıflar (Modüler Arayüzler)
-│   │   ├── capture_base.py       # BaseCaptureEngine
-│   │   ├── ocr_base.py           # BaseOCREngine, TextBlock
-│   │   └── translator_base.py    # BaseTranslatorEngine
-│   │
-│   ├── optimizer/                # Performans Motoru
-│   │   ├── frame_diff.py         # Ekran değişim dedektörü (pHash/diff)
-│   │   ├── cache_manager.py      # İki kademeli LRU önbellek
-│   │   └── text_clusterer.py     # Satır & paragraf birleştirici
-│   │
-│   └── engines/                  # Takılabilir Motor Eklentileri
-│       ├── capture/              # MSS / Mock
-│       ├── ocr/                  # WinRT / RapidOCR ONNX / Mock
-│       └── translation/          # Google Gemini Flash / Google / Ollama
-│
+araclar-ve-servisler/screen-translator/
+├── main_app.py                        # Masaüstü uygulaması orkestratörü
+├── run_translator.py                  # Hızlı CLI başlatıcısı
+├── Baslat_ScreenTranslator.bat        # Windows çift tıklama başlatıcısı
+├── translator_requirements.txt        # PIP bağımlılık listesi
+├── core/                              # Platform Bağımsız Çekirdek
+│   ├── config.py                      # JSON yapılandırma yöneticisi
+│   ├── registry.py                    # PluginRegistry (Dinamik eklenti deposu)
+│   ├── pipeline.py                    # TranslationPipeline işleme hattı
+│   ├── interfaces/                    # Soyut Motor Arayüzleri
+│   │   ├── capture_base.py            # BaseCaptureEngine arayüzü
+│   │   ├── ocr_base.py                # BaseOCREngine ve TextBlock modeli
+│   │   └── translator_base.py         # BaseTranslatorEngine arayüzü
+│   ├── optimizer/                     # Performans Hızlandırıcılar
+│   │   ├── frame_diff.py              # FrameDiffDetector (Ekran farkı tespiti)
+│   │   ├── cache_manager.py           # LRUCacheManager iki kademeli önbellek
+│   │   └── text_clusterer.py          # Metin ve satır birleştirici
+│   └── engines/                       # Somut Motor Eklentileri
+│       ├── capture/                   # MSS & Mock yakalayıcılar
+│       ├── ocr/                       # WinRT OCR, RapidOCR ONNX eklentileri
+│       └── translation/               # Gemini Flash, Ollama, Google Translate
 ├── platforms/
-│   ├── windows/                  # Windows Masaüstü Bileşenleri
-│   │   ├── lens_overlay.py       # Google Lens Kaydırmalı Katman (PyQt5)
-│   │   ├── region_selector.py    # Şeffaf Alan Seçici
-│   │   ├── settings_window.py    # Koyu Temalı Ayarlar İletişim Kutusu
-│   │   └── tray_manager.py       # Sistem Tepsisi (pystray)
-│   │
-│   └── android/                  # Android Platformu (Saf Java, Kotlin'siz)
-│       ├── app/                  # Android Studio / Gradle Projesi
-│       │   ├── src/main/AndroidManifest.xml
-│       │   └── src/main/java/com/translator/lens/
-│       │       ├── MainActivity.java            # Başlatıcı aktivite
-│       │       ├── LensOverlayService.java      # Kayan pencere (Floating overlay)
-│       │       ├── LensSliderView.java          # Google Lens dokunmatik kaydırıcı
-│       │       ├── ScreenCaptureService.java    # MediaProjection ekran yakalama
-│       │       ├── TranslationBridgeClient.java # Asenkron çeviri köprüsü
-│       │       └── TextBlockModel.java          # Veri modeli
+│   ├── windows/                       # Windows Masaüstü Entegrasyonu
+│   │   ├── lens_overlay.py            # LensOverlayWindow (PyQt5 kaydırmalı perde)
+│   │   ├── region_selector.py         # Şeffaf seçim dikdörtgeni
+│   │   ├── settings_window.py         # Ayarlar iletişim kutusu
+│   │   └── tray_manager.py            # Sistem tepsisi (pystray) ikonu
+│   └── android/                       # Mobil İstemci (Saf Java 17)
+│       ├── app/src/main/              # Android Studio projesi
+│       │   ├── AndroidManifest.xml
+│       │   └── java/com/translator/lens/
+│       │       ├── MainActivity.java            # İzin ve ayar ekranı
+│       │       ├── LensOverlayService.java      # Kayan pencere servisi
+│       │       ├── LensSliderView.java          # Dokunmatik perde görünümü
+│       │       ├── ScreenCaptureService.java    # MediaProjection yakalama
+│       │       └── TranslationBridgeClient.java # Python köprü istemcisi
 │       └── python_bridge/
-│           └── bridge_server.py  # Android için hafif Python HTTP köprüsü
-│
-├── tests/                        # Birim ve Entegrasyon Testleri
-│   ├── test_optimizer.py
-│   ├── test_registry.py
-│   ├── test_translators.py
-│   └── test_pipeline.py
-│
-├── main_app.py                   # Ana Masaüstü Uygulaması
-├── run_translator.py             # Başlatıcı Script
-├── Baslat_ScreenTranslator.bat   # Windows Çift Tıklama Başlatıcısı
-└── translator_requirements.txt   # Bağımlılıklar
+│           └── bridge_server.py       # Android için hafif HTTP sunucusu
+└── tests/                             # Test Süiti
+    ├── test_optimizer.py              # pHash ve önbellek testleri
+    ├── test_registry.py               # Eklenti kayıt defteri testleri
+    ├── test_translators.py            # LLM yanıt mock testleri
+    └── test_pipeline.py               # Uçtan uca işlem hattı testleri
 ```
+
+### 4.2. Temel Semboller ve Dosya Bağlantıları
+
+- [`TranslationPipeline`](file:///c:/Users/Birin/Birin/Projeler/araclar-ve-servisler/screen-translator/core/pipeline.py): Yakalama, OCR, önbellek ve çeviri adımlarını birleştiren asenkron yürütme hattı.
+- [`PluginRegistry`](file:///c:/Users/Birin/Birin/Projeler/araclar-ve-servisler/screen-translator/core/registry.py): Tüm motorları dinamik olarak kaydeden ve `config.json` ile eşleyen kayıt defteri.
+- [`FrameDiffDetector`](file:///c:/Users/Birin/Birin/Projeler/araclar-ve-servisler/screen-translator/core/optimizer/frame_diff.py): Piksel farkı ve algısal özet (perceptual hash) ile durağan ekranları tespit eden sınıf.
+- [`TextClusterer`](file:///c:/Users/Birin/Birin/Projeler/araclar-ve-servisler/screen-translator/core/optimizer/text_clusterer.py): Bounding-box koordinatlarına göre parçalı satırları doğal cümle bloklarına çeviren kümeleyici.
+- [`LensOverlayWindow`](file:///c:/Users/Birin/Birin/Projeler/araclar-ve-servisler/screen-translator/platforms/windows/lens_overlay.py): PyQt5 ile yazılmış, ekranın üstünde kayan ve `QPainter` perde maskesi oluşturan şeffaf pencere.
+- [`BaseTranslatorEngine`](file:///c:/Users/Birin/Birin/Projeler/araclar-ve-servisler/screen-translator/core/interfaces/translator_base.py): Yeni yapay zeka çeviri motorları için `translate` ve `translate_batch` kontratı.
 
 ---
 
-## 💻 Kurulum ve Çalıştırma
+## 🤖 5. İlgili Agent Becerileri (Skills) ve Kuralları
 
-### 1. Windows Masaüstü
+Bu projede çalışacak yapay zeka ajanları aşağıdaki tasarım desenlerini ve kuralları benimsemelidir:
 
-```bash
+### 5.1. Zorunlu Beceriler (Skills)
+- **`python-patterns`**: Tip ipuçları (`typing.Optional`, `Tuple`, `List`), soyut taban sınıflar (`abc.ABCMeta`) ve asenkron/iş parçacıklı kuyruk (`queue.Queue`) yapısını bozmadan modüler geliştirme yap.
+- **`cost-aware-llm-pipeline`**: LLM API çağrılarında gereksiz token tüketimini engelle. Çevrilecek metinleri her zaman kümele (`cluster_text`) ve tek bir JSON nesnesi halinde toplu (batch) gönder.
+- **`subagent-token-sentinel`**: Kod incelemelerinde cerrahi okuma yap; 200+ satırlık GUI ve Pipeline sınıflarını satır aralıklarıyla incele.
+
+### 5.2. Ajan Geliştirme Yönergeleri
+1. **Durağan Ekran Önceliği:** `FrameDiffDetector` eşik değerini değiştirmeden önce testlerin (`test_optimizer.py`) geçtiğinden emin ol.
+2. **Android Saf Java Kuralı:** `platforms/android/` klasörüne kesinlikle Kotlin, Compose veya Electron bağımlılığı eklenemez. Saf Android SDK ve Java 17 standartları korunmalıdır.
+3. **Saydamlık ve Kısayol Bütünlüğü:** Windows katmanında fare olaylarının arka plana geçmesini sağlayan Win32 `WS_EX_TRANSPARENT` stili her zaman `Ctrl + Shift + S` ile kontrol edilebilir kalmalıdır.
+
+---
+
+## ⚙️ 6. Kurulum ve Çalıştırma Talimatları
+
+### 6.1. Windows Masaüstü Kurulumu
+
+```powershell
+cd "c:\Users\Birin\Birin\Projeler\araclar-ve-servisler\screen-translator"
+
 # Bağımlılıkları yükleyin
 pip install -r translator_requirements.txt
 
+# Birim testleri icra edin
+python -m unittest discover tests
+
 # Uygulamayı başlatın
 python run_translator.py
-# veya doğrudan:
-Baslat_ScreenTranslator.bat
+# veya hazır başlatıcı ile:
+.\Baslat_ScreenTranslator.bat
 ```
 
 #### Varsayılan Kısayollar:
@@ -108,51 +182,9 @@ Baslat_ScreenTranslator.bat
 - `Ctrl + Shift + T`: Çeviriyi başlat / duraklat.
 - `Ctrl + Shift + S`: Tıklama geçirgenliğini (Click-through) aç / kapat.
 
----
+### 6.2. Android Uygulamasını Başlatma
 
-### 2. Android Telefon (Saf Java 17, 0% Kotlin)
-
-1. `platforms/android/app` projesini **Android Studio** ile açın.
-2. Derleyip cihazınıza veya emülatöre yükleyin (`./gradlew assembleDebug`).
-3. Uygulamayı açtığınızda:
-   - "Diğer uygulamaların üzerinde gösterme" (Overlay) iznini verin.
-   - "Ekran yakalama" (MediaProjection) iznini onaylayın.
-4. Ekranda beliren Google Lens katmanında parmağınızı kaydırarak canlı çeviriyi okuyun.
-5. İsteğe bağlı: Python motoruna bağlanmak için `platforms/android/python_bridge/bridge_server.py` sunucusunu çalıştırabilirsiniz.
-
----
-
-## 🧩 Kolayca Yeni Özellik / Motor Ekleme
-
-Yeni bir çevirmen veya OCR motoru eklemek yalnızca birkaç satırdır:
-
-```python
-from core.registry import PluginRegistry
-from core.interfaces.translator_base import BaseTranslatorEngine
-
-class MyDeepLTranslator(BaseTranslatorEngine):
-    def get_engine_name(self):
-        return "DeepL Pro AI"
-
-    def translate(self, text: str) -> str:
-        # Kendi API çağrınızı buraya yazın
-        return f"TR: {text}"
-
-    def translate_batch(self, texts: list) -> list:
-        return [self.translate(t) for t in texts]
-
-# Kayıt defterine kaydet:
-PluginRegistry.register_translator("deepl", MyDeepLTranslator)
-```
-
-Artık `config.json` veya Ayarlar panelinden motor olarak `"deepl"` seçilebilir!
-
----
-
-## 🧪 Testlerin Çalıştırılması
-
-Tüm optimizasyon, kayıt defteri, çeviri ve işlem hattı testlerini çalıştırmak için:
-
-```bash
-python3 -m unittest discover tests
-```
+1. `platforms/android/app` projesini Android Studio ile açın.
+2. `./gradlew assembleDebug` komutuyla derleyip cihaza yükleyin.
+3. "Diğer uygulamaların üzerinde gösterme" ve "Ekran yakalama" izinlerini verin.
+4. Ekranda beliren Google Lens katmanında dikey çizgiyi kaydırarak anlık çeviriyi kullanın.

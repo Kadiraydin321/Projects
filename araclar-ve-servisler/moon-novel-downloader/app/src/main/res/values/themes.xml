@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.MoonNovel" parent="Theme.Material3.Dark.NoActionBar">
+        <!-- Status Bar ve Navigation Bar Rengi Ana Sayfa Rengiyle Tam Birebir (#0A0A0C) -->
+        <item name="android:statusBarColor">@color/bg_dark</item>
+        <item name="android:navigationBarColor">@color/bg_dark</item>
+        <item name="android:windowBackground">@color/bg_dark</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="colorPrimary">@color/crimson_red</item>
+        <item name="colorSecondary">@color/crimson_light</item>
+    </style>
+</resources>

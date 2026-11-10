@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_bar_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:background="@drawable/widget_background"
+    android:paddingHorizontal="10dp"
+    android:paddingVertical="8dp">
+
+    <!-- Metin ilk sırada kalır; küçük boyutta daima görünür. -->
+    <LinearLayout
+        android:id="@+id/widget_bar_btn_text"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:background="@drawable/widget_fab_bg"
+        android:gravity="center"
+        android:layout_marginEnd="6dp">
+        <ImageView
+            android:id="@+id/widget_bar_fab_icon"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:src="@drawable/ic_widget_add"
+            android:contentDescription="Yeni Not" />
+    </LinearLayout>
+
+    <!-- Fotoğraf -->
+    <ImageButton
+        android:id="@+id/widget_bar_btn_image"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:background="@android:color/transparent"
+        android:src="@drawable/ic_widget_image"
+        android:contentDescription="Fotoğraf Notu"
+        android:scaleType="centerInside" />
+
+    <!-- Ses -->
+    <ImageButton
+        android:id="@+id/widget_bar_btn_voice"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:background="@android:color/transparent"
+        android:src="@drawable/ic_widget_mic"
+        android:contentDescription="Ses Notu"
+        android:scaleType="centerInside" />
+
+    <!-- Küçük alanlarda sonradan kırpılacak seçenekler -->
+    <ImageButton
+        android:id="@+id/widget_bar_btn_draw"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:background="@android:color/transparent"
+        android:src="@drawable/ic_widget_draw"
+        android:contentDescription="Çizim Notu"
+        android:scaleType="centerInside" />
+
+    <ImageButton
+        android:id="@+id/widget_bar_btn_todo"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:background="@android:color/transparent"
+        android:src="@drawable/ic_widget_check"
+        android:contentDescription="Yapılacaklar Listesi"
+        android:scaleType="centerInside" />
+
+</LinearLayout>

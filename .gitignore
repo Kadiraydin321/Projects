@@ -1,0 +1,95 @@
+# ===================================================
+# Monorepo .gitignore
+# ===================================================
+
+# Derleme ve Çıktı Dizinleri
+build/
+bin/
+obj/
+dist/
+release/
+win-unpacked/
+target/debug/
+target/*/debug/
+**/target/debug/
+**/target/*/debug/
+target/release/deps/
+target/release/.fingerprint/
+target/release/build/
+target/release/incremental/
+target/release/*.pdb
+target/release/*.d
+target/release/*.rlib
+**/target/release/deps/
+**/target/release/.fingerprint/
+**/target/release/build/
+**/target/release/incremental/
+**/target/release/*.pdb
+**/target/release/*.d
+**/target/release/*.rlib
+*.pdb
+*.ilk
+*.exp
+*.lib
+*.obj
+
+# Gradle & Android
+.gradle/
+.idea/
+.kotlin/
+local.properties
+*.hprof
+*.ap_
+captures/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+venv/
+.venv/
+env/
+
+# Node & Web
+node_modules/
+.npm/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.eslintcache
+
+# Geçici ve Ağır Dosyalar
+*.tmp
+*.temp
+*.log
+*.zip
+*.tar.gz
+!roborock_mock_server/
+notdefterim_err.txt
+
+# Analiz ve Araç Çıktıları
+graphify-out/
+**/graphify-out/
+
+# Güvenlik & Gizli Anahtarlar (Secrets & Keys)
+.env
+.env.*
+!*.example
+*.jks
+*.keystore
+*.pfx
+*.p12
+*.pem
+*.key
+
+# Kök Dizin Junction / Symlink Koruması
+/desktop-native
+/.notdefterim
+
+# Not Defterim Özel Kuralı: Ana dizindeki APK kesinlikle takip edilmelidir!
+!not-uygulamalari/not-defterim/NoteApp-release.apk
+!not-uygulamalari/not-defterim/version.json

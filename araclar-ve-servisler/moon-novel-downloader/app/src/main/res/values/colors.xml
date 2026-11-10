@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Aggressive Crimson, Black & White Modern Palette -->
+    <color name="bg_dark">#0A0A0C</color>
+    <color name="bg_card">#141419</color>
+    <color name="bg_card_elevated">#1A1A22</color>
+    <color name="card_stroke">#2A2A36</color>
+    
+    <!-- Accent Colors -->
+    <color name="crimson_red">#E11D48</color>
+    <color name="crimson_dark">#BE123C</color>
+    <color name="crimson_light">#FB7185</color>
+    <color name="crimson_glow">#33E11D48</color>
+
+    <!-- Text & Contrast Colors -->
+    <color name="text_white">#FFFFFF</color>
+    <color name="text_sub_white">#F1F5F9</color>
+    <color name="text_muted">#94A3B8</color>
+    <color name="text_dark_muted">#64748B</color>
+
+    <!-- 3 KARANLIK TEMA RENKLERİ -->
+    <color name="reader_dark_bg">#0A0A0C</color>
+    <color name="reader_dark_text">#E2E8F0</color>
+
+    <color name="reader_black_bg">#000000</color>
+    <color name="reader_black_text">#D1D5DB</color>
+
+    <color name="reader_midnight_bg">#0B132B</color>
+    <color name="reader_midnight_text">#E0E6ED</color>
+
+    <!-- 3 AYDINLIK TEMA RENKLERİ -->
+    <color name="reader_sepia_bg">#F4ECD8</color>
+    <color name="reader_sepia_text">#433422</color>
+
+    <color name="reader_white_bg">#FFFFFF</color>
+    <color name="reader_white_text">#1E293B</color>
+
+    <color name="reader_mint_bg">#EDF6F0</color>
+    <color name="reader_mint_text">#1B3B2B</color>
+
+    <color name="reader_highlight">#55E11D48</color>
+</resources>

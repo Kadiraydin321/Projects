@@ -1,1 +1,0 @@
-{"rustc":222933465615791797,"features":"[]","declared_features":"[]","target":481499437084605498,"profile":11528375766455597691,"path":1936339305612025332,"deps":[],"local":[{"CheckDepInfo":{"dep_info":"debug\\.fingerprint\\pkg-config-e1719e516f8a820b\\dep-lib-pkg_config","checksum":false}}],"rustflags":["-C","linker=rust-lld"],"config":9396254390672932401,"compile_kind":0}

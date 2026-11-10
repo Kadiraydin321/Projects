@@ -1,0 +1,4028 @@
+package com.example.noteapp.presentation.detail
+
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.content.res.Configuration
+import android.os.Build
+import android.widget.Toast
+import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.Spring
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.rememberTransformableState
+import androidx.compose.foundation.gestures.transformable
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ChromeReaderMode
+import androidx.compose.material.icons.automirrored.filled.FormatListBulleted
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.filled.Label
+import androidx.compose.material.icons.automirrored.filled.Redo
+import androidx.compose.material.icons.automirrored.filled.Undo
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.PushPin
+import androidx.compose.material3.*
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
+import kotlinx.coroutines.launch
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.painterResource
+import com.example.noteapp.R
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.core.content.FileProvider
+import coil.compose.AsyncImage
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.window.DialogWindowProvider
+import com.example.noteapp.domain.model.Category
+import com.example.noteapp.domain.model.Note
+import com.example.noteapp.domain.model.NoteHistory
+import com.example.noteapp.domain.model.NoteTemplate
+import com.example.noteapp.domain.util.AppShortcutManager
+import com.example.noteapp.domain.util.ChecklistParser
+import com.example.noteapp.domain.util.ChecklistSorter
+import com.example.noteapp.domain.util.FindMatch
+import com.example.noteapp.domain.util.FindReplaceEngine
+import com.example.noteapp.domain.util.GalleryGridCalculator
+import com.example.noteapp.domain.util.ReadingColumnSplitter
+import com.example.noteapp.domain.util.SplitPaneLayoutHelper
+import com.example.noteapp.domain.util.SplitRatio
+import com.example.noteapp.domain.util.TagSuggestionEngine
+import com.example.noteapp.domain.util.VaultExportEngine
+import com.example.noteapp.domain.util.VaultNote
+import com.example.noteapp.domain.util.WordGoalCalculator
+import com.example.noteapp.notification.NotificationHelper
+import com.example.noteapp.presentation.components.AttachmentList
+import com.example.noteapp.presentation.components.AutoResizeText
+import com.example.noteapp.presentation.components.AudioTrimmerBottomSheet
+import com.example.noteapp.presentation.components.AudioRecordingVisualizerBar
+import com.example.noteapp.presentation.components.CategoryColorPicker
+import com.example.noteapp.presentation.components.ChecklistActionBottomSheet
+import com.example.noteapp.presentation.components.ChecklistProgressRing
+import com.example.noteapp.presentation.components.ExportVaultDialog
+import com.example.noteapp.presentation.components.FindAndReplaceBar
+import com.example.noteapp.presentation.components.FocusHudOverlay
+import com.example.noteapp.presentation.components.KeepCheckboxIcon
+import com.example.noteapp.presentation.components.MarkdownPreview
+import com.example.noteapp.presentation.components.MarkdownVisualTransformation
+import com.example.noteapp.presentation.components.NoteHistoryBottomSheet
+import com.example.noteapp.presentation.components.SaveTemplateDialog
+import com.example.noteapp.presentation.components.SetWordGoalDialog
+import com.example.noteapp.presentation.components.WordGoalProgressBadge
+import com.example.noteapp.presentation.components.TagAutocompleteBar
+import com.example.noteapp.presentation.components.WikilinkAutocompleteBar
+import com.example.noteapp.presentation.components.BottomEditorBar
+import com.example.noteapp.presentation.components.NoteToolCategory
+import com.example.noteapp.presentation.components.ActiveEditorStyles
+import com.example.noteapp.presentation.components.detectActiveEditorStyles
+import com.example.noteapp.presentation.components.TemplatePickerBottomSheet
+import com.example.noteapp.domain.util.ClipboardHelper
+import com.example.noteapp.domain.util.NoteDraft
+import com.example.noteapp.domain.util.NoteMetricsEngine
+import com.example.noteapp.presentation.components.DraftRecoveryBanner
+import com.example.noteapp.presentation.components.NoteInsightsBottomSheet
+import com.example.noteapp.presentation.components.NoteLinkGraphBottomSheet
+import com.example.noteapp.presentation.components.SmartCopyBottomSheet
+import com.example.noteapp.presentation.components.NoteOutlineBottomSheet
+import com.example.noteapp.presentation.components.SnippetPickerBottomSheet
+import com.example.noteapp.presentation.components.MathFormulaBottomSheet
+import com.example.noteapp.presentation.components.TaskBoardBottomSheet
+import com.example.noteapp.presentation.components.NoteSummaryBottomSheet
+import com.example.noteapp.presentation.components.applyCodeBlock
+import com.example.noteapp.presentation.components.applyMarkdownWrap
+import com.example.noteapp.presentation.components.applyPrefixToLine
+import com.example.noteapp.presentation.components.insertTextAtCursor
+import com.example.noteapp.util.NoteExporter
+import androidx.compose.ui.zIndex
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.math.max
+import kotlin.math.roundToInt
+
+val NoteColors = listOf(
+    Color.Transparent,  // 0: Standart / Varsayılan Tema Rengi
+    // Sıcak & İç Isıtan Tonlar
+    Color(0xFF3E2723), // Sıcak Espresso / Koyu Çikolata
+    Color(0xFF4E342E), // Sıcak Kavruk Karamel
+    Color(0xFF4A148C), // Derin Gece Mürdümü
+    Color(0xFF880E4F), // Sıcak Nar & Bordo
+    Color(0xFFBF360C), // Sıcak Yanık Kiremit / Terracotta
+    Color(0xFF1B5E20), // Derin Zümrüt & Orman Yeşili
+    Color(0xFF004D40), // Derin Petrol Yeşili
+    Color(0xFF0D47A1), // Gece Mavisi / Safir
+    Color(0xFF263238), // Koyu Antrasit Grafit
+    // Sıcak ve Yumuşak Pastel Not Renkleri
+    Color(0xFFFFE0B2), // Sıcak Şeftali & Bal
+    Color(0xFFFFF9C4), // Sıcak Kehribar Sarısı
+    Color(0xFFFFCDD2), // Sıcak Mercan & Gül Kurusu
+    Color(0xFFE1BEE7), // Yumuşak Lavanta
+    Color(0xFFC8E6C9), // Adaçayı & Nane Yeşili
+    Color(0xFFBBDEFB), // Durgun Gökyüzü Mavisi
+    Color(0xFFD7CCC8), // Sıcak Kaşmir & Bej
+    Color(0xFF181512)  // Gece Koyu Espresso
+)
+
+private fun isChecklistLine(line: String): Boolean {
+    val trimmed = line.trimStart()
+    return trimmed.startsWith("- [ ] ") || trimmed.startsWith("- [x] ") || trimmed.startsWith("- [X] ") ||
+            trimmed.startsWith("* [ ] ") || trimmed.startsWith("* [x] ") || trimmed.startsWith("* [X] ") ||
+            trimmed.startsWith("[ ] ") || trimmed.startsWith("[x] ") || trimmed.startsWith("[X] ")
+}
+
+private fun isCheckedLine(line: String): Boolean {
+    val trimmed = line.trimStart()
+    return trimmed.startsWith("- [x] ") || trimmed.startsWith("- [X] ") ||
+            trimmed.startsWith("* [x] ") || trimmed.startsWith("* [X] ") ||
+            trimmed.startsWith("[x] ") || trimmed.startsWith("[X] ")
+}
+
+private fun getChecklistPrefixLength(line: String): Int {
+    val trimmed = line.trimStart()
+    val leadingSpacesCount = line.length - trimmed.length
+    val prefixLen = when {
+        trimmed.startsWith("- [ ] ") || trimmed.startsWith("- [x] ") || trimmed.startsWith("- [X] ") -> 6
+        trimmed.startsWith("* [ ] ") || trimmed.startsWith("* [x] ") || trimmed.startsWith("* [X] ") -> 6
+        trimmed.startsWith("[ ] ") || trimmed.startsWith("[x] ") || trimmed.startsWith("[X] ") -> 4
+        else -> 0
+    }
+    return leadingSpacesCount + prefixLen
+}
+
+private fun getLineStartOffset(rawText: String, lineIndex: Int): Int {
+    var offset = 0
+    val lines = rawText.lines()
+    for (i in 0 until lineIndex.coerceAtMost(lines.size)) {
+        offset += lines[i].length + 1 // +1 for newline character
+    }
+    return offset.coerceAtMost(rawText.length)
+}
+
+private fun stripChecklist(content: String): String {
+    val lines = content.lines()
+    return lines.joinToString("\n") { line ->
+        val trimmed = line.trimStart()
+        val leadingSpaces = line.substring(0, line.length - trimmed.length)
+        when {
+            trimmed.startsWith("- [ ] ") || trimmed.startsWith("- [x] ") || trimmed.startsWith("- [X] ") -> leadingSpaces + trimmed.substring(6)
+            trimmed.startsWith("* [ ] ") || trimmed.startsWith("* [x] ") || trimmed.startsWith("* [X] ") -> leadingSpaces + trimmed.substring(6)
+            trimmed.startsWith("[ ] ") || trimmed.startsWith("[x] ") || trimmed.startsWith("[X] ") -> leadingSpaces + trimmed.substring(4)
+            else -> line
+        }
+    }
+}
+
+private fun convertToChecklist(content: String): String {
+    if (content.isBlank()) return "- [ ] "
+    val lines = content.lines()
+    return lines.joinToString("\n") { line ->
+        val trimmed = line.trimStart()
+        val leadingSpaces = line.substring(0, line.length - trimmed.length)
+        if (trimmed.isEmpty()) {
+            line
+        } else if (trimmed.startsWith("- [ ] ") || trimmed.startsWith("- [x] ") || trimmed.startsWith("- [X] ") ||
+            trimmed.startsWith("* [ ] ") || trimmed.startsWith("* [x] ") || trimmed.startsWith("[ ] ") || trimmed.startsWith("[x] ")) {
+            line
+        } else if (trimmed.startsWith("#") || trimmed.startsWith(">") || trimmed.startsWith("```") || trimmed.startsWith("---") || trimmed.startsWith("***")) {
+            // Markdown başlıkları (#), alıntılar (>), kod blokları ve ayırıcı çizgiler checklist'e dönüştürülmez
+            line
+        } else {
+            // Var olan liste/madde işaretlerini (- , * , • , + , 1. vb.) temizle ki çift işaret olmasın
+            val cleaned = when {
+                trimmed.startsWith("- ") -> trimmed.removePrefix("- ").trimStart()
+                trimmed.startsWith("* ") && !trimmed.startsWith("**") -> trimmed.removePrefix("* ").trimStart()
+                trimmed.startsWith("• ") -> trimmed.removePrefix("• ").trimStart()
+                trimmed.startsWith("+ ") -> trimmed.removePrefix("+ ").trimStart()
+                trimmed.matches(Regex("""^\d+[\.\)]\s+.*""")) -> trimmed.replaceFirst(Regex("""^\d+[\.\)]\s+"""), "")
+                else -> trimmed
+            }
+            leadingSpaces + "- [ ] " + cleaned
+        }
+    }
+}
+
+private fun extractItemText(line: String): String {
+    val trimmed = line.trimStart()
+    return when {
+        trimmed.startsWith("- [ ] ") || trimmed.startsWith("- [x] ") || trimmed.startsWith("- [X] ") -> trimmed.substring(6)
+        trimmed.startsWith("* [ ] ") || trimmed.startsWith("* [x] ") || trimmed.startsWith("* [X] ") -> trimmed.substring(6)
+        trimmed.startsWith("[ ] ") || trimmed.startsWith("[x] ") || trimmed.startsWith("[X] ") -> trimmed.substring(4)
+        else -> line
+    }
+}
+
+private fun toggleChecklistLine(content: String, lineIndex: Int): String {
+    val lines = content.lines().toMutableList()
+    if (lineIndex in lines.indices) {
+        val line = lines[lineIndex]
+        val trimmed = line.trimStart()
+        val leadingSpaces = line.substring(0, line.length - trimmed.length)
+        val toggled = when {
+            trimmed.startsWith("- [ ] ") -> "- [x] " + trimmed.substring(6)
+            trimmed.startsWith("- [x] ") || trimmed.startsWith("- [X] ") -> "- [ ] " + trimmed.substring(6)
+            trimmed.startsWith("* [ ] ") -> "* [x] " + trimmed.substring(6)
+            trimmed.startsWith("* [x] ") || trimmed.startsWith("* [X] ") -> "* [ ] " + trimmed.substring(6)
+            trimmed.startsWith("[ ] ") -> "[x] " + trimmed.substring(4)
+            trimmed.startsWith("[x] ") || trimmed.startsWith("[X] ") -> "[ ] " + trimmed.substring(4)
+            else -> "- [x] $trimmed"
+        }
+        lines[lineIndex] = leadingSpaces + toggled
+    }
+    return lines.joinToString("\n")
+}
+
+private fun updateChecklistItemText(content: String, lineIndex: Int, newText: String): String {
+    val lines = content.lines().toMutableList()
+    if (lineIndex in lines.indices) {
+        val line = lines[lineIndex]
+        val trimmed = line.trimStart()
+        val leadingSpaces = line.substring(0, line.length - trimmed.length)
+        val prefix = when {
+            trimmed.startsWith("- [x] ") || trimmed.startsWith("- [X] ") -> "- [x] "
+            trimmed.startsWith("- [ ] ") -> "- [ ] "
+            trimmed.startsWith("* [x] ") || trimmed.startsWith("* [X] ") -> "* [x] "
+            trimmed.startsWith("* [ ] ") -> "* [ ] "
+            trimmed.startsWith("[x] ") || trimmed.startsWith("[X] ") -> "[x] "
+            trimmed.startsWith("[ ] ") -> "[ ] "
+            else -> "- [ ] "
+        }
+        lines[lineIndex] = leadingSpaces + prefix + newText
+    }
+    return lines.joinToString("\n")
+}
+
+private fun deleteChecklistLine(content: String, lineIndex: Int): String {
+    val lines = content.lines().toMutableList()
+    if (lineIndex in lines.indices) {
+        lines.removeAt(lineIndex)
+    }
+    return lines.joinToString("\n")
+}
+
+private fun addChecklistLine(content: String, afterIndex: Int? = null): String {
+    val lines = content.lines().toMutableList()
+    if (afterIndex != null && afterIndex in lines.indices) {
+        lines.add(afterIndex + 1, "- [ ] ")
+    } else {
+        val lastIdx = lines.indexOfLast { isChecklistLine(it) }
+        if (lastIdx >= 0) {
+            lines.add(lastIdx + 1, "- [ ] ")
+        } else {
+            lines.add("- [ ] ")
+        }
+    }
+    return lines.joinToString("\n")
+}
+
+private fun splitChecklistLine(content: String, lineIndex: Int, currentText: String, nextText: String): String {
+    val lines = content.lines().toMutableList()
+    if (lineIndex in lines.indices) {
+        val line = lines[lineIndex]
+        val trimmed = line.trimStart()
+        val leadingSpaces = line.substring(0, line.length - trimmed.length)
+        val prefix = if (trimmed.startsWith("- [x] ") || trimmed.startsWith("[x] ")) "- [x] " else "- [ ] "
+        lines[lineIndex] = leadingSpaces + prefix + currentText
+        lines.add(lineIndex + 1, leadingSpaces + "- [ ] " + nextText)
+    }
+    return lines.joinToString("\n")
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun NoteDetailScreen(
+    state: NoteDetailState,
+    categories: List<Category> = emptyList(),
+    canUndo: Boolean = false,
+    canRedo: Boolean = false,
+    onUndo: () -> Unit = {},
+    onRedo: () -> Unit = {},
+    onCategoryChange: (Long?) -> Unit = {},
+    onAddCategory: (String, Int) -> Unit = { _, _ -> },
+    onTitleChange: (String) -> Unit,
+    onContentValueChange: (TextFieldValue) -> Unit,
+    onColorChange: (Int) -> Unit,
+    onBackgroundImageChange: (String?) -> Unit = {},
+    onTogglePin: () -> Unit,
+    onToggleLock: () -> Unit,
+    onSetReminder: (Long?) -> Unit,
+    onAddImageUri: (android.net.Uri) -> Unit,
+    onToggleAudioRecording: () -> Unit,
+    onToggleAudioPlayback: (String) -> Unit,
+    onDeleteAttachment: (String) -> Unit,
+    onImageEditClick: (String) -> Unit,
+    onAnnotateImage: (String) -> Unit = {},
+    onRevertImageEdit: (String) -> Unit,
+    canRevertImage: (String) -> Boolean,
+    onDeleteNoteClick: () -> Unit,
+    onArchiveNoteClick: () -> Unit,
+    onAddDrawingClick: () -> Unit,
+    onBackClick: () -> Unit,
+    autoAction: String? = null,
+    justEditedImagePath: String? = null,
+    onClearJustEditedImage: () -> Unit = {},
+    onExtractText: (String) -> Unit = {},
+    isExtractingText: Boolean = false,
+    onFontSizeChange: (Float) -> Unit = {},
+    onLinkClick: (String) -> Unit = {},
+    onNavigateToNote: (Long) -> Unit = {},
+    onDuplicateNote: () -> Unit = {},
+    onToggleZenMode: () -> Unit = {},
+    onToggleTextToSpeech: () -> Unit = {},
+    onRestoreVersion: (NoteHistory) -> Unit = {},
+    onApplyTemplate: (NoteTemplate) -> Unit = {},
+    onSaveCustomTemplate: (title: String, description: String, iconEmoji: String) -> Unit = { _, _, _ -> },
+    onDeleteCustomTemplate: (String) -> Unit = {},
+    availableTemplates: List<NoteTemplate> = emptyList(),
+    onSeekAudio: (Int) -> Unit = {},
+    onCycleAudioPlaybackSpeed: () -> Unit = {},
+    onSetAudioPlaybackSpeed: ((Float) -> Unit)? = null,
+    onSeekAudioFraction: (Float) -> Unit = {},
+    onCancelAudioRecording: () -> Unit = {},
+    onTogglePauseAudioRecording: () -> Unit = {},
+    onSetWordGoal: (Int?) -> Unit = {},
+    onRestoreDraft: (NoteDraft) -> Unit = {},
+    onDiscardDraft: () -> Unit = {},
+    onSaveDraftPeriodically: (title: String, content: String) -> Unit = { _, _ -> }
+) {
+    val context = LocalContext.current
+    var showHistorySheet by remember { mutableStateOf(false) }
+    var showTemplateSheet by remember { mutableStateOf(false) }
+    var showSaveTemplateDialog by remember { mutableStateOf(false) }
+    var showExportVaultDialog by remember { mutableStateOf(false) }
+    var showWordGoalDialog by remember { mutableStateOf(false) }
+    var showSmartCopySheet by remember { mutableStateOf(false) }
+    var showInsightsSheet by remember { mutableStateOf(false) }
+    var showGraphSheet by remember { mutableStateOf(false) }
+    var showChecklistActionsSheet by remember { mutableStateOf(false) }
+    var showSnippetPickerSheet by remember { mutableStateOf(false) }
+    var showMathFormulaSheet by remember { mutableStateOf(false) }
+    var showTaskBoardSheet by remember { mutableStateOf(false) }
+    var showSummarySheet by remember { mutableStateOf(false) }
+    var trimmingAudioPath by remember { mutableStateOf<String?>(null) }
+
+    // Düzenleme sırasında periyodik karalama taslağı kaydetme (1.2 saniye gecikmeli)
+    LaunchedEffect(state.title, state.contentValue.text) {
+        if (state.title.isNotBlank() || state.contentValue.text.isNotBlank()) {
+            kotlinx.coroutines.delay(1200)
+            onSaveDraftPeriodically(state.title, state.contentValue.text)
+        }
+    }
+
+    val currentWordCount = remember(state.contentValue.text) {
+        if (state.contentValue.text.isBlank()) 0
+        else state.contentValue.text.trim().split(Regex("\\s+")).count { it.isNotBlank() }
+    }
+    val currentCharCount = remember(state.contentValue.text) {
+        state.contentValue.text.length
+    }
+
+    val activeTagQuery = remember(state.contentValue) {
+        val sel = state.contentValue.selection
+        if (sel.collapsed) {
+            TagSuggestionEngine.findActiveTagQuery(state.contentValue.text, sel.start)
+        } else null
+    }
+
+    val activeWikilinkQuery = remember(state.contentValue) {
+        val sel = state.contentValue.selection
+        if (sel.collapsed) {
+            TagSuggestionEngine.findActiveWikilinkQuery(state.contentValue.text, sel.start)
+        } else null
+    }
+
+    val activeEditorStyles = remember(state.contentValue, state.isRecordingAudio) {
+        val sel = state.contentValue.selection
+        val cursor = if (sel.collapsed) sel.start else sel.min
+        detectActiveEditorStyles(state.contentValue.text, cursor, state.isRecordingAudio)
+    }
+
+    val tagSuggestions = remember(activeTagQuery, state.availableTags) {
+        if (activeTagQuery == null) emptyList()
+        else {
+            val q = activeTagQuery.query.lowercase()
+            if (q.isBlank()) state.availableTags
+            else state.availableTags.filter { it.lowercase().startsWith(q) }
+        }
+    }
+
+    val focusRequester = remember { FocusRequester() }
+    val trailingFocusRequester = remember { FocusRequester() }
+    val hasChecklistItems = remember(state.contentValue.text) {
+        state.contentValue.text.lines().any { isChecklistLine(it) }
+    }
+    var activeChecklistLineIdx by remember { mutableStateOf<Int?>(null) }
+    var isTrailingActive by remember { mutableStateOf(false) }
+    val lineFocusRequesters = remember { mutableMapOf<Int, FocusRequester>() }
+    val lineTfvs = remember { mutableStateMapOf<Int, TextFieldValue>() }
+
+    val requestActiveFocus: () -> Unit = {
+        runCatching {
+            if (hasChecklistItems) {
+                if (isTrailingActive) {
+                    trailingFocusRequester.requestFocus()
+                } else if (activeChecklistLineIdx != null) {
+                    lineFocusRequesters[activeChecklistLineIdx]?.requestFocus()
+                } else {
+                    lineFocusRequesters[0]?.requestFocus() ?: focusRequester.requestFocus()
+                }
+            } else {
+                focusRequester.requestFocus()
+            }
+        }
+    }
+
+    val applyWrap: (String, String) -> Unit = { prefix, suffix ->
+        val raw = state.contentValue.text
+        val currentLines = raw.lines()
+        if (hasChecklistItems && activeChecklistLineIdx == null && !isTrailingActive) {
+            val firstChecklist = currentLines.indexOfFirst { isChecklistLine(it) }.takeIf { it >= 0 } ?: 0
+            activeChecklistLineIdx = firstChecklist
+            val itemStart = getLineStartOffset(raw, firstChecklist) + getChecklistPrefixLength(currentLines.getOrElse(firstChecklist) { "" })
+            val itemTextLen = extractItemText(currentLines.getOrElse(firstChecklist) { "" }).length
+            val newSelection = TextRange(itemStart, itemStart + itemTextLen)
+            val syncedValue = state.contentValue.copy(selection = newSelection)
+            applyMarkdownWrap(syncedValue, prefix, suffix, onContentValueChange, requestActiveFocus)
+        } else {
+            applyMarkdownWrap(state.contentValue, prefix, suffix, onContentValueChange, requestActiveFocus)
+        }
+    }
+
+    val applyPrefix: (String) -> Unit = { prefix ->
+        val raw = state.contentValue.text
+        val currentLines = raw.lines()
+        if (hasChecklistItems && activeChecklistLineIdx == null && !isTrailingActive) {
+            val firstChecklist = currentLines.indexOfFirst { isChecklistLine(it) }.takeIf { it >= 0 } ?: 0
+            activeChecklistLineIdx = firstChecklist
+            val itemStart = getLineStartOffset(raw, firstChecklist) + getChecklistPrefixLength(currentLines.getOrElse(firstChecklist) { "" })
+            val syncedValue = state.contentValue.copy(selection = TextRange(itemStart))
+            applyPrefixToLine(syncedValue, prefix, onContentValueChange, requestActiveFocus)
+        } else {
+            applyPrefixToLine(state.contentValue, prefix, onContentValueChange, requestActiveFocus)
+        }
+    }
+
+    val applyCodeBlockAction: () -> Unit = {
+        if (hasChecklistItems && activeChecklistLineIdx == null && !isTrailingActive) {
+            val firstChecklist = state.contentValue.text.lines().indexOfFirst { isChecklistLine(it) }.takeIf { it >= 0 } ?: 0
+            activeChecklistLineIdx = firstChecklist
+            val currentLine = state.contentValue.text.lines().getOrElse(firstChecklist) { "" }
+            val itemStart = getLineStartOffset(state.contentValue.text, firstChecklist) + getChecklistPrefixLength(currentLine)
+            val itemTextLength = extractItemText(currentLine).length
+            applyCodeBlock(
+                state.contentValue.copy(selection = TextRange(itemStart, itemStart + itemTextLength)),
+                onContentValueChange,
+                requestActiveFocus
+            )
+        } else {
+            applyCodeBlock(state.contentValue, onContentValueChange, requestActiveFocus)
+        }
+    }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+    val scrollState = rememberScrollState()
+    var isPreviewMode by remember { mutableStateOf(false) }
+    var isPresentationMode by remember { mutableStateOf(false) }
+    var presentationFontSize by remember(state.noteFontSize) { mutableFloatStateOf(state.noteFontSize + 2f) }
+    var presentationLineSpacingMultiplier by remember { mutableFloatStateOf(1.5f) }
+    val isTabletOrLandscape = LocalConfiguration.current.screenWidthDp >= 600
+    var isTwoColumnMode by remember(isTabletOrLandscape) { mutableStateOf(isTabletOrLandscape) }
+    val currentConfig = LocalConfiguration.current
+    val isSplitSupported = remember(currentConfig.screenWidthDp, currentConfig.orientation) {
+        SplitPaneLayoutHelper.isSplitPaneSupported(
+            currentConfig.screenWidthDp,
+            currentConfig.orientation == Configuration.ORIENTATION_LANDSCAPE
+        )
+    }
+    var isSplitPaneActive by rememberSaveable { mutableStateOf(false) }
+    var splitRatio by rememberSaveable { mutableStateOf(SplitRatio.EQUAL) }
+    var hideMarkdownTokens by remember { mutableStateOf(true) }
+    var showDeleteConfirmDialog by remember { mutableStateOf(false) }
+    var showAddCategoryDialog by remember { mutableStateOf(false) }
+    var newCategoryName by remember { mutableStateOf("") }
+    var newCategoryColor by remember { mutableIntStateOf(0) }
+    var showStatsDialog by remember { mutableStateOf(false) }
+    var revertConfirmPath by remember { mutableStateOf<String?>(null) }
+    var showMoreMenu by remember { mutableStateOf(false) }
+    var activeToolCategory by remember { mutableStateOf(NoteToolCategory.NONE) }
+    var showOutlineDialog by remember { mutableStateOf(false) }
+    var isBacklinksExpanded by rememberSaveable { mutableStateOf(true) }
+    var moveCheckedToBottom by rememberSaveable { mutableStateOf(false) }
+    var isCompletedSectionExpanded by rememberSaveable { mutableStateOf(true) }
+    val allImageAttachments = remember(state.attachments) {
+        state.attachments.filter { GalleryGridCalculator.isImageAttachment(it) }
+    }
+    var fullScreenViewerInitialIndex by rememberSaveable { mutableStateOf<Int?>(null) }
+
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val focusManager = LocalFocusManager.current
+    var showShareOptionsDialog by rememberSaveable { mutableStateOf(false) }
+    var showCategoryColorDialog by rememberSaveable { mutableStateOf(false) }
+    var showMoreToolsDialog by rememberSaveable { mutableStateOf(false) }
+
+    // Donanımsal veya jest ile geri tuşuna basıldığında
+    BackHandler {
+        if (fullScreenViewerInitialIndex != null) {
+            fullScreenViewerInitialIndex = null
+        } else if (isPresentationMode) {
+            isPresentationMode = false
+        } else if (isPreviewMode) {
+            isPreviewMode = false
+        } else {
+            onBackClick()
+        }
+    }
+
+    fullScreenViewerInitialIndex?.let { startIdx ->
+        if (allImageAttachments.isNotEmpty()) {
+            val safeStart = startIdx.coerceIn(0, allImageAttachments.lastIndex)
+            val pagerState = rememberPagerState(initialPage = safeStart, pageCount = { allImageAttachments.size })
+            val currentPath = allImageAttachments.getOrElse(pagerState.currentPage) { allImageAttachments[0] }
+
+            Dialog(
+                onDismissRequest = { fullScreenViewerInitialIndex = null },
+                properties = DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false)
+            ) {
+                val dialogView = LocalView.current
+                SideEffect {
+                    (dialogView.parent as? DialogWindowProvider)?.window?.let { window ->
+                        window.statusBarColor = android.graphics.Color.BLACK
+                        window.navigationBarColor = android.graphics.Color.BLACK
+                    }
+                }
+                Box(
+                    modifier = Modifier.fillMaxSize().background(Color.Black),
+                    contentAlignment = Alignment.Center
+                ) {
+                    HorizontalPager(
+                        state = pagerState,
+                        userScrollEnabled = true,
+                        modifier = Modifier.fillMaxSize()
+                    ) { page ->
+                        val path = allImageAttachments[page]
+                        val isDrawing = path.contains("drawing", ignoreCase = true) || path.contains("DRAW_")
+                        var zoom by remember(path) { mutableFloatStateOf(1f) }
+                        var panX by remember(path) { mutableFloatStateOf(0f) }
+                        var panY by remember(path) { mutableFloatStateOf(0f) }
+                        val transformState = rememberTransformableState { zoomChange, panChange, _ ->
+                            zoom = (zoom * zoomChange).coerceIn(1f, 5f)
+                            if (zoom <= 1.05f) {
+                                panX = 0f
+                                panY = 0f
+                            } else {
+                                panX += panChange.x
+                                panY += panChange.y
+                            }
+                        }
+
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .pointerInput(path) {
+                                    detectTapGestures(
+                                        onDoubleTap = {
+                                            if (zoom > 1.2f) {
+                                                zoom = 1f
+                                                panX = 0f
+                                                panY = 0f
+                                            } else {
+                                                zoom = 2.5f
+                                            }
+                                        }
+                                    )
+                                },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            if (isDrawing) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(16.dp)
+                                        .clip(RoundedCornerShape(12.dp))
+                                        .background(Color.White)
+                                        .graphicsLayer {
+                                            scaleX = zoom
+                                            scaleY = zoom
+                                            translationX = panX
+                                            translationY = panY
+                                        }
+                                        .transformable(transformState),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    AsyncImage(
+                                        model = File(path),
+                                        contentDescription = "Tam ekran çizim ${page + 1}",
+                                        contentScale = ContentScale.Fit,
+                                        modifier = Modifier.fillMaxSize()
+                                    )
+                                }
+                            } else {
+                                AsyncImage(
+                                    model = File(path),
+                                    contentDescription = "Tam ekran görsel ${page + 1}",
+                                    contentScale = ContentScale.Fit,
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .transformable(transformState)
+                                        .graphicsLayer {
+                                            scaleX = zoom
+                                            scaleY = zoom
+                                            translationX = panX
+                                            translationY = panY
+                                        }
+                                )
+                            }
+                        }
+                    }
+
+                    // Üst Araç Çubuğu ve Degrade Koruma (Top Gradient Scrim)
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .align(Alignment.TopCenter)
+                            .background(
+                                androidx.compose.ui.graphics.Brush.verticalGradient(
+                                    colors = listOf(Color.Black.copy(alpha = 0.75f), Color.Transparent)
+                                )
+                            )
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .statusBarsPadding()
+                                .padding(horizontal = 14.dp, vertical = 10.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                            ) {
+                                FilledTonalIconButton(
+                                    onClick = { fullScreenViewerInitialIndex = null },
+                                    colors = IconButtonDefaults.filledTonalIconButtonColors(
+                                        containerColor = Color.White.copy(alpha = 0.20f),
+                                        contentColor = Color.White
+                                    )
+                                ) {
+                                    Icon(Icons.Default.Close, contentDescription = "Görseli kapat")
+                                }
+
+                                if (allImageAttachments.size > 1) {
+                                    Surface(
+                                        shape = CircleShape,
+                                        color = Color.White.copy(alpha = 0.20f)
+                                    ) {
+                                        Text(
+                                            text = "${pagerState.currentPage + 1} / ${allImageAttachments.size}",
+                                            color = Color.White,
+                                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 5.dp)
+                                        )
+                                    }
+                                }
+                            }
+
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                FilledTonalButton(
+                                    onClick = {
+                                        fullScreenViewerInitialIndex = null
+                                        onAnnotateImage(currentPath)
+                                    },
+                                    colors = ButtonDefaults.filledTonalButtonColors(
+                                        containerColor = Color.White.copy(alpha = 0.20f),
+                                        contentColor = Color.White
+                                    )
+                                ) {
+                                    Icon(Icons.Default.Brush, contentDescription = null, modifier = Modifier.size(16.dp))
+                                    Spacer(Modifier.width(6.dp))
+                                    Text("İşaretle & Çiz", style = MaterialTheme.typography.labelMedium)
+                                }
+                                FilledTonalButton(
+                                    onClick = {
+                                        fullScreenViewerInitialIndex = null
+                                        onImageEditClick(currentPath)
+                                    },
+                                    colors = ButtonDefaults.filledTonalButtonColors(
+                                        containerColor = MaterialTheme.colorScheme.primary,
+                                        contentColor = MaterialTheme.colorScheme.onPrimary
+                                    )
+                                ) {
+                                    Icon(Icons.Default.Edit, contentDescription = null, modifier = Modifier.size(16.dp))
+                                    Spacer(Modifier.width(6.dp))
+                                    Text("Düzenle", style = MaterialTheme.typography.labelMedium)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Görsel düzenlemeden yeni dönüldüyse geri alma için anında snackbar göster
+    LaunchedEffect(justEditedImagePath) {
+        justEditedImagePath?.let { editedPath ->
+            val result = snackbarHostState.showSnackbar(
+                message = "Görsel düzenlendi. İsterseniz önceki haline dönebilirsiniz.",
+                actionLabel = "Geri Al",
+                duration = SnackbarDuration.Long
+            )
+            if (result == SnackbarResult.ActionPerformed) {
+                onRevertImageEdit(editedPath)
+            }
+            onClearJustEditedImage()
+        }
+    }
+
+    // Kilitli not güvenliği: Not kilitliyse ekranda olduğu sürece FLAG_SECURE aktif olsun!
+    // Bu sayede hem kullanıcı ekrandayken ekran görüntüsü (screenshot) alınamaz,
+    // hem de son uygulamalar (recents/task switcher) anında siyah/sansürlü görünür.
+    DisposableEffect(state.isLocked) {
+        val window = (context as? android.app.Activity)?.window
+        if (state.isLocked) {
+            window?.addFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE)
+        } else {
+            window?.clearFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE)
+        }
+        onDispose {
+            window?.clearFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE)
+        }
+    }
+
+    // Sayfa Arka Plan Rengi ve Kontrast Hesabı
+    val baseNoteColor = if (state.color != 0 && state.color != Color.Transparent.toArgb()) {
+        Color(state.color)
+    } else {
+        MaterialTheme.colorScheme.surface
+    }
+
+    val animatedBgColor by animateColorAsState(
+        targetValue = baseNoteColor,
+        animationSpec = tween(durationMillis = 250),
+        label = "animatedNoteBg"
+    )
+
+    // Açık veya koyu arkaplana göre metin ve ikon renkleri (Karanlık/Aydınlık temadan bağımsız doğru zıt kontrast)
+    val isDarkBackground = animatedBgColor.luminance() < 0.48f
+    val contentColor = if (isDarkBackground) Color(0xFFF8F9FA) else Color(0xFF14171A)
+    val secondaryContentColor = if (isDarkBackground) Color(0xFFD0D4D9) else Color(0xFF494D55)
+    val hintColor = if (isDarkBackground) Color(0x99F8F9FA) else Color(0x9914171A)
+    val topBarIconColor = if (isDarkBackground) Color(0xFFF0F1F5) else Color(0xFF191C20)
+    val deleteButtonColor = if (isDarkBackground) Color(0xFFFF6B6B) else Color(0xFFBA1A1A)
+    val pinButtonColor = if (state.isPinned) (if (isDarkBackground) Color(0xFF80D8FF) else Color(0xFF00668B)) else topBarIconColor
+    val dockIconColor = MaterialTheme.colorScheme.onSurface
+
+    // Medya ve Ses Seçicileri
+    var showImageSourceDialog by remember { mutableStateOf(false) }
+    var tempCameraUri by remember { mutableStateOf<android.net.Uri?>(null) }
+
+    val takePictureLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success && tempCameraUri != null) {
+            onAddImageUri(tempCameraUri!!)
+        }
+    }
+
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        if (uri != null) {
+            onAddImageUri(uri)
+        }
+    }
+
+    val backgroundImagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        if (uri != null) {
+            val savedPath = com.example.noteapp.media.FileStorageHelper.saveImageFromUri(context, uri)
+            if (savedPath != null) {
+                onBackgroundImageChange(savedPath)
+            }
+        }
+    }
+
+    fun launchCamera() {
+        try {
+            val photoFile = File(context.cacheDir, "camera_capture_${System.currentTimeMillis()}.jpg")
+            val uri = FileProvider.getUriForFile(
+                context,
+                "${context.packageName}.fileprovider",
+                photoFile
+            )
+            tempCameraUri = uri
+            takePictureLauncher.launch(uri)
+        } catch (e: Exception) {
+            Toast.makeText(context, "Kamera başlatılamadı: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    // Not İçi Arama ve Değiştirme Durumu
+    var isSearchActive by remember { mutableStateOf(false) }
+    var searchQuery by remember { mutableStateOf("") }
+    var replaceQuery by remember { mutableStateOf("") }
+    var matchCase by remember { mutableStateOf(false) }
+    var currentMatchIndex by remember { mutableIntStateOf(0) }
+
+    val searchMatches: List<FindMatch> = remember(state.contentValue.text, searchQuery, matchCase) {
+        if (searchQuery.isBlank()) emptyList()
+        else FindReplaceEngine.findAllMatches(state.contentValue.text, searchQuery, matchCase)
+    }
+
+    val activeMatchStartIndex = if (searchMatches.isNotEmpty() && currentMatchIndex in searchMatches.indices) {
+        searchMatches[currentMatchIndex].index
+    } else null
+
+    LaunchedEffect(currentMatchIndex, searchMatches) {
+        if (searchMatches.isNotEmpty() && currentMatchIndex in searchMatches.indices) {
+            val match = searchMatches[currentMatchIndex]
+            val start = match.index
+            val end = (start + match.length).coerceAtMost(state.contentValue.text.length)
+            onContentValueChange(
+                state.contentValue.copy(
+                    selection = TextRange(start, end)
+                )
+            )
+            // Eşleşmenin konumuna sayfayı yumuşakça kaydır
+            if (state.contentValue.text.isNotEmpty() && scrollState.maxValue > 0) {
+                val ratio = start.toFloat() / state.contentValue.text.length
+                val targetScroll = (ratio * scrollState.maxValue).toInt().coerceIn(0, scrollState.maxValue)
+                scrollState.animateScrollTo(targetScroll)
+            }
+        }
+    }
+
+    val audioPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            onToggleAudioRecording()
+        }
+    }
+
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (!isGranted) {
+            Toast.makeText(context, "Hatırlatıcı bildirimlerini alabilmek için bildirim izni gereklidir.", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    // Widget'tan otomatik aksiyonla açıldıysa (tek seferlik çalışması için rememberSaveable ile korunur)
+    var autoActionExecuted by rememberSaveable(autoAction) { mutableStateOf(false) }
+
+    LaunchedEffect(autoAction) {
+        if (!autoActionExecuted && !autoAction.isNullOrBlank()) {
+            autoActionExecuted = true
+            when (autoAction) {
+                "image" -> {
+                    showImageSourceDialog = true
+                }
+                "voice" -> {
+                    audioPermissionLauncher.launch(android.Manifest.permission.RECORD_AUDIO)
+                }
+                "draw" -> {
+                    onAddDrawingClick()
+                }
+                "checklist" -> {
+                    if (state.contentValue.text.isBlank()) {
+                        onContentValueChange(TextFieldValue("- [ ] ", selection = TextRange(6)))
+                    } else if (!state.contentValue.text.lines().any { isChecklistLine(it) }) {
+                        val converted = state.contentValue.text.lines().joinToString("\n") { if (it.isBlank()) it else "- [ ] $it" }
+                        onContentValueChange(TextFieldValue(converted))
+                    } else {
+                        val updated = addChecklistLine(state.contentValue.text)
+                        onContentValueChange(TextFieldValue(updated))
+                    }
+                }
+            }
+        }
+    }
+
+    // Hatırlatıcı Tarih/Saat Seçici
+    fun showDateTimePicker() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(context, android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                notificationPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+        val calendar = Calendar.getInstance()
+        DatePickerDialog(
+            context,
+            { _, year, month, dayOfMonth ->
+                calendar.set(Calendar.YEAR, year)
+                calendar.set(Calendar.MONTH, month)
+                calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+
+                TimePickerDialog(
+                    context,
+                    { _, hourOfDay, minute ->
+                        calendar.set(Calendar.HOUR_OF_DAY, hourOfDay)
+                        calendar.set(Calendar.MINUTE, minute)
+                        calendar.set(Calendar.SECOND, 0)
+                        onSetReminder(calendar.timeInMillis)
+                    },
+                    calendar.get(Calendar.HOUR_OF_DAY),
+                    calendar.get(Calendar.MINUTE),
+                    true
+                ).show()
+            },
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
+        ).show()
+    }
+
+    // Notu Panoya Kopyalama
+    fun copyNoteToClipboard() {
+        val fullText = buildString {
+            if (state.title.isNotBlank()) {
+                appendLine(state.title)
+                appendLine()
+            }
+            append(state.contentValue.text)
+        }
+        ClipboardHelper.copyToClipboard(
+            context = context,
+            label = "Not İçeriği",
+            text = fullText,
+            option = ClipboardHelper.CopyOption.FULL_NOTE
+        )
+    }
+
+    // Notu Paylaşma (Düz Metin veya Markdown Formatında)
+    fun shareNote(asMarkdown: Boolean = false) {
+        val fullText = if (asMarkdown) {
+            buildString {
+                if (state.title.isNotBlank()) appendLine("# ${state.title}\n")
+                append(state.contentValue.text)
+            }
+        } else {
+            buildString {
+                if (state.title.isNotBlank()) {
+                    appendLine(state.title)
+                    appendLine()
+                }
+                append(state.contentValue.text)
+            }
+        }
+        val intent = Intent(Intent.ACTION_SEND).apply {
+            type = if (asMarkdown) "text/markdown" else "text/plain"
+            putExtra(Intent.EXTRA_SUBJECT, state.title.ifBlank { "Not" })
+            putExtra(Intent.EXTRA_TEXT, fullText)
+        }
+        context.startActivity(Intent.createChooser(intent, if (asMarkdown) "Markdown Notunu Paylaş" else "Notu Paylaş"))
+    }
+
+    // Kelime, Karakter ve Okuma Süresi Hesaplama
+    val wordCount = remember(state.contentValue.text) {
+        val words = state.contentValue.text.trim().split("\\s+".toRegex()).filter { it.isNotBlank() }
+        words.size
+    }
+    val charCount = state.contentValue.text.length
+    val readingTime = max(1, (wordCount / 180f).roundToInt().coerceAtLeast(1))
+
+    if (showDeleteConfirmDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteConfirmDialog = false },
+            icon = { Icon(Icons.Default.Delete, contentDescription = null, tint = MaterialTheme.colorScheme.error) },
+            title = { Text("Notu Sil") },
+            text = { Text("Bu not çöp kutusuna taşınacaktır. Onaylıyor musunuz?") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showDeleteConfirmDialog = false
+                        onDeleteNoteClick()
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                ) {
+                    Text("Sil")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteConfirmDialog = false }) {
+                    Text("İptal")
+                }
+            }
+        )
+    }
+
+    if (showShareOptionsDialog) {
+        AlertDialog(
+            onDismissRequest = { showShareOptionsDialog = false },
+            icon = { Icon(Icons.Default.Share, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
+            title = {
+                Text(
+                    text = "Notu Paylaş & Dışa Aktar",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    // 1. Düz Metin
+                    Surface(
+                        shape = RoundedCornerShape(14.dp),
+                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                showShareOptionsDialog = false
+                                shareNote(asMarkdown = false)
+                            }
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(14.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(14.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(40.dp)
+                                    .clip(CircleShape)
+                                    .background(MaterialTheme.colorScheme.primaryContainer),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    Icons.Default.Description,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text("Düz Metin Olarak Paylaş", fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.bodyMedium)
+                                Text("Başlık ve içeriği yalın metin formatında paylaşır", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                        }
+                    }
+
+                    // 2. Markdown Metni
+                    Surface(
+                        shape = RoundedCornerShape(14.dp),
+                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                showShareOptionsDialog = false
+                                shareNote(asMarkdown = true)
+                            }
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(14.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(14.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(40.dp)
+                                    .clip(CircleShape)
+                                    .background(MaterialTheme.colorScheme.secondaryContainer),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    Icons.Default.Code,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text("Markdown Olarak Paylaş", fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.bodyMedium)
+                                Text("Biçimlendirmeleri (.md) koruyarak paylaşır", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                        }
+                    }
+
+                    // 3. PDF Belgesi
+                    Surface(
+                        shape = RoundedCornerShape(14.dp),
+                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                showShareOptionsDialog = false
+                                scope.launch {
+                                    try {
+                                        val categoryName = categories.find { it.id == state.categoryId }?.name
+                                        val dateStr = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault()).format(Date(state.updatedAt))
+                                        val pdfFile = NoteExporter.exportToPdf(
+                                            context = context,
+                                            title = state.title.ifBlank { "Başlıksız Not" },
+                                            content = state.contentValue.text,
+                                            categoryName = categoryName,
+                                            dateFormatted = dateStr
+                                        )
+                                        NoteExporter.shareFile(context, pdfFile, "application/pdf", "PDF Belgesini Paylaş")
+                                    } catch (e: Exception) {
+                                        snackbarHostState.showSnackbar("PDF oluşturulamadı: ${e.localizedMessage}")
+                                    }
+                                }
+                            }
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(14.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(14.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(40.dp)
+                                    .clip(CircleShape)
+                                    .background(MaterialTheme.colorScheme.tertiaryContainer),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    Icons.Default.PictureAsPdf,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onTertiaryContainer,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text("PDF Olarak Dışa Aktar", fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.bodyMedium)
+                                Text("Yazdırılabilir veya arşivlenebilir şık PDF oluşturur", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                        }
+                    }
+
+                    // 4. Not Kartı Görseli
+                    Surface(
+                        shape = RoundedCornerShape(14.dp),
+                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                showShareOptionsDialog = false
+                                scope.launch {
+                                    try {
+                                        val categoryName = categories.find { it.id == state.categoryId }?.name
+                                        val dateStr = SimpleDateFormat("dd MMMM yyyy, HH:mm", Locale("tr")).format(Date(state.updatedAt))
+                                        val cardFile = NoteExporter.exportToCardImage(
+                                            context = context,
+                                            title = state.title.ifBlank { "Başlıksız Not" },
+                                            content = state.contentValue.text,
+                                            categoryName = categoryName,
+                                            dateFormatted = dateStr
+                                        )
+                                        NoteExporter.shareFile(context, cardFile, "image/png", "Not Kartını Paylaş")
+                                    } catch (e: Exception) {
+                                        snackbarHostState.showSnackbar("Görsel kart oluşturulamadı: ${e.localizedMessage}")
+                                    }
+                                }
+                            }
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(14.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(14.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(40.dp)
+                                    .clip(CircleShape)
+                                    .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.7f)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    Icons.Default.Image,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text("Not Kartı / Görsel Olarak Paylaş", fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.bodyMedium)
+                                Text("Sosyal medyada paylaşmak için şık görsel kart üretir", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {},
+            dismissButton = {
+                TextButton(onClick = { showShareOptionsDialog = false }) {
+                    Text("Kapat")
+                }
+            }
+        )
+    }
+
+    if (showMoreToolsDialog) {
+        AlertDialog(
+            onDismissRequest = { showMoreToolsDialog = false },
+            icon = { Icon(Icons.Default.Build, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
+            title = {
+                Text(
+                    text = "Gelişmiş Not Araçları",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    // 1. Versiyon Geçmişi & Revizyonlar
+                    Surface(
+                        shape = RoundedCornerShape(14.dp),
+                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                showMoreToolsDialog = false
+                                showHistorySheet = true
+                            }
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(14.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(14.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(40.dp)
+                                    .clip(CircleShape)
+                                    .background(MaterialTheme.colorScheme.primaryContainer),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    Icons.Default.History,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text("Versiyon Geçmişi & Revizyonlar", fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.bodyMedium)
+                                Text("Önceki sürümleri inceleyin ve geri yükleyin", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                        }
+                    }
+
+                    // 2. Şablon Olarak Kaydet
+                    Surface(
+                        shape = RoundedCornerShape(14.dp),
+                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                showMoreToolsDialog = false
+                                showSaveTemplateDialog = true
+                            }
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(14.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(14.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(40.dp)
+                                    .clip(CircleShape)
+                                    .background(MaterialTheme.colorScheme.secondaryContainer),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    Icons.Default.Bookmark,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text("Şablon Olarak Kaydet", fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.bodyMedium)
+                                Text("Bu notu tekrar kullanılabilir şablon yapın", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                        }
+                    }
+
+                    // 3. Notu Çoğalt (Kopya Oluştur)
+                    Surface(
+                        shape = RoundedCornerShape(14.dp),
+                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                showMoreToolsDialog = false
+                                onDuplicateNote()
+                            }
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(14.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(14.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(40.dp)
+                                    .clip(CircleShape)
+                                    .background(MaterialTheme.colorScheme.tertiaryContainer),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    Icons.Default.ContentCopy,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onTertiaryContainer,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text("Notu Çoğalt (Kopya Oluştur)", fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.bodyMedium)
+                                Text("Notun tam bir kopyasını anında üretin", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                        }
+                    }
+
+                    // 4. Metin Analitiği & İstatistikler
+                    Surface(
+                        shape = RoundedCornerShape(14.dp),
+                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                showMoreToolsDialog = false
+                                showStatsDialog = true
+                            }
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(14.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(14.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(40.dp)
+                                    .clip(CircleShape)
+                                    .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.7f)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    Icons.Default.BarChart,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text("Metin Analitiği & İstatistikler", fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.bodyMedium)
+                                Text("$wordCount kelime, $charCount karakter, ~$readingTime dk okuma", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                        }
+                    }
+
+                    // 5. Kasa Dosyası Olarak İndir (.notevault)
+                    Surface(
+                        shape = RoundedCornerShape(14.dp),
+                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                showMoreToolsDialog = false
+                                showExportVaultDialog = true
+                            }
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(14.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(14.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(40.dp)
+                                    .clip(CircleShape)
+                                    .background(MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.7f)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    Icons.Default.Lock,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.secondary,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text("Kasa Dosyası Olarak İndir (.notevault)", fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.bodyMedium)
+                                Text("Şifreli ve bağımsız kasa formatında yedekleyin", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {},
+            dismissButton = {
+                TextButton(onClick = { showMoreToolsDialog = false }) {
+                    Text("Kapat")
+                }
+            }
+        )
+    }
+
+    if (showCategoryColorDialog) {
+        AlertDialog(
+            onDismissRequest = { showCategoryColorDialog = false },
+            icon = { Icon(Icons.AutoMirrored.Filled.Label, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
+            title = {
+                Text(
+                    text = "Kategori & Renk Seç",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    // Not Rengi Bölümü
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text(
+                            text = "Not Rengi",
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        LazyRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            items(NoteColors) { color ->
+                                val argb = if (color == Color.Transparent) 0 else color.toArgb()
+                                val isSelected = state.color == argb
+                                Box(
+                                    modifier = Modifier
+                                        .size(36.dp)
+                                        .clip(CircleShape)
+                                        .background(if (color == Color.Transparent) MaterialTheme.colorScheme.surfaceVariant else color)
+                                        .border(
+                                            width = if (isSelected) 2.5.dp else 1.dp,
+                                            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
+                                            shape = CircleShape
+                                        )
+                                        .clickable { onColorChange(argb) },
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    if (color == Color.Transparent) {
+                                        Icon(
+                                            Icons.Default.FormatColorReset,
+                                            contentDescription = "Varsayılan",
+                                            modifier = Modifier.size(16.dp),
+                                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    } else if (isSelected) {
+                                        Icon(
+                                            Icons.Default.Check,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(18.dp),
+                                            tint = if (color.luminance() < 0.5f) Color.White else Color.Black
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    HorizontalDivider(modifier = Modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+
+                    // Kategori Bölümü
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Kategori",
+                                style = MaterialTheme.typography.labelLarge,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            TextButton(
+                                onClick = {
+                                    showCategoryColorDialog = false
+                                    showAddCategoryDialog = true
+                                },
+                                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)
+                            ) {
+                                Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("Yeni Ekle", style = MaterialTheme.typography.labelMedium)
+                            }
+                        }
+
+                        LazyRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            item {
+                                FilterChip(
+                                    selected = state.categoryId == null,
+                                    onClick = { onCategoryChange(null) },
+                                    label = { Text("Kategorisiz") },
+                                    leadingIcon = if (state.categoryId == null) {
+                                        { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(16.dp)) }
+                                    } else null,
+                                    shape = RoundedCornerShape(12.dp)
+                                )
+                            }
+                            items(categories) { category ->
+                                val isSelected = state.categoryId == category.id
+                                FilterChip(
+                                    selected = isSelected,
+                                    onClick = { onCategoryChange(if (isSelected) null else category.id) },
+                                    label = {
+                                        Text(category.name, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                    },
+                                    leadingIcon = {
+                                        if (isSelected) {
+                                            Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(16.dp))
+                                        } else if (category.color != 0) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(10.dp)
+                                                    .clip(CircleShape)
+                                                    .background(Color(category.color))
+                                            )
+                                        } else null
+                                    },
+                                    shape = RoundedCornerShape(12.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                Button(onClick = { showCategoryColorDialog = false }) {
+                    Text("Tamam")
+                }
+            }
+        )
+    }
+
+    if (revertConfirmPath != null) {
+        AlertDialog(
+            onDismissRequest = { revertConfirmPath = null },
+            icon = { Icon(Icons.AutoMirrored.Filled.Undo, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
+            title = { Text("Görsel Düzenlemesini Geri Al") },
+            text = { Text("Bu görseli son yapılan düzenlemelerden önceki orijinal haline geri döndürmek istiyor musunuz?") },
+            confirmButton = {
+                Button(onClick = {
+                    val target = revertConfirmPath
+                    revertConfirmPath = null
+                    if (target != null) {
+                        onRevertImageEdit(target)
+                        scope.launch {
+                            snackbarHostState.showSnackbar("Görsel önceki haline geri döndürüldü.")
+                        }
+                    }
+                }) {
+                    Text("Eski Haline Dön")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { revertConfirmPath = null }) {
+                    Text("İptal")
+                }
+            }
+        )
+    }
+
+    if (showImageSourceDialog) {
+        AlertDialog(
+            onDismissRequest = { showImageSourceDialog = false },
+            icon = { Icon(Icons.Default.AddPhotoAlternate, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
+            title = { Text("Görsel Ekle") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Surface(
+                        shape = RoundedCornerShape(12.dp),
+                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                showImageSourceDialog = false
+                                launchCamera()
+                            }
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(14.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Icon(Icons.Default.PhotoCamera, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                            Text("Fotoğraf Çek (Kamera)", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
+                        }
+                    }
+
+                    Surface(
+                        shape = RoundedCornerShape(12.dp),
+                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                showImageSourceDialog = false
+                                imagePickerLauncher.launch(
+                                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                                )
+                            }
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(14.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Icon(Icons.Default.Image, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                            Text("Galeriden Seç", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
+                        }
+                    }
+                }
+            },
+            confirmButton = {},
+            dismissButton = {
+                TextButton(onClick = { showImageSourceDialog = false }) {
+                    Text("İptal")
+                }
+            }
+        )
+    }
+
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        containerColor = animatedBgColor,
+        contentColor = contentColor,
+        topBar = {
+            if (isPresentationMode) {
+                TopAppBar(
+                    title = {
+                        Text(
+                            text = if (state.title.isNotBlank()) state.title else "Okuma Modu",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            color = contentColor
+                        )
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = animatedBgColor,
+                        titleContentColor = contentColor,
+                        actionIconContentColor = topBarIconColor,
+                        navigationIconContentColor = topBarIconColor
+                    ),
+                    navigationIcon = {
+                        IconButton(onClick = { isPresentationMode = false }) {
+                            Icon(Icons.Default.Close, contentDescription = "Okuma Modunu Kapat", tint = topBarIconColor)
+                        }
+                    },
+                    actions = {
+                        // Sesli Okuma (TTS Hoparlör) Butonu
+                        IconButton(onClick = onToggleTextToSpeech) {
+                            Icon(
+                                imageVector = if (state.isTtsSpeaking) Icons.Default.Stop else Icons.AutoMirrored.Filled.VolumeUp,
+                                contentDescription = if (state.isTtsSpeaking) "Sesli Okumayı Durdur" else "Sesli Oku",
+                                tint = if (state.isTtsSpeaking) MaterialTheme.colorScheme.primary else topBarIconColor
+                            )
+                        }
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
+                            modifier = Modifier.padding(end = 4.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    Icons.Default.AccessTime,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(14.dp),
+                                    tint = topBarIconColor
+                                )
+                                Spacer(Modifier.width(4.dp))
+                                AutoResizeText(
+                                    text = "~${maxOf(1, currentWordCount / 180)} dk",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = FontWeight.Medium,
+                                    color = topBarIconColor,
+                                    maxLines = 1,
+                                    minFontSize = 8.5.sp
+                                )
+                            }
+                        }
+
+                        // Satır Aralığı Döngüsü (1.3x -> 1.5x -> 1.8x)
+                        IconButton(
+                            onClick = {
+                                presentationLineSpacingMultiplier = when (presentationLineSpacingMultiplier) {
+                                    1.3f -> 1.5f
+                                    1.5f -> 1.8f
+                                    else -> 1.3f
+                                }
+                            }
+                        ) {
+                            Surface(
+                                shape = RoundedCornerShape(8.dp),
+                                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        Icons.Default.FormatLineSpacing,
+                                        contentDescription = "Satır Aralığı",
+                                        modifier = Modifier.size(14.dp),
+                                        tint = topBarIconColor
+                                    )
+                                    Spacer(Modifier.width(2.dp))
+                                    Text(
+                                        text = "${presentationLineSpacingMultiplier}x",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        fontWeight = FontWeight.Bold,
+                                        color = topBarIconColor
+                                    )
+                                }
+                            }
+                        }
+
+                        // Tek/Çift Sütun Okuma Modu
+                        IconButton(
+                            onClick = { isTwoColumnMode = !isTwoColumnMode }
+                        ) {
+                            Icon(
+                                imageVector = if (isTwoColumnMode) Icons.Default.ViewAgenda else Icons.Default.ViewColumn,
+                                contentDescription = if (isTwoColumnMode) "Tek Sütun Görünümüne Geç" else "Çift Sütun Görünümüne Geç",
+                                tint = if (isTwoColumnMode) MaterialTheme.colorScheme.primary else topBarIconColor
+                            )
+                        }
+
+                        IconButton(
+                            onClick = { if (presentationFontSize > 12f) presentationFontSize -= 2f }
+                        ) {
+                            Text(
+                                "A-",
+                                fontWeight = FontWeight.Bold,
+                                style = MaterialTheme.typography.titleSmall,
+                                color = topBarIconColor
+                            )
+                        }
+
+                        IconButton(
+                            onClick = { if (presentationFontSize < 36f) presentationFontSize += 2f }
+                        ) {
+                            Text(
+                                "A+",
+                                fontWeight = FontWeight.Bold,
+                                style = MaterialTheme.typography.titleMedium,
+                                color = topBarIconColor
+                            )
+                        }
+                    }
+                )
+            } else if (state.isZenMode) {
+                // Odaklanma modunda üst çubuk gizlenir
+            } else {
+                val isCompactScreen = LocalConfiguration.current.screenWidthDp < 400
+
+                TopAppBar(
+                    title = { },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = Color.Transparent,
+                        titleContentColor = topBarIconColor,
+                        actionIconContentColor = topBarIconColor,
+                        navigationIconContentColor = topBarIconColor
+                    ),
+                    navigationIcon = {
+                        IconButton(onClick = onBackClick) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Geri", tint = topBarIconColor)
+                        }
+                    },
+                    actions = {
+                        // Sesli Okuma (TTS Hoparlör) Butonu
+                        IconButton(onClick = onToggleTextToSpeech) {
+                            Icon(
+                                imageVector = if (state.isTtsSpeaking) Icons.Default.Stop else Icons.AutoMirrored.Filled.VolumeUp,
+                                contentDescription = if (state.isTtsSpeaking) "Sesli Okumayı Durdur" else "Sesli Oku",
+                                tint = if (state.isTtsSpeaking) MaterialTheme.colorScheme.primary else topBarIconColor
+                            )
+                        }
+                        // Geri Al (Undo) - Yalnızca geri alınabilir bir işlem olduğunda yer kaplar
+                        AnimatedVisibility(
+                            visible = canUndo,
+                            enter = fadeIn() + expandHorizontally(),
+                            exit = fadeOut() + shrinkHorizontally()
+                        ) {
+                            IconButton(onClick = onUndo) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.Undo,
+                                    contentDescription = "Geri Al",
+                                    tint = topBarIconColor
+                                )
+                            }
+                        }
+
+                        // İleri Al (Redo) - Yalnızca ileri alınabilir bir işlem olduğunda yer kaplar
+                        AnimatedVisibility(
+                            visible = canRedo,
+                            enter = fadeIn() + expandHorizontally(),
+                            exit = fadeOut() + shrinkHorizontally()
+                        ) {
+                            IconButton(onClick = onRedo) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.Redo,
+                                    contentDescription = "İleri Al",
+                                    tint = topBarIconColor
+                                )
+                            }
+                        }
+
+                        // 1. Okuma / Sunum Modu Butonu
+                        IconButton(onClick = {
+                            keyboardController?.hide()
+                            focusManager.clearFocus()
+                            isPreviewMode = false
+                            isPresentationMode = !isPresentationMode
+                        }) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ChromeReaderMode,
+                                contentDescription = if (isPresentationMode) "Düzenleme Moduna Dön" else "Okuma Moduna Geç",
+                                tint = if (isPresentationMode) MaterialTheme.colorScheme.primary else topBarIconColor
+                            )
+                        }
+
+                        // 2. Önizleme / Düzenleme Modu Butonu (Markdown Hızlı Geçiş)
+                        IconButton(onClick = {
+                            keyboardController?.hide()
+                            focusManager.clearFocus()
+                            isPresentationMode = false
+                            isPreviewMode = !isPreviewMode
+                        }) {
+                            Icon(
+                                imageVector = if (isPreviewMode) Icons.Default.Edit else Icons.Default.RemoveRedEye,
+                                contentDescription = if (isPreviewMode) "Düzenleme Modu" else "Önizleme Modu",
+                                tint = if (isPreviewMode) MaterialTheme.colorScheme.primary else topBarIconColor
+                            )
+                        }
+
+
+                        // 3. Not İçi Arama ve Değiştirme Butonu
+                        IconButton(onClick = { isSearchActive = !isSearchActive }) {
+                            Icon(
+                                Icons.Default.Search,
+                                contentDescription = "Notta Bul ve Değiştir",
+                                tint = if (isSearchActive) MaterialTheme.colorScheme.primary else topBarIconColor
+                            )
+                        }
+
+                        // 4. Sabitleme (Pin) Butonu
+                        IconButton(onClick = onTogglePin) {
+                            if (state.isPinned) {
+                                Icon(
+                                    imageVector = Icons.Filled.PushPin,
+                                    contentDescription = "Sabitlemeyi kaldır",
+                                    tint = pinButtonColor
+                                )
+                            } else {
+                                Icon(
+                                    painter = painterResource(R.drawable.ic_push_pin_off),
+                                    contentDescription = "Sabitle",
+                                    tint = pinButtonColor
+                                )
+                            }
+                        }
+
+                        // Çift Bölmeli Canlı Düzenleyici (Split-Pane) Butonu (Sadece desteklenen geniş ekranlarda)
+                        if (isSplitSupported && !isCompactScreen) {
+                            IconButton(onClick = { isSplitPaneActive = !isSplitPaneActive }) {
+                                Icon(
+                                    imageVector = if (isSplitPaneActive) Icons.Default.ViewStream else Icons.Default.VerticalSplit,
+                                    contentDescription = if (isSplitPaneActive) "Tek Bölmeli Görünüm" else "Çift Bölmeli Canlı Düzenleyici",
+                                    tint = if (isSplitPaneActive) MaterialTheme.colorScheme.primary else topBarIconColor
+                                )
+                            }
+                        }
+
+                        // Üç Nokta Menüsü
+                        Box {
+                            IconButton(onClick = { showMoreMenu = true }) {
+                                Icon(Icons.Default.MoreVert, contentDescription = "Daha Fazla Seçenek", tint = topBarIconColor)
+                            }
+
+                            DropdownMenu(
+                                expanded = showMoreMenu,
+                                onDismissRequest = { showMoreMenu = false },
+                                modifier = Modifier.widthIn(min = 250.dp)
+                            ) {
+                                // 1. 📌 Sabitle / Sabitlemeyi Kaldır
+                                DropdownMenuItem(
+                                    text = { Text(if (state.isPinned) "Sabitlemeyi Kaldır" else "Başa Sabitle") },
+                                    leadingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Default.PushPin,
+                                            contentDescription = null,
+                                            tint = if (state.isPinned) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    },
+                                    onClick = {
+                                        showMoreMenu = false
+                                        onTogglePin()
+                                    }
+                                )
+
+                                // 2. 🔒 Kasa Kilidi ile Koru
+                                DropdownMenuItem(
+                                    text = { Text(if (state.isLocked) "Kasa Kilidini Kaldır" else "Kasa Kilidi ile Koru") },
+                                    leadingIcon = {
+                                        Icon(
+                                            imageVector = if (state.isLocked) Icons.Default.LockOpen else Icons.Default.Lock,
+                                            contentDescription = null,
+                                            tint = if (state.isLocked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    },
+                                    onClick = {
+                                        showMoreMenu = false
+                                        onToggleLock()
+                                    }
+                                )
+
+                                // 3. 📖 Okuma / Sunum Modu
+                                DropdownMenuItem(
+                                    text = { Text(if (isPresentationMode) "Okuma Modunu Kapat" else "Okuma / Sunum Modu") },
+                                    leadingIcon = {
+                                        Icon(
+                                            imageVector = Icons.AutoMirrored.Filled.ChromeReaderMode,
+                                            contentDescription = null,
+                                            tint = if (isPresentationMode) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    },
+                                    onClick = {
+                                        showMoreMenu = false
+                                        keyboardController?.hide()
+                                        focusManager.clearFocus()
+                                        isPresentationMode = !isPresentationMode
+                                    }
+                                )
+
+                                // 4. 📤 Paylaş & Dışa Aktar (Pop-up Açar)
+                                DropdownMenuItem(
+                                    text = { Text("Paylaş & Dışa Aktar...") },
+                                    leadingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Default.Share,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.primary
+                                        )
+                                    },
+                                    onClick = {
+                                        showMoreMenu = false
+                                        showShareOptionsDialog = true
+                                    }
+                                )
+
+                                // 5. 🏷️ Kategori & Renk Seç (Pop-up Açar)
+                                DropdownMenuItem(
+                                    text = { Text("Kategori & Renk Seç...") },
+                                    leadingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Default.Palette,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    },
+                                    onClick = {
+                                        showMoreMenu = false
+                                        showCategoryColorDialog = true
+                                    }
+                                )
+
+                                // 6. 🛠️ Diğer Özellikler & Araçlar (Pop-up Açar)
+                                DropdownMenuItem(
+                                    text = { Text("Diğer Özellikler & Araçlar...") },
+                                    leadingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Default.Build,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    },
+                                    onClick = {
+                                        showMoreMenu = false
+                                        showMoreToolsDialog = true
+                                    }
+                                )
+
+                                HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+
+                                // 7. 🗑️ Notu Sil (Kırmızı Vurgulu)
+                                DropdownMenuItem(
+                                    text = { Text("Notu Sil", color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.SemiBold) },
+                                    leadingIcon = {
+                                        Icon(
+                                            Icons.Default.Delete,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.error
+                                        )
+                                    },
+                                    onClick = {
+                                        showMoreMenu = false
+                                        showDeleteConfirmDialog = true
+                                    }
+                                )
+                            }
+                        }
+                    }
+                )
+            }
+        },
+        bottomBar = {
+            if (!isPreviewMode && !state.isZenMode && !isPresentationMode) {
+                BottomEditorBar(
+                    textFieldValue = state.contentValue,
+                    activeToolCategory = activeToolCategory,
+                    onToolCategoryChange = { activeToolCategory = it },
+                    hasChecklistItems = hasChecklistItems,
+                    onToggleChecklist = {
+                        val currentText = state.contentValue.text
+                        if (hasChecklistItems) {
+                            val stripped = stripChecklist(currentText)
+                            onContentValueChange(TextFieldValue(stripped, selection = TextRange(stripped.length)))
+                        } else {
+                            val converted = convertToChecklist(currentText)
+                            onContentValueChange(TextFieldValue(converted, selection = TextRange(converted.length)))
+                        }
+                    },
+                    activeStyles = activeEditorStyles,
+                    onApplyWrap = { p, s -> applyWrap(p, s) },
+                    onApplyPrefix = { p -> applyPrefix(p) },
+                    onApplyCodeBlock = applyCodeBlockAction,
+                    onAddImage = { showImageSourceDialog = true },
+                    onAddDrawing = onAddDrawingClick,
+                    onToggleAudioRecording = {
+                        audioPermissionLauncher.launch(android.Manifest.permission.RECORD_AUDIO)
+                    },
+                    isRecordingAudio = state.isRecordingAudio,
+                    noteFontSize = state.noteFontSize,
+                    onFontSizeChange = onFontSizeChange,
+                    selectedColor = state.color,
+                    onColorChange = onColorChange,
+                    selectedBackgroundImage = state.backgroundImage,
+                    onPickBackgroundImage = {
+                        backgroundImagePickerLauncher.launch(
+                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                        )
+                    },
+                    onRemoveBackgroundImage = { onBackgroundImageChange(null) },
+                    selectedCategoryId = state.categoryId,
+                    categories = categories,
+                    onCategoryChange = { onCategoryChange(it) },
+                    onAddNewCategory = { showAddCategoryDialog = true },
+                    onOpenSnippetPicker = { showSnippetPickerSheet = true },
+                    onOpenMathFormula = { showMathFormulaSheet = true },
+                    onInsertTimestamp = {
+                        val now = SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault()).format(Date())
+                        insertTextAtCursor(state.contentValue, "[$now] ", onContentValueChange) { runCatching { focusRequester.requestFocus() } }
+                    },
+                    onInsertHorizontalRule = {
+                        insertTextAtCursor(state.contentValue, "\n---\n", onContentValueChange) { runCatching { focusRequester.requestFocus() } }
+                    },
+                    wordCount = currentWordCount,
+                    readingTime = readingTime,
+                    checklistStats = remember(state.contentValue.text) { ChecklistParser.parse(state.contentValue.text) },
+                    wordGoal = state.wordGoal,
+                    onOpenStatsDialog = { showStatsDialog = true },
+                    onOpenChecklistHub = { showChecklistActionsSheet = true },
+                    onOpenWordGoalDialog = { showWordGoalDialog = true },
+                    onRemoveWordGoal = { onSetWordGoal(null) },
+                    topContent = {
+                        // 1. Akıllı #etiket Otomatik Tamamlama Çubuğu (Tag Autocomplete)
+                        AnimatedVisibility(
+                            visible = activeTagQuery != null && (tagSuggestions.isNotEmpty() || activeTagQuery.query.isNotBlank()),
+                            enter = slideInVertically { it } + fadeIn(),
+                            exit = slideOutVertically { it } + fadeOut()
+                        ) {
+                            if (activeTagQuery != null) {
+                                TagAutocompleteBar(
+                                    query = activeTagQuery.query,
+                                    suggestions = tagSuggestions,
+                                    onSelectTag = { selectedTag ->
+                                        val (newText, newCursor) = TagSuggestionEngine.applyTagSuggestion(
+                                            text = state.contentValue.text,
+                                            activeQuery = activeTagQuery,
+                                            selectedTag = selectedTag
+                                        )
+                                        onContentValueChange(TextFieldValue(newText, TextRange(newCursor)))
+                                    },
+                                    modifier = Modifier.padding(bottom = 6.dp)
+                                )
+                            }
+                        }
+
+                        // 2. Akıllı [[Wikilink]] Not Bağlantısı Tamamlama Çubuğu
+                        AnimatedVisibility(
+                            visible = activeWikilinkQuery != null,
+                            enter = slideInVertically { it } + fadeIn(),
+                            exit = slideOutVertically { it } + fadeOut()
+                        ) {
+                            if (activeWikilinkQuery != null) {
+                                WikilinkAutocompleteBar(
+                                    query = activeWikilinkQuery.query,
+                                    allNotes = state.allActiveNotes,
+                                    onSelectNoteTitle = { selectedTitle ->
+                                        val (newText, newCursor) = TagSuggestionEngine.applyWikilinkSuggestion(
+                                            text = state.contentValue.text,
+                                            activeQuery = activeWikilinkQuery,
+                                            selectedTitle = selectedTitle
+                                        )
+                                        onContentValueChange(TextFieldValue(newText, TextRange(newCursor)))
+                                    },
+                                    modifier = Modifier.padding(bottom = 6.dp)
+                                )
+                            }
+                        }
+
+                        // 3. Canlı Ses Kaydı Görselleştirici Barı
+                        AnimatedVisibility(
+                            visible = state.isRecordingAudio,
+                            enter = slideInVertically { it } + fadeIn(),
+                            exit = slideOutVertically { it } + fadeOut()
+                        ) {
+                            AudioRecordingVisualizerBar(
+                                durationSec = state.recordingDurationSec,
+                                amplitudes = state.recordingAmplitudes,
+                                onStop = onToggleAudioRecording,
+                                onCancel = onCancelAudioRecording,
+                                onPauseToggle = onTogglePauseAudioRecording,
+                                isPaused = state.isRecordingPaused,
+                                modifier = Modifier.padding(bottom = 6.dp)
+                            )
+                        }
+                    }
+                )
+            }
+        }
+    ) { padding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .background(animatedBgColor)
+                .clickable(
+                    indication = null,
+                    interactionSource = remember { MutableInteractionSource() }
+                ) {
+                    if (!isPreviewMode && !isPresentationMode) {
+                        try {
+                            if (hasChecklistItems) {
+                                trailingFocusRequester.requestFocus()
+                            } else {
+                                focusRequester.requestFocus()
+                            }
+                        } catch (_: Exception) {
+                            // Çökme önlendi
+                        }
+                    }
+                }
+        ) {
+            // Not İçi Bul ve Değiştir Çubuğu (Find & Replace Toolbar)
+            AnimatedVisibility(
+                visible = isSearchActive,
+                enter = fadeIn() + expandVertically(),
+                exit = fadeOut() + shrinkVertically(),
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .zIndex(10f)
+            ) {
+                FindAndReplaceBar(
+                    findQuery = searchQuery,
+                    onFindQueryChange = {
+                        searchQuery = it
+                        currentMatchIndex = 0
+                    },
+                    replaceQuery = replaceQuery,
+                    onReplaceQueryChange = { replaceQuery = it },
+                    matchCase = matchCase,
+                    onMatchCaseToggle = { matchCase = !matchCase },
+                    currentMatchIndex = currentMatchIndex,
+                    totalMatches = searchMatches.size,
+                    onPreviousMatch = {
+                        if (searchMatches.isNotEmpty()) {
+                            currentMatchIndex = if (currentMatchIndex > 0) currentMatchIndex - 1 else searchMatches.size - 1
+                        }
+                    },
+                    onNextMatch = {
+                        if (searchMatches.isNotEmpty()) {
+                            currentMatchIndex = if (currentMatchIndex < searchMatches.size - 1) currentMatchIndex + 1 else 0
+                        }
+                    },
+                    onReplaceCurrent = {
+                        if (searchMatches.isNotEmpty() && currentMatchIndex in searchMatches.indices) {
+                            val currentMatch = searchMatches[currentMatchIndex]
+                            val result = FindReplaceEngine.replaceCurrent(
+                                content = state.contentValue.text,
+                                match = currentMatch,
+                                replacement = replaceQuery
+                            )
+                            onContentValueChange(
+                                TextFieldValue(
+                                    text = result.newContent,
+                                    selection = TextRange(result.newSelectionIndex)
+                                )
+                            )
+                            if (currentMatchIndex >= searchMatches.size - 1) {
+                                currentMatchIndex = (searchMatches.size - 2).coerceAtLeast(0)
+                            }
+                        }
+                    },
+                    onReplaceAll = {
+                        val result = FindReplaceEngine.replaceAll(
+                            content = state.contentValue.text,
+                            query = searchQuery,
+                            replacement = replaceQuery,
+                            matchCase = matchCase
+                        )
+                        if (result.count > 0) {
+                            onContentValueChange(
+                                TextFieldValue(
+                                    text = result.newContent,
+                                    selection = TextRange(result.newSelectionIndex)
+                                )
+                            )
+                            Toast.makeText(context, "${result.count} eşleşme değiştirildi", Toast.LENGTH_SHORT).show()
+                            currentMatchIndex = 0
+                        }
+                    },
+                    onClose = {
+                        isSearchActive = false
+                        searchQuery = ""
+                    }
+                )
+            }
+
+            if (state.isZenMode) {
+                FocusHudOverlay(
+                    wordCount = currentWordCount,
+                    characterCount = currentCharCount,
+                    onExitZenMode = onToggleZenMode,
+                    isTtsSpeaking = state.isTtsSpeaking,
+                    onToggleTts = onToggleTextToSpeech,
+                    modifier = Modifier.align(Alignment.TopCenter)
+                )
+            }
+            if (!state.backgroundImage.isNullOrEmpty()) {
+                AsyncImage(
+                    model = File(state.backgroundImage),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .alpha(0.25f)
+                )
+            }
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(scrollState)
+                    .padding(horizontal = if (isPresentationMode) 22.dp else 16.dp, vertical = 8.dp)
+            ) {
+                val topSpacerHeight = when {
+                    isSearchActive && state.isZenMode -> 176.dp
+                    isSearchActive -> 116.dp
+                    state.isZenMode -> 88.dp
+                    else -> 0.dp
+                }
+                if (topSpacerHeight > 0.dp) {
+                    Spacer(modifier = Modifier.height(topSpacerHeight))
+                }
+
+                // Notun Atandığı Kategori & Hatırlatıcı Rozetleri
+                val currentCategory = categories.firstOrNull { it.id == state.categoryId }
+                if (currentCategory != null || state.reminderTime != null) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 6.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        if (currentCategory != null) {
+                            val hasColor = currentCategory.color != 0
+                            val catColor = if (hasColor) Color(currentCategory.color) else contentColor
+                            SuggestionChip(
+                                onClick = {
+                                    activeToolCategory = if (activeToolCategory == NoteToolCategory.CATEGORY) NoteToolCategory.NONE else NoteToolCategory.CATEGORY
+                                },
+                                label = {
+                                    AutoResizeText(
+                                        text = currentCategory.name,
+                                        style = MaterialTheme.typography.labelSmall,
+                                        fontWeight = FontWeight.SemiBold,
+                                        maxLines = 1,
+                                        minFontSize = 9.sp,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                },
+                                icon = {
+                                    if (hasColor) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(8.dp)
+                                                .clip(CircleShape)
+                                                .background(catColor)
+                                        )
+                                    } else {
+                                        Icon(Icons.Default.Folder, contentDescription = null, modifier = Modifier.size(14.dp))
+                                    }
+                                },
+                                colors = SuggestionChipDefaults.suggestionChipColors(
+                                    containerColor = if (hasColor) catColor.copy(alpha = 0.16f) else (if (isDarkBackground) Color(0x33FFFFFF) else Color(0x1A000000)),
+                                    labelColor = if (hasColor) catColor.copy(alpha = 0.95f) else contentColor,
+                                    iconContentColor = if (hasColor) catColor else contentColor
+                                ),
+                                border = BorderStroke(1.dp, if (hasColor) catColor.copy(alpha = 0.4f) else (if (isDarkBackground) Color(0x33FFFFFF) else Color(0x22000000)))
+                            )
+                        }
+
+                        state.reminderTime?.let { reminderTime ->
+                            val formatter = SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault())
+                            InputChip(
+                                selected = true,
+                                onClick = { onSetReminder(null) },
+                                label = {
+                                    AutoResizeText(
+                                        text = "Hatırlatıcı: ${formatter.format(Date(reminderTime))}",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        maxLines = 1,
+                                        minFontSize = 8.5.sp,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                },
+                                trailingIcon = { Icon(Icons.Default.Close, contentDescription = "Kaldır", modifier = Modifier.size(14.dp)) }
+                            )
+                        }
+                    }
+                }
+
+                // Başlık Alanı
+                if (isPresentationMode || isPreviewMode) {
+                    if (state.title.isNotBlank()) {
+                        AutoResizeText(
+                            text = state.title,
+                            style = MaterialTheme.typography.headlineMedium.copy(
+                                fontWeight = FontWeight.Bold,
+                                color = contentColor,
+                                fontSize = if (isPresentationMode) (presentationFontSize + 8f).sp else MaterialTheme.typography.headlineMedium.fontSize
+                            ),
+                            maxLines = 3,
+                            minFontSize = 15.sp,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 4.dp, bottom = 4.dp)
+                        )
+                    }
+                } else {
+                    TextField(
+                        value = state.title,
+                        onValueChange = onTitleChange,
+                        placeholder = {
+                            Text(
+                                "Başlık",
+                                style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
+                                color = hintColor
+                            )
+                        },
+                        textStyle = MaterialTheme.typography.headlineMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            color = contentColor
+                        ),
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = Color.Transparent,
+                            unfocusedContainerColor = Color.Transparent,
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent,
+                            focusedTextColor = contentColor,
+                            unfocusedTextColor = contentColor,
+                            focusedPlaceholderColor = hintColor,
+                            unfocusedPlaceholderColor = hintColor,
+                            cursorColor = if (isDarkBackground) Color.White else MaterialTheme.colorScheme.primary
+                        ),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 0.dp)
+                    )
+                }
+
+                // Metadata Bilgi Şeridi: Tarih ve Kelime Sayısı Çipleri
+                val lastEditDate = remember(state.updatedAt, state.createdAt) {
+                    val ts = if (state.updatedAt > 0L) state.updatedAt else state.createdAt
+                    if (ts > 0L) {
+                        SimpleDateFormat("d MMMM yyyy, HH:mm", Locale("tr")).format(Date(ts))
+                    } else ""
+                }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 4.dp, bottom = 10.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if (lastEditDate.isNotBlank()) {
+                        Surface(
+                            shape = RoundedCornerShape(8.dp),
+                            color = if (isDarkBackground) Color(0x22FFFFFF) else Color(0x0E000000),
+                            modifier = Modifier.clip(RoundedCornerShape(8.dp))
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Schedule,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(13.dp),
+                                    tint = contentColor.copy(alpha = 0.65f)
+                                )
+                                Spacer(Modifier.width(4.dp))
+                                AutoResizeText(
+                                    text = lastEditDate,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = contentColor.copy(alpha = 0.75f),
+                                    maxLines = 1,
+                                    minFontSize = 8.5.sp
+                                )
+                            }
+                        }
+                    }
+
+                    Surface(
+                        onClick = { showStatsDialog = true },
+                        shape = RoundedCornerShape(8.dp),
+                        color = if (isDarkBackground) Color(0x22FFFFFF) else Color(0x0E000000),
+                        modifier = Modifier.clip(RoundedCornerShape(8.dp))
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.EditNote,
+                                contentDescription = null,
+                                modifier = Modifier.size(15.dp),
+                                tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.85f)
+                            )
+                            Spacer(Modifier.width(4.dp))
+                            AutoResizeText(
+                                text = "$currentWordCount kelime · ~${readingTime} dk",
+                                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Medium),
+                                color = contentColor.copy(alpha = 0.85f),
+                                maxLines = 1,
+                                minFontSize = 8.5.sp
+                            )
+                        }
+                    }
+
+                    if (state.isLocked) {
+                        Surface(
+                            shape = RoundedCornerShape(8.dp),
+                            color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 4.dp)
+                            ) {
+                                Icon(
+                                    Icons.Default.Lock,
+                                    contentDescription = "Kilitli",
+                                    modifier = Modifier.size(12.dp),
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                                Spacer(Modifier.width(3.dp))
+                                Text(
+                                    text = "Kilitli",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            }
+                        }
+                    }
+                }
+
+                HorizontalDivider(
+                    color = if (isDarkBackground) Color(0x20FFFFFF) else Color(0x10000000),
+                    thickness = 1.dp,
+                    modifier = Modifier.padding(bottom = 12.dp)
+                )
+
+                // Ekler (Görseller, Çizimler ve Ses Kayıtları)
+                if (state.attachments.isNotEmpty()) {
+                    AttachmentList(
+                        attachments = state.attachments,
+                        onDeleteAttachment = onDeleteAttachment,
+                        onPlayAudio = onToggleAudioPlayback,
+                        isPlayingAudio = state.isPlayingAudio,
+                        currentPlayingPath = state.currentPlayingPath,
+                        playbackSpeed = state.audioPlaybackSpeed,
+                        onSeekAudio = onSeekAudio,
+                        onCycleSpeed = onCycleAudioPlaybackSpeed,
+                        onSetPlaybackSpeed = onSetAudioPlaybackSpeed,
+                        onImageClick = { path ->
+                            fullScreenViewerInitialIndex = allImageAttachments.indexOf(path).coerceAtLeast(0)
+                        },
+                        onAnnotateImage = onAnnotateImage,
+                        onRevertImage = { revertConfirmPath = it },
+                        canRevertImage = canRevertImage,
+                        onExtractText = onExtractText,
+                        isExtractingText = isExtractingText,
+                        audioProgressFraction = state.audioProgressFraction,
+                        audioCurrentPositionMs = state.audioCurrentPositionMs,
+                        audioDurationMs = state.audioDurationMs,
+                        onSeekAudioFraction = onSeekAudioFraction,
+                        onTrimAudio = { path ->
+                            trimmingAudioPath = path
+                        },
+                        modifier = Modifier.padding(bottom = 12.dp)
+                    )
+                }
+
+                // Kaydedilmemiş Taslak Bildirimi
+                DraftRecoveryBanner(
+                    draft = state.recoverableDraft,
+                    onRestore = onRestoreDraft,
+                    onDiscard = onDiscardDraft,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+
+                // İçerik Alanı: Sunum, Önizleme veya Canlı Düzenleme
+                if (isPresentationMode) {
+                    val rawContent = state.contentValue.text
+                    val split = remember(rawContent) {
+                        ReadingColumnSplitter.splitIntoBalancedColumns(rawContent)
+                    }
+                    val canUseTwoColumns = isTwoColumnMode && rawContent.length > 50 && split.rightColumn.isNotBlank()
+
+                    if (canUseTwoColumns) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 8.dp, bottom = 16.dp),
+                            horizontalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            Box(modifier = Modifier.weight(1f)) {
+                                MarkdownPreview(
+                                    content = split.leftColumn,
+                                    onContentChange = { updatedLeft ->
+                                        val combined = if (split.rightColumn.isNotBlank()) "$updatedLeft\n\n${split.rightColumn}" else updatedLeft
+                                        onContentValueChange(TextFieldValue(combined))
+                                    },
+                                    contentColor = contentColor,
+                                    onLinkClick = onLinkClick,
+                                    fontSize = presentationFontSize,
+                                    lineHeightMultiplier = presentationLineSpacingMultiplier,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
+                            Box(modifier = Modifier.weight(1f)) {
+                                MarkdownPreview(
+                                    content = split.rightColumn,
+                                    onContentChange = { updatedRight ->
+                                        val combined = if (split.leftColumn.isNotBlank()) "${split.leftColumn}\n\n$updatedRight" else updatedRight
+                                        onContentValueChange(TextFieldValue(combined))
+                                    },
+                                    contentColor = contentColor,
+                                    onLinkClick = onLinkClick,
+                                    fontSize = presentationFontSize,
+                                    lineHeightMultiplier = presentationLineSpacingMultiplier,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
+                        }
+                    } else {
+                        MarkdownPreview(
+                            content = rawContent,
+                            onContentChange = { updated ->
+                                onContentValueChange(TextFieldValue(updated))
+                            },
+                            contentColor = contentColor,
+                            onLinkClick = onLinkClick,
+                            fontSize = presentationFontSize,
+                            lineHeightMultiplier = presentationLineSpacingMultiplier,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 8.dp, bottom = 16.dp)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(24.dp))
+                    FilledTonalButton(
+                        onClick = { isPresentationMode = false },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 24.dp),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Icon(Icons.Default.Close, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Spacer(Modifier.width(8.dp))
+                        Text("Okuma Modunu Kapat")
+                    }
+                    Spacer(modifier = Modifier.height(64.dp))
+                } else if (isPreviewMode) {
+                    MarkdownPreview(
+                        content = state.contentValue.text,
+                        onContentChange = { updated ->
+                            onContentValueChange(TextFieldValue(updated))
+                        },
+                        contentColor = contentColor,
+                        onLinkClick = onLinkClick,
+                        fontSize = state.noteFontSize,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 8.dp, bottom = 20.dp)
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+                    FilledTonalButton(
+                        onClick = { isPreviewMode = false },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 24.dp),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Icon(Icons.Default.Edit, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Spacer(Modifier.width(8.dp))
+                        Text("Düzenleme Moduna Dön")
+                    }
+                    Spacer(modifier = Modifier.height(64.dp))
+                } else {
+                    val rawText = state.contentValue.text
+                    val lines = rawText.lines()
+
+                    val markdownTransformation = remember(hideMarkdownTokens, isSearchActive, searchQuery, activeMatchStartIndex, state.noteFontSize, matchCase) {
+                        MarkdownVisualTransformation(
+                            hideSyntaxTokens = hideMarkdownTokens && !isSearchActive,
+                            searchQuery = if (isSearchActive) searchQuery else "",
+                            activeMatchStartIndex = if (isSearchActive) activeMatchStartIndex else null,
+                            baseFontSize = state.noteFontSize,
+                            matchCase = matchCase
+                        )
+                    }
+
+                    val editorBody: @Composable () -> Unit = {
+                        if (hasChecklistItems) {
+                        // GOOGLE KEEP TARZI İNTERAKTİF ONAY KUTULARI (CHECKLIST)
+                        val lastChecklistIdx = remember(rawText) { lines.indexOfLast { isChecklistLine(it) } }
+                        val trailingLines = remember(rawText, lastChecklistIdx) {
+                            if (lastChecklistIdx in lines.indices && lastChecklistIdx < lines.size - 1) {
+                                lines.drop(lastChecklistIdx + 1)
+                            } else {
+                                emptyList()
+                            }
+                        }
+                        val trailingText = remember(trailingLines) {
+                            if (trailingLines.isNotEmpty() && trailingLines.first().isEmpty()) {
+                                trailingLines.drop(1).joinToString("\n")
+                            } else {
+                                trailingLines.joinToString("\n")
+                            }
+                        }
+
+                        val prefix = remember(rawText, lastChecklistIdx) {
+                            if (lastChecklistIdx >= 0) lines.take(lastChecklistIdx + 1).joinToString("\n") else ""
+                        }
+                        val trailingStart = remember(prefix) { if (prefix.isEmpty()) 0 else prefix.length + 2 }
+
+                        var trailingTfv by remember {
+                            mutableStateOf(TextFieldValue(trailingText, TextRange(trailingText.length)))
+                        }
+
+                        LaunchedEffect(trailingText) {
+                            if (trailingTfv.text != trailingText) {
+                                val sel = if (isTrailingActive && state.contentValue.selection.start >= trailingStart) {
+                                    val relStart = (state.contentValue.selection.start - trailingStart).coerceIn(0, trailingText.length)
+                                    val relEnd = (state.contentValue.selection.end - trailingStart).coerceIn(0, trailingText.length)
+                                    TextRange(relStart, relEnd)
+                                } else {
+                                    TextRange(trailingText.length.coerceAtMost(trailingTfv.selection.end))
+                                }
+                                trailingTfv = TextFieldValue(text = trailingText, selection = sel)
+                            }
+                        }
+
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .defaultMinSize(minHeight = 400.dp),
+                            verticalArrangement = Arrangement.spacedBy(1.dp)
+                        ) {
+                            val renderChecklistRow: @Composable (Int) -> Unit = { lineIdx ->
+                                val line = lines[lineIdx]
+                                val isChecked = isCheckedLine(line)
+                                val itemText = extractItemText(line)
+                                val prefixLen = getChecklistPrefixLength(line)
+                                val lineStartOffset = remember(rawText, lineIdx) { getLineStartOffset(rawText, lineIdx) }
+                                val itemStartInRaw = lineStartOffset + prefixLen
+
+                                val lineFocusRequester = lineFocusRequesters.getOrPut(lineIdx) { FocusRequester() }
+                                val currentLineTfv = lineTfvs[lineIdx]
+                                val lineTfv = if (currentLineTfv == null || currentLineTfv.text != itemText) {
+                                    val sel = if (activeChecklistLineIdx == lineIdx && state.contentValue.selection.start >= itemStartInRaw) {
+                                        val relStart = (state.contentValue.selection.start - itemStartInRaw).coerceIn(0, itemText.length)
+                                        val relEnd = (state.contentValue.selection.end - itemStartInRaw).coerceIn(0, itemText.length)
+                                        TextRange(relStart, relEnd)
+                                    } else {
+                                        TextRange(itemText.length)
+                                    }
+                                    TextFieldValue(itemText, sel).also { lineTfvs[lineIdx] = it }
+                                } else {
+                                    currentLineTfv
+                                }
+
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 1.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    KeepCheckboxIcon(
+                                        isChecked = isChecked,
+                                        fontSize = state.noteFontSize.sp,
+                                        contentColor = contentColor,
+                                        onToggle = {
+                                            val updated = toggleChecklistLine(rawText, lineIdx)
+                                            onContentValueChange(TextFieldValue(updated))
+                                        }
+                                    )
+
+                                    Spacer(modifier = Modifier.width(8.dp))
+
+                                    BasicTextField(
+                                        value = lineTfv,
+                                        onValueChange = { newTfv ->
+                                            lineTfvs[lineIdx] = newTfv
+                                            activeChecklistLineIdx = lineIdx
+                                            isTrailingActive = false
+
+                                            if (newTfv.text != itemText) {
+                                                if (newTfv.text.contains('\n')) {
+                                                    val parts = newTfv.text.split('\n')
+                                                    val currentPart = parts.first()
+                                                    val nextPart = parts.drop(1).joinToString("\n")
+                                                    val updated = splitChecklistLine(rawText, lineIdx, currentPart, nextPart)
+                                                    activeChecklistLineIdx = lineIdx + 1
+                                                    onContentValueChange(TextFieldValue(updated))
+                                                } else {
+                                                    val updated = updateChecklistItemText(rawText, lineIdx, newTfv.text)
+                                                    val rawSelStart = (itemStartInRaw + newTfv.selection.start).coerceIn(0, updated.length)
+                                                    val rawSelEnd = (itemStartInRaw + newTfv.selection.end).coerceIn(0, updated.length)
+                                                    onContentValueChange(TextFieldValue(updated, TextRange(rawSelStart, rawSelEnd)))
+                                                }
+                                            } else {
+                                                val rawSelStart = (itemStartInRaw + newTfv.selection.start).coerceIn(0, rawText.length)
+                                                val rawSelEnd = (itemStartInRaw + newTfv.selection.end).coerceIn(0, rawText.length)
+                                                onContentValueChange(state.contentValue.copy(selection = TextRange(rawSelStart, rawSelEnd)))
+                                            }
+                                        },
+                                        visualTransformation = markdownTransformation,
+                                        textStyle = MaterialTheme.typography.bodyLarge.copy(
+                                            fontSize = state.noteFontSize.sp,
+                                            lineHeight = (state.noteFontSize * 1.35f).sp,
+                                            textDecoration = if (isChecked) TextDecoration.LineThrough else TextDecoration.None,
+                                            color = if (isChecked) contentColor.copy(alpha = 0.5f) else contentColor
+                                        ),
+                                        cursorBrush = SolidColor(if (isDarkBackground) Color.White else MaterialTheme.colorScheme.primary),
+                                        keyboardOptions = KeyboardOptions(
+                                            capitalization = KeyboardCapitalization.Sentences,
+                                            imeAction = ImeAction.Next
+                                        ),
+                                        keyboardActions = KeyboardActions(
+                                            onNext = {
+                                                val updated = addChecklistLine(rawText, lineIdx)
+                                                activeChecklistLineIdx = lineIdx + 1
+                                                onContentValueChange(TextFieldValue(updated))
+                                            }
+                                        ),
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .focusRequester(lineFocusRequester)
+                                            .onFocusChanged { focusState ->
+                                                if (focusState.isFocused) {
+                                                    activeChecklistLineIdx = lineIdx
+                                                    isTrailingActive = false
+                                                    val rawSelStart = (itemStartInRaw + lineTfv.selection.start).coerceIn(0, rawText.length)
+                                                    val rawSelEnd = (itemStartInRaw + lineTfv.selection.end).coerceIn(0, rawText.length)
+                                                    onContentValueChange(state.contentValue.copy(selection = TextRange(rawSelStart, rawSelEnd)))
+                                                }
+                                            }
+                                    )
+
+                                    IconButton(
+                                        onClick = {
+                                            val updated = deleteChecklistLine(rawText, lineIdx)
+                                            lineTfvs.remove(lineIdx)
+                                            lineFocusRequesters.remove(lineIdx)
+                                            if (activeChecklistLineIdx == lineIdx) activeChecklistLineIdx = null
+                                            onContentValueChange(TextFieldValue(updated))
+                                        },
+                                        modifier = Modifier.size(28.dp)
+                                    ) {
+                                        Icon(
+                                            Icons.Default.Close,
+                                            contentDescription = "Maddeyi Sil",
+                                            tint = contentColor.copy(alpha = 0.4f),
+                                            modifier = Modifier.size(16.dp)
+                                        )
+                                    }
+                                }
+                            }
+
+                            val renderNormalRow: @Composable (Int) -> Unit = { lineIdx ->
+                                val line = lines[lineIdx]
+                                if (line.isNotBlank()) {
+                                    val lineStartOffset = remember(rawText, lineIdx) { getLineStartOffset(rawText, lineIdx) }
+                                    val lineFocusRequester = lineFocusRequesters.getOrPut(lineIdx) { FocusRequester() }
+                                    val currentLineTfv = lineTfvs[lineIdx]
+                                    val lineTfv = if (currentLineTfv == null || currentLineTfv.text != line) {
+                                        val sel = if (activeChecklistLineIdx == lineIdx && state.contentValue.selection.start >= lineStartOffset) {
+                                            val relStart = (state.contentValue.selection.start - lineStartOffset).coerceIn(0, line.length)
+                                            val relEnd = (state.contentValue.selection.end - lineStartOffset).coerceIn(0, line.length)
+                                            TextRange(relStart, relEnd)
+                                        } else {
+                                            TextRange(line.length)
+                                        }
+                                        TextFieldValue(line, sel).also { lineTfvs[lineIdx] = it }
+                                    } else {
+                                        currentLineTfv
+                                    }
+
+                                    BasicTextField(
+                                        value = lineTfv,
+                                        onValueChange = { newTfv ->
+                                            lineTfvs[lineIdx] = newTfv
+                                            activeChecklistLineIdx = lineIdx
+                                            isTrailingActive = false
+
+                                            if (newTfv.text != line) {
+                                                val linesCopy = lines.toMutableList()
+                                                linesCopy[lineIdx] = newTfv.text
+                                                val updated = linesCopy.joinToString("\n")
+                                                val rawSelStart = (lineStartOffset + newTfv.selection.start).coerceIn(0, updated.length)
+                                                val rawSelEnd = (lineStartOffset + newTfv.selection.end).coerceIn(0, updated.length)
+                                                onContentValueChange(TextFieldValue(updated, TextRange(rawSelStart, rawSelEnd)))
+                                            } else {
+                                                val rawSelStart = (lineStartOffset + newTfv.selection.start).coerceIn(0, rawText.length)
+                                                val rawSelEnd = (lineStartOffset + newTfv.selection.end).coerceIn(0, rawText.length)
+                                                onContentValueChange(state.contentValue.copy(selection = TextRange(rawSelStart, rawSelEnd)))
+                                            }
+                                        },
+                                        visualTransformation = markdownTransformation,
+                                        textStyle = MaterialTheme.typography.bodyLarge.copy(
+                                            fontSize = state.noteFontSize.sp,
+                                            lineHeight = (state.noteFontSize * 1.35f).sp,
+                                            color = contentColor
+                                        ),
+                                        cursorBrush = SolidColor(if (isDarkBackground) Color.White else MaterialTheme.colorScheme.primary),
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(vertical = 2.dp)
+                                            .focusRequester(lineFocusRequester)
+                                            .onFocusChanged { focusState ->
+                                                if (focusState.isFocused) {
+                                                    activeChecklistLineIdx = lineIdx
+                                                    isTrailingActive = false
+                                                    val rawSelStart = (lineStartOffset + lineTfv.selection.start).coerceIn(0, rawText.length)
+                                                    val rawSelEnd = (lineStartOffset + lineTfv.selection.end).coerceIn(0, rawText.length)
+                                                    onContentValueChange(state.contentValue.copy(selection = TextRange(rawSelStart, rawSelEnd)))
+                                                }
+                                            }
+                                    )
+                                } else {
+                                    Spacer(modifier = Modifier.height((state.noteFontSize * 0.7f).dp))
+                                }
+                            }
+
+                            // 1. Checklist maddeleri ve aradaki satırlar
+                            if (lastChecklistIdx >= 0) {
+                                if (moveCheckedToBottom) {
+                                    val uncheckedIndices = (0..lastChecklistIdx).filter { lineIdx ->
+                                        !isChecklistLine(lines[lineIdx]) || !isCheckedLine(lines[lineIdx])
+                                    }
+                                    val checkedIndices = (0..lastChecklistIdx).filter { lineIdx ->
+                                        isChecklistLine(lines[lineIdx]) && isCheckedLine(lines[lineIdx])
+                                    }
+
+                                    // Tamamlanmamış maddeler ve önceki metinler
+                                    uncheckedIndices.forEach { lineIdx ->
+                                        if (isChecklistLine(lines[lineIdx])) {
+                                            renderChecklistRow(lineIdx)
+                                        } else {
+                                            renderNormalRow(lineIdx)
+                                        }
+                                    }
+
+                                    // "+ Liste öğesi ekle" butonu
+                                    Surface(
+                                        onClick = {
+                                            val updated = addChecklistLine(rawText)
+                                            val newLastIdx = updated.lines().indexOfLast { isChecklistLine(it) }
+                                            activeChecklistLineIdx = newLastIdx
+                                            onContentValueChange(TextFieldValue(updated))
+                                        },
+                                        shape = RoundedCornerShape(10.dp),
+                                        color = if (isDarkBackground) Color(0x25FFFFFF) else Color(0x14000000),
+                                        modifier = Modifier.padding(vertical = 6.dp)
+                                    ) {
+                                        Row(
+                                            modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Icon(
+                                                Icons.Default.Add,
+                                                contentDescription = null,
+                                                tint = contentColor.copy(alpha = 0.9f),
+                                                modifier = Modifier.size((state.noteFontSize * 1.15f).dp)
+                                            )
+                                            Spacer(modifier = Modifier.width(8.dp))
+                                            Text(
+                                                text = "Liste öğesi ekle",
+                                                style = MaterialTheme.typography.bodyMedium.copy(
+                                                    fontSize = state.noteFontSize.sp,
+                                                    fontWeight = FontWeight.SemiBold
+                                                ),
+                                                color = contentColor.copy(alpha = 0.9f)
+                                            )
+                                        }
+                                    }
+
+                                    // Tamamlanan Öğeler Akordiyonu (Google Keep Tarzı)
+                                    if (checkedIndices.isNotEmpty()) {
+                                        Spacer(modifier = Modifier.height(6.dp))
+                                        Surface(
+                                            onClick = { isCompletedSectionExpanded = !isCompletedSectionExpanded },
+                                            shape = RoundedCornerShape(8.dp),
+                                            color = Color.Transparent,
+                                            modifier = Modifier.padding(vertical = 4.dp)
+                                        ) {
+                                            Row(
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                                modifier = Modifier.padding(vertical = 4.dp, horizontal = 2.dp)
+                                            ) {
+                                                Icon(
+                                                    imageVector = if (isCompletedSectionExpanded) Icons.Default.KeyboardArrowDown else Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                                                    contentDescription = null,
+                                                    tint = contentColor.copy(alpha = 0.6f),
+                                                    modifier = Modifier.size(20.dp)
+                                                )
+                                                Text(
+                                                    text = "${checkedIndices.size} tamamlanan öğe",
+                                                    style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
+                                                    color = contentColor.copy(alpha = 0.6f)
+                                                )
+                                            }
+                                        }
+
+                                        AnimatedVisibility(
+                                            visible = isCompletedSectionExpanded,
+                                            enter = fadeIn() + expandVertically(),
+                                            exit = fadeOut() + shrinkVertically()
+                                        ) {
+                                            Column(verticalArrangement = Arrangement.spacedBy(1.dp)) {
+                                                checkedIndices.forEach { lineIdx ->
+                                                    renderChecklistRow(lineIdx)
+                                                }
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    // Standart (Belge Sırasında) Gösterim
+                                    for (lineIdx in 0..lastChecklistIdx) {
+                                        val line = lines[lineIdx]
+                                        if (isChecklistLine(line)) {
+                                            renderChecklistRow(lineIdx)
+                                        } else {
+                                            renderNormalRow(lineIdx)
+                                        }
+                                    }
+
+                                    // "+ Liste öğesi ekle" butonu
+                                    Surface(
+                                        onClick = {
+                                            val updated = addChecklistLine(rawText)
+                                            val newLastIdx = updated.lines().indexOfLast { isChecklistLine(it) }
+                                            activeChecklistLineIdx = newLastIdx
+                                            onContentValueChange(TextFieldValue(updated))
+                                        },
+                                        shape = RoundedCornerShape(10.dp),
+                                        color = if (isDarkBackground) Color(0x25FFFFFF) else Color(0x14000000),
+                                        modifier = Modifier.padding(vertical = 6.dp)
+                                    ) {
+                                        Row(
+                                            modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Icon(
+                                                Icons.Default.Add,
+                                                contentDescription = null,
+                                                tint = contentColor.copy(alpha = 0.9f),
+                                                modifier = Modifier.size((state.noteFontSize * 1.15f).dp)
+                                            )
+                                            Spacer(modifier = Modifier.width(8.dp))
+                                            Text(
+                                                text = "Liste öğesi ekle",
+                                                style = MaterialTheme.typography.bodyMedium.copy(
+                                                    fontSize = state.noteFontSize.sp,
+                                                    fontWeight = FontWeight.SemiBold
+                                                ),
+                                                color = contentColor.copy(alpha = 0.9f)
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            // 3. Checklist altındaki serbest metin alanı (notun devamı)
+                            BasicTextField(
+                                value = trailingTfv,
+                                onValueChange = { newTfv ->
+                                    trailingTfv = newTfv
+                                    isTrailingActive = true
+                                    activeChecklistLineIdx = null
+
+                                    val updated = if (newTfv.text.isEmpty()) {
+                                        prefix
+                                    } else if (prefix.isEmpty()) {
+                                        newTfv.text
+                                    } else {
+                                        "$prefix\n\n${newTfv.text}"
+                                    }
+                                    val rawSelStart = (trailingStart + newTfv.selection.start).coerceIn(0, updated.length)
+                                    val rawSelEnd = (trailingStart + newTfv.selection.end).coerceIn(0, updated.length)
+                                    onContentValueChange(TextFieldValue(updated, TextRange(rawSelStart, rawSelEnd)))
+                                },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .defaultMinSize(minHeight = 350.dp)
+                                    .focusRequester(trailingFocusRequester)
+                                    .onFocusChanged { focusState ->
+                                        if (focusState.isFocused) {
+                                            isTrailingActive = true
+                                            activeChecklistLineIdx = null
+                                            val rawSelStart = (trailingStart + trailingTfv.selection.start).coerceIn(0, rawText.length)
+                                            val rawSelEnd = (trailingStart + trailingTfv.selection.end).coerceIn(0, rawText.length)
+                                            onContentValueChange(state.contentValue.copy(selection = TextRange(rawSelStart, rawSelEnd)))
+                                        }
+                                    },
+                                visualTransformation = markdownTransformation,
+                                textStyle = MaterialTheme.typography.bodyLarge.copy(
+                                    fontSize = state.noteFontSize.sp,
+                                    lineHeight = (state.noteFontSize * 1.35f).sp,
+                                    color = contentColor
+                                ),
+                                cursorBrush = SolidColor(if (isDarkBackground) Color.White else MaterialTheme.colorScheme.primary),
+                                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+                                decorationBox = { innerTextField ->
+                                    Box(modifier = Modifier.fillMaxWidth()) {
+                                        if (trailingTfv.text.isEmpty()) {
+                                            Text(
+                                                "Notunuza metin olarak devam edin...",
+                                                fontSize = state.noteFontSize.sp,
+                                                color = hintColor
+                                            )
+                                        }
+                                        innerTextField()
+                                    }
+                                }
+                            )
+                        }
+                    } else {
+                        // STANDART METİN DÜZENLEYİCİSİ
+                        TextField(
+                            value = state.contentValue,
+                            onValueChange = onContentValueChange,
+                            placeholder = {
+                                Text(
+                                    "Notunuzu yazmaya başlayın...\n(Kalın, İtalik, Vurgu, Liste ve Çizim ekleyebilirsiniz)",
+                                    fontSize = state.noteFontSize.sp,
+                                    color = hintColor
+                                )
+                            },
+                            visualTransformation = markdownTransformation,
+                            textStyle = MaterialTheme.typography.bodyLarge.copy(
+                                fontSize = state.noteFontSize.sp,
+                                lineHeight = (state.noteFontSize * 1.35f).sp,
+                                color = contentColor
+                            ),
+                            colors = TextFieldDefaults.colors(
+                                focusedContainerColor = Color.Transparent,
+                                unfocusedContainerColor = Color.Transparent,
+                                focusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Transparent,
+                                focusedTextColor = contentColor,
+                                unfocusedTextColor = contentColor,
+                                focusedPlaceholderColor = hintColor,
+                                unfocusedPlaceholderColor = hintColor,
+                                cursorColor = if (isDarkBackground) Color.White else MaterialTheme.colorScheme.primary
+                            ),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .defaultMinSize(minHeight = 400.dp)
+                                .focusRequester(focusRequester)
+                        )
+                    }
+                    }
+
+                    if (isSplitPaneActive && isSplitSupported) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 4.dp),
+                            horizontalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .weight(splitRatio.editorWeight)
+                                    .fillMaxWidth()
+                            ) {
+                                editorBody()
+                            }
+
+                            Box(
+                                modifier = Modifier
+                                    .width(1.dp)
+                                    .defaultMinSize(minHeight = 400.dp)
+                                    .background(MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+                            )
+
+                            Column(
+                                modifier = Modifier
+                                    .weight(splitRatio.previewWeight)
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(
+                                        if (isDarkBackground) MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.25f)
+                                        else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f)
+                                    )
+                                    .padding(12.dp)
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(bottom = 8.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Visibility,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.primary,
+                                            modifier = Modifier.size(16.dp)
+                                        )
+                                        Text(
+                                            text = "Canlı Önizleme",
+                                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                                            color = MaterialTheme.colorScheme.primary
+                                        )
+                                    }
+                                    Surface(
+                                        shape = RoundedCornerShape(6.dp),
+                                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
+                                        onClick = {
+                                            splitRatio = when (splitRatio) {
+                                                SplitRatio.EQUAL -> SplitRatio.WIDE_EDITOR
+                                                SplitRatio.WIDE_EDITOR -> SplitRatio.WIDE_PREVIEW
+                                                SplitRatio.WIDE_PREVIEW -> SplitRatio.EQUAL
+                                            }
+                                        }
+                                    ) {
+                                        Text(
+                                            text = splitRatio.title,
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = MaterialTheme.colorScheme.primary,
+                                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                        )
+                                    }
+                                }
+                                HorizontalDivider(
+                                    modifier = Modifier.padding(bottom = 8.dp),
+                                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
+                                )
+                                MarkdownPreview(
+                                    content = state.contentValue.text,
+                                    onContentChange = { updated ->
+                                        onContentValueChange(TextFieldValue(updated))
+                                    },
+                                    contentColor = contentColor,
+                                    onLinkClick = onLinkClick,
+                                    fontSize = state.noteFontSize,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
+                        }
+                    } else {
+                        editorBody()
+                    }
+                }
+
+                // 1. Bear & Obsidian Stili Metin İçi `#etiket` ve İç İçe Etiketler
+                if (state.extractedTags.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(14.dp))
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        items(state.extractedTags) { tag ->
+                            SuggestionChip(
+                                onClick = {},
+                                label = { Text("#$tag") },
+                                icon = { Icon(Icons.AutoMirrored.Filled.Label, contentDescription = null, modifier = Modifier.size(14.dp)) }
+                            )
+                        }
+                    }
+                }
+
+                // 2. Obsidian & Logseq Stili Çift Yönlü Bağlantılar (`[[Wikilinks]]`)
+                if (state.extractedWikilinks.isNotEmpty() || state.backlinks.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Bağlantı Haritası",
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Surface(
+                            shape = RoundedCornerShape(8.dp),
+                            color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.65f),
+                            modifier = Modifier.clickable { showGraphSheet = true }
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                Icon(
+                                    Icons.Default.Hub,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                                    modifier = Modifier.size(13.dp)
+                                )
+                                Text(
+                                    text = "Graf Görünümü",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                                )
+                            }
+                        }
+                    }
+                }
+
+                if (state.extractedWikilinks.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        items(state.extractedWikilinks) { linkTitle ->
+                            AssistChip(
+                                onClick = { onLinkClick(linkTitle) },
+                                label = { Text("[[$linkTitle]]") },
+                                leadingIcon = {
+                                    Icon(
+                                        Icons.Default.Link,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(14.dp),
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            )
+                        }
+                    }
+                }
+
+                // 3. Obsidian & Roam Stili Yenilenmiş Zarif Geri Bağlantılar (Backlinks & Linked References)
+                if (state.backlinks.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.25f))
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // Katlanabilir Başlık Çubuğu
+                    Surface(
+                        shape = RoundedCornerShape(12.dp),
+                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.25f)),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .clickable { isBacklinksExpanded = !isBacklinksExpanded }
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(26.dp)
+                                        .clip(CircleShape)
+                                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        Icons.Default.DeviceHub,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.size(15.dp)
+                                    )
+                                }
+                                Text(
+                                    text = "Geri Bağlantılar",
+                                    style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Surface(
+                                    shape = RoundedCornerShape(10.dp),
+                                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+                                ) {
+                                    Text(
+                                        text = "${state.backlinks.size}",
+                                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                                        color = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.padding(horizontal = 7.dp, vertical = 2.dp)
+                                    )
+                                }
+                            }
+                            Icon(
+                                imageVector = if (isBacklinksExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                                contentDescription = if (isBacklinksExpanded) "Daralt" else "Genişlet",
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                    }
+
+                    // Bağlantılı Notlar Listesi
+                    AnimatedVisibility(
+                        visible = isBacklinksExpanded,
+                        enter = expandVertically() + fadeIn(),
+                        exit = shrinkVertically() + fadeOut()
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(top = 8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            state.backlinks.forEach { linkedNote ->
+                                Surface(
+                                    shape = RoundedCornerShape(12.dp),
+                                    color = MaterialTheme.colorScheme.surface,
+                                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f)),
+                                    tonalElevation = 1.dp,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clip(RoundedCornerShape(12.dp))
+                                        .clickable { onNavigateToNote(linkedNote.id) }
+                                ) {
+                                    Row(
+                                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(32.dp)
+                                                .clip(RoundedCornerShape(8.dp))
+                                                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Icon(
+                                                Icons.Default.Description,
+                                                contentDescription = null,
+                                                tint = MaterialTheme.colorScheme.primary,
+                                                modifier = Modifier.size(18.dp)
+                                            )
+                                        }
+                                        Spacer(modifier = Modifier.width(12.dp))
+                                        Column(modifier = Modifier.weight(1f)) {
+                                            Text(
+                                                text = linkedNote.title.ifBlank { "Başlıksız Not" },
+                                                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                                                color = MaterialTheme.colorScheme.onSurface,
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis
+                                            )
+                                            if (linkedNote.content.isNotBlank()) {
+                                                Spacer(modifier = Modifier.height(2.dp))
+                                                Text(
+                                                    text = linkedNote.content.take(75).replace("\n", " "),
+                                                    style = MaterialTheme.typography.bodySmall,
+                                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                    maxLines = 1,
+                                                    overflow = TextOverflow.Ellipsis
+                                                )
+                                            }
+                                        }
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Icon(
+                                            Icons.Default.ChevronRight,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                                            modifier = Modifier.size(18.dp)
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Alt kısımda dokunup yazmaya devam etmek için boş alan
+                Spacer(modifier = Modifier.height(100.dp))
+            }
+        }
+    }
+
+    // Yeni Kategori Ekleme Dialogu
+    if (showAddCategoryDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                showAddCategoryDialog = false
+                newCategoryName = ""
+                newCategoryColor = 0
+            },
+            title = { Text("Yeni Kategori Oluştur") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    OutlinedTextField(
+                        value = newCategoryName,
+                        onValueChange = { newCategoryName = it },
+                        placeholder = { Text("Kategori adı (örn: Projeler)") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Text(
+                        text = "Kategori Rengi",
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    CategoryColorPicker(
+                        selectedColor = newCategoryColor,
+                        onColorSelected = { newCategoryColor = it }
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    if (newCategoryName.isNotBlank()) {
+                        onAddCategory(newCategoryName, newCategoryColor)
+                        newCategoryName = ""
+                        newCategoryColor = 0
+                        showAddCategoryDialog = false
+                    }
+                }) {
+                    Text("Ekle")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    showAddCategoryDialog = false
+                    newCategoryName = ""
+                    newCategoryColor = 0
+                }) {
+                    Text("İptal")
+                }
+            }
+        )
+    }
+
+    // Not İstatistikleri Dialogu (Bear & Obsidian Seviyesi Detaylı Analiz)
+    if (showStatsDialog) {
+        val text = state.contentValue.text
+        val words = if (text.isBlank()) emptyList() else text.trim().split("\\s+".toRegex()).filter { it.isNotBlank() }
+        val wordCnt = words.size
+        val charCnt = text.length
+        val charWithoutSpaces = text.count { !it.isWhitespace() }
+        val lineCnt = if (text.isEmpty()) 0 else text.lines().size
+        val readingTimeMin = kotlin.math.max(1, (wordCnt / 200.0).roundToInt())
+        val checklistLines = text.lines().filter { isChecklistLine(it) }
+        val checkedLinesCount = checklistLines.count { isCheckedLine(it) }
+
+        AlertDialog(
+            onDismissRequest = { showStatsDialog = false },
+            icon = { Icon(Icons.Default.Analytics, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
+            title = { Text("Not İstatistikleri", fontWeight = FontWeight.Bold) },
+            text = {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    // Tahmini Okuma Süresi Kartı
+                    Surface(
+                        shape = RoundedCornerShape(12.dp),
+                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Icon(
+                                Icons.Default.Schedule,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Text(
+                                text = "Tahmini Okuma: ~$readingTimeMin dakika",
+                                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
+
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 2.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("Kelime Sayısı:", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text("$wordCnt kelime", fontWeight = FontWeight.Bold)
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("Karakter (Boşluklu):", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text("$charCnt", fontWeight = FontWeight.Bold)
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("Karakter (Boşluksuz):", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text("$charWithoutSpaces", fontWeight = FontWeight.Bold)
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("Satır Sayısı:", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text("$lineCnt satır", fontWeight = FontWeight.Bold)
+                    }
+
+                    if (checklistLines.isNotEmpty()) {
+                        val pct = if (checklistLines.isNotEmpty()) (checkedLinesCount * 100 / checklistLines.size) else 0
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text("Onay Kutusu:", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text("$checkedLinesCount / ${checklistLines.size} (%$pct)", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                        }
+                    }
+
+                    if (state.attachments.isNotEmpty()) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text("Medya & Ekler:", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text("${state.attachments.size} adet", fontWeight = FontWeight.Bold)
+                        }
+                    }
+
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 2.dp))
+
+                    val dateFormat = remember { SimpleDateFormat("dd MMMM yyyy, HH:mm", Locale("tr")) }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("Oluşturulma:", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(dateFormat.format(Date(state.createdAt)), style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Medium)
+                    }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("Son Düzenleme:", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(dateFormat.format(Date(state.updatedAt)), style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Medium)
+                    }
+                }
+            },
+            confirmButton = {
+                Button(onClick = {
+                    showStatsDialog = false
+                    showInsightsSheet = true
+                }) {
+                    Icon(Icons.Default.Analytics, contentDescription = null, modifier = Modifier.size(16.dp))
+                    Spacer(Modifier.width(6.dp))
+                    Text("Detaylı Analiz")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showStatsDialog = false }) {
+                    Text("Kapat")
+                }
+            }
+        )
+    }
+
+
+
+    // İçindekiler (Outline & Başlık Gezgini) Alt Sayfası
+    if (showOutlineDialog) {
+        NoteOutlineBottomSheet(
+            content = state.contentValue.text,
+            onDismissRequest = { showOutlineDialog = false },
+            onSelectHeading = { heading ->
+                onContentValueChange(
+                    state.contentValue.copy(
+                        selection = TextRange(heading.charOffset.coerceAtMost(state.contentValue.text.length))
+                    )
+                )
+                runCatching { focusRequester.requestFocus() }
+            },
+            onInsertToc = { tocMarkdown ->
+                val currentText = state.contentValue.text
+                val newText = if (currentText.isBlank()) tocMarkdown else "$tocMarkdown\n\n$currentText"
+                onContentValueChange(TextFieldValue(newText, TextRange(tocMarkdown.length)))
+            }
+        )
+    }
+
+    // Versiyon Geçmişi Sayfası
+    if (showHistorySheet) {
+        NoteHistoryBottomSheet(
+            historyList = state.noteHistoryList,
+            currentTitle = state.title,
+            currentContent = state.contentValue.text,
+            onDismiss = { showHistorySheet = false },
+            onRestoreVersion = { history ->
+                onRestoreVersion(history)
+                Toast.makeText(context, "Sürüm başarıyla geri yüklendi", Toast.LENGTH_SHORT).show()
+            }
+        )
+    }
+
+    // Şablon Seçici Sayfası
+    if (showTemplateSheet) {
+        TemplatePickerBottomSheet(
+            templates = availableTemplates,
+            onDismiss = { showTemplateSheet = false },
+            onTemplateSelect = onApplyTemplate,
+            onDeleteCustomTemplate = onDeleteCustomTemplate,
+            onSaveCurrentAsTemplate = {
+                showTemplateSheet = false
+                showSaveTemplateDialog = true
+            }
+        )
+    }
+
+    // Şablon Olarak Kaydet Dialogu
+    if (showSaveTemplateDialog) {
+        SaveTemplateDialog(
+            initialTitle = state.title,
+            onDismiss = { showSaveTemplateDialog = false },
+            onSave = { title, desc, emoji ->
+                onSaveCustomTemplate(title, desc, emoji)
+                Toast.makeText(context, "Şablon başarıyla kaydedildi!", Toast.LENGTH_SHORT).show()
+            }
+        )
+    }
+
+    // Şifreli Kasa (.notevault) Dışa Aktarma Dialogu
+    if (showExportVaultDialog) {
+        ExportVaultDialog(
+            noteCount = 1,
+            masterPin = state.masterPin,
+            onDismiss = { showExportVaultDialog = false },
+            onConfirm = { password ->
+                showExportVaultDialog = false
+                try {
+                    val categoryName = categories.find { it.id == state.categoryId }?.name
+                    val vaultNote = VaultNote(
+                        title = state.title,
+                        content = state.contentValue.text,
+                        color = state.color,
+                        isPinned = state.isPinned,
+                        isArchived = state.isArchived,
+                        isLocked = state.isLocked,
+                        categoryName = categoryName,
+                        createdAt = state.createdAt,
+                        updatedAt = state.updatedAt
+                    )
+                    val vaultBytes = VaultExportEngine.createVault(password, listOf(vaultNote))
+                    val fileName = state.title.ifBlank { "Not_${System.currentTimeMillis()}" }
+                    val savedFile = VaultExportEngine.saveVaultToDownloads(context, vaultBytes, fileName)
+                    Toast.makeText(context, "🔒 Şifreli kasa kaydedildi: ${savedFile.name}", Toast.LENGTH_LONG).show()
+
+                    val shareFile = VaultExportEngine.createShareableVaultFile(context, vaultBytes, fileName)
+                    NoteExporter.shareFile(context, shareFile, "application/octet-stream", "Şifreli Not Kasasını Paylaş")
+                } catch (e: Exception) {
+                    Toast.makeText(context, "Hata: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
+                }
+            }
+        )
+    }
+
+    // Kelime Hedefi Belirleme Dialogu
+    if (showWordGoalDialog) {
+        SetWordGoalDialog(
+            initialGoal = state.wordGoal,
+            onDismiss = { showWordGoalDialog = false },
+            onSaveGoal = { newGoal ->
+                onSetWordGoal(newGoal)
+                val msg = if (newGoal != null) "🎯 Kelime hedefi belirlendi: $newGoal kelime" else "Kelime hedefi kaldırıldı"
+                Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+            }
+        )
+    }
+
+    // Akıllı Panoya Kopyalama BottomSheet
+    if (showSmartCopySheet) {
+        SmartCopyBottomSheet(
+            title = state.title,
+            content = state.contentValue.text,
+            timestamp = if (state.updatedAt > 0) state.updatedAt else state.createdAt,
+            onDismiss = { showSmartCopySheet = false }
+        )
+    }
+
+    // Not Analizi & Metrikler BottomSheet
+    if (showInsightsSheet) {
+        val noteMetrics = remember(state.title, state.contentValue.text) {
+            NoteMetricsEngine.calculateMetrics(
+                title = state.title,
+                content = state.contentValue.text
+            )
+        }
+        val currentCategory = categories.find { it.id == state.categoryId }
+        NoteInsightsBottomSheet(
+            metrics = noteMetrics,
+            title = state.title,
+            categoryName = currentCategory?.name,
+            categoryColor = currentCategory?.color,
+            timestamp = if (state.createdAt > 0L) state.createdAt else state.updatedAt,
+            onDismiss = { showInsightsSheet = false }
+        )
+    }
+
+    // Not Bağlantı Haritası (Graf) BottomSheet
+    if (showGraphSheet) {
+        val currentNoteModel = remember(
+            state.currentNoteId,
+            state.title,
+            state.contentValue.text,
+            state.color,
+            state.categoryId,
+            state.isPinned,
+            state.isArchived,
+            state.isLocked,
+            state.createdAt,
+            state.updatedAt
+        ) {
+            Note(
+                id = state.currentNoteId ?: 0L,
+                title = state.title,
+                content = state.contentValue.text,
+                timestamp = if (state.updatedAt > 0L) state.updatedAt else state.createdAt,
+                color = state.color,
+                categoryId = state.categoryId,
+                isPinned = state.isPinned,
+                isArchived = state.isArchived,
+                isLocked = state.isLocked,
+                createdAt = state.createdAt,
+                updatedAt = state.updatedAt
+            )
+        }
+        NoteLinkGraphBottomSheet(
+            currentNote = currentNoteModel,
+            allNotes = state.allActiveNotes,
+            onNavigateToNote = { targetNoteId ->
+                onNavigateToNote(targetNoteId)
+            },
+            onCreatePhantomNote = { phantomTitle ->
+                onLinkClick(phantomTitle)
+            },
+            onDismiss = { showGraphSheet = false }
+        )
+    }
+
+    // Görev Listesi İşlemleri (Checklist Action Hub) BottomSheet
+    if (showChecklistActionsSheet) {
+        ChecklistActionBottomSheet(
+            content = state.contentValue.text,
+            onApplyModifiedContent = { newText ->
+                onContentValueChange(TextFieldValue(newText))
+            },
+            onDismiss = { showChecklistActionsSheet = false }
+        )
+    }
+
+    // Hızlı Metin Parçacıkları & Dinamik Makrolar (Snippet Picker) BottomSheet
+    if (showSnippetPickerSheet) {
+        SnippetPickerBottomSheet(
+            noteTitle = state.title,
+            onDismissRequest = { showSnippetPickerSheet = false },
+            onSnippetSelected = { expandedText ->
+                val currentTfv = state.contentValue
+                val text = currentTfv.text
+                val selStart = currentTfv.selection.start.coerceIn(0, text.length)
+                val selEnd = currentTfv.selection.end.coerceIn(0, text.length)
+                val start = minOf(selStart, selEnd)
+                val end = maxOf(selStart, selEnd)
+
+                val prefix = text.substring(0, start)
+                val suffix = text.substring(end)
+                val needsNewline = prefix.isNotEmpty() && !prefix.endsWith("\n")
+                val formattedSnippet = if (needsNewline && (expandedText.startsWith("#") || expandedText.startsWith(">") || expandedText.startsWith("|") || expandedText.startsWith("```"))) {
+                    "\n\n$expandedText"
+                } else {
+                    expandedText
+                }
+                val newText = prefix + formattedSnippet + suffix
+                val newCursor = prefix.length + formattedSnippet.length
+                onContentValueChange(TextFieldValue(newText, TextRange(newCursor)))
+            }
+        )
+    }
+
+    // Ses Kaydı Dalga Formu Hassas Kırpıcı Alt Sayfası
+    trimmingAudioPath?.let { audioPath ->
+        val durationMs = if (state.currentPlayingPath == audioPath && state.audioDurationMs > 0) {
+            state.audioDurationMs.toLong()
+        } else {
+            30_000L
+        }
+        AudioTrimmerBottomSheet(
+            audioPath = audioPath,
+            totalDurationMs = durationMs,
+            isPlayingPreview = state.isPlayingAudio && state.currentPlayingPath == audioPath,
+            onDismissRequest = { trimmingAudioPath = null },
+            onTogglePreview = { startMs, _ ->
+                if (state.isPlayingAudio && state.currentPlayingPath == audioPath) {
+                    onToggleAudioPlayback(audioPath)
+                } else {
+                    onToggleAudioPlayback(audioPath)
+                    val fraction = if (durationMs > 0) (startMs.toFloat() / durationMs.toFloat()).coerceIn(0f, 1f) else 0f
+                    onSeekAudioFraction(fraction)
+                }
+            },
+            onConfirmTrim = { trimWindow ->
+                trimmingAudioPath = null
+                android.widget.Toast.makeText(
+                    context,
+                    "✂️ Ses kaydı kırpıldı: ${trimWindow.formattedDuration}",
+                    android.widget.Toast.LENGTH_SHORT
+                ).show()
+            }
+        )
+    }
+
+    // Matematik & LaTeX Formül Asistanı Alt Sayfası
+    if (showMathFormulaSheet) {
+        MathFormulaBottomSheet(
+            onDismissRequest = { showMathFormulaSheet = false },
+            onInsertFormula = { formula ->
+                showMathFormulaSheet = false
+                val currentTfv = state.contentValue
+                val text = currentTfv.text
+                val selStart = currentTfv.selection.start.coerceIn(0, text.length)
+                val selEnd = currentTfv.selection.end.coerceIn(0, text.length)
+                val start = minOf(selStart, selEnd)
+                val end = maxOf(selStart, selEnd)
+
+                val prefix = text.substring(0, start)
+                val suffix = text.substring(end)
+                val needsNewline = prefix.isNotEmpty() && !prefix.endsWith("\n")
+                val formattedFormula = if (needsNewline && formula.startsWith("$$")) {
+                    "\n\n$formula"
+                } else {
+                    formula
+                }
+                val newText = prefix + formattedFormula + suffix
+                val newCursor = prefix.length + formattedFormula.length
+                onContentValueChange(TextFieldValue(newText, TextRange(newCursor)))
+            }
+        )
+    }
+
+    // Görev Panosu (Kanban) Alt Sayfası
+    if (showTaskBoardSheet) {
+        TaskBoardBottomSheet(
+            content = state.contentValue.text,
+            onDismissRequest = { showTaskBoardSheet = false },
+            onContentChange = { newContent ->
+                onContentValueChange(TextFieldValue(newContent))
+            }
+        )
+    }
+
+    // Akıllı Not Özeti & Çıkarımlar Alt Sayfası
+    if (showSummarySheet) {
+        NoteSummaryBottomSheet(
+            content = state.contentValue.text,
+            onDismissRequest = { showSummarySheet = false },
+            onPrependSummary = { calloutSummary ->
+                showSummarySheet = false
+                val currentText = state.contentValue.text
+                val combinedText = if (currentText.isBlank()) {
+                    calloutSummary
+                } else {
+                    "$calloutSummary\n\n$currentText"
+                }
+                onContentValueChange(TextFieldValue(combinedText, TextRange(calloutSummary.length + 2)))
+            }
+        )
+    }
+}
+

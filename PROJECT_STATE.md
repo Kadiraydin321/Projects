@@ -1,7 +1,21 @@
-﻿# PROJECT_STATE.md
+# PROJECT_STATE.md
 
 ## Genel Durum (Status)
-- **Tarih:** 08 Kasım 2026
+- **Tarih:** 11 Kasım 2026
+- **Ortam:** Windows 11 (x64), PowerShell, RTX 5060 Ti 16 GB, i5-13400F, 64 GB RAM
+- **Son İşlemler:**
+  1. SSH Anahtar Yetkilendirmesi & Uzak Depo Entegrasyonu:
+     - Antigravity ED25519 anahtarı (`SHA256:w96XHrMnxM45LEu4HgcxLVeB74INJX8UtrMvpPqCQ4E`) GitHub hesabına bağlandı.
+     - `~/.ssh/config` güncellendi, `origin` uzak deposu (`git@github.com:Kadiraydin321/projects.git`) başarıyla doğrulandı.
+  2. Not Defterim (NoteApp) Bağımsız Repo Ayrıştırması & APK Sürüm Kilidi:
+     - Harici NoteApp reposu yerine `not-uygulamalari/not-defterim` tüm kaynak kodlarıyla monorepo sistemine katıldı.
+     - NoteApp için bağımsız `project/not-defterim` dalı tahsis edildi.
+     - APK (`NoteApp-release.apk`) doğrudan proje kök dizinine yerleştirildi; SHA256 ve sürüm bilgisi (`version.json`) ile kilitlendi.
+     - Go motoru (`getAppVersion()`) ve Gradle (`exportApkToRoot`) dinamik sürüm mekanizması bağlandı.
+  3. Monorepo Çoklu Şube (Multi-Branch) & Agent Yönergesi Mimarisi:
+     - `main` dalı sadece merkezi depolama, yedekleme ve orkestrasyon havuzu olarak yapılandırıldı.
+     - `main` README.md başına tüm yapay zeka ajanlarını bağlayan ZORUNLU AJAN DİREKTİFİ (asla main'de geliştirme yapmama, her proje için ayrı branch açma zorunluluğu) işlendi.
+     - Tüm bağımsız projeler (`project/not-defterim`, `project/yerel-ag-tarayici`, `project/byte-rescue`, `project/omni-backup-transfer`, `project/screen-translator`, `project/moon-novel-downloader`, `project/roborock-control-hub`, `project/sistem-yonetimi`, `project/game-modding-ghida`) kendi izole dallarına ve Agent-Ready dokümantasyonlarına kavuşturuldu.
 - **Ortam:** Windows 11 (x64), PowerShell, RTX 5060 Ti 16 GB, i5-13400F, 64 GB RAM
 - **Son İşlemler:**
   1. Rust Motorlu Yerel Ağ & Sunucu Yönetim Konsolu Geliştirildi (yerel-ag-tarayici-rust):

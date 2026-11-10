@@ -1,102 +1,208 @@
-# **RoboRock Control Center**
-[![](https://img.shields.io/github/license/lazyt/rrcc.svg?color=blue)](https://github.com/LazyT/rrcc/blob/master/LICENSE)
-[![](https://img.shields.io/badge/platform-win%20%7C%20lin%20%7C%20mac-blue.svg)](https://github.com/LazyT/rrcc#download)
-[![](https://img.shields.io/badge/paypal-buy%20me%20a%20beer-red.svg)](https://paypal.me/LazyT)
-[![](https://img.shields.io/github/downloads/lazyt/rrcc/total.svg?color=orange)](https://github.com/LazyT/rrcc/releases)
-[![](https://img.shields.io/github/last-commit/lazyt/rrcc/master.svg?color=yellow)](https://github.com/LazyT/rrcc/commits/master)
-[![](https://img.shields.io/github/release-date/lazyt/rrcc.svg?color=brightgreen)](https://github.com/LazyT/rrcc/releases/latest)
-[![](https://img.shields.io/github/release/lazyt/rrcc.svg?color=brightgreen)](https://github.com/LazyT/rrcc/releases/latest)
+# 🤖 Roborock Control Center & Hermes v96 RPC Mock Ecosystem (RRCC)
 
-## Description
+Akıllı robot süpürgeler (Roborock Q8 Max Pro ve tüm miIO serisi) için geliştirilmiş; orijinal C++ Qt masaüstü kontrol merkezini, modern Python FastAPI + Three.js Glassmorphism Web Hub'ı ve Rust Tokio tabanlı **Hermes v96 RPC Mock Sunucusunu** bir araya getiren kapsamlı telemetri, simülasyon ve kontrol ekosistemi.
 
-Xiaomi vacuum cleaners are really nice, but need a cloud connection to use all features. You don't like your data in chinese hands? Then try RRCC for free and use it on Windows, Linux and MacOS!
+---
 
-The current version supports the following features:
+## 🎯 1. Projenin Amacı ve Kapsamı
 
-* control vacuum (start, pause, stop, spot cleaning, return dock, find)
-* set fanspeed
-* reset consumables
-* add, change and delete timers
-* show cleaning history
-* set sound volume
-* decrypt, encrypt and install voice packages
-* search, download and update firmware
-* control dnd and carpet modes
-* set wifi ssid and key
-* convert 96->32 byte token
-* multi language (English and German)
-* cross platform (same look & feel on Windows, Linux, MacOS)
+RRCC ekosistemi; Roborock robot süpürgelerin bulut bağımlılığını ortadan kaldırarak yerel ağ (LAN) üzerinden tam kontrolünü sağlamak, resmi mobil uygulamanın (v4.74.08) Hermes v96 bytecode protokollerini tersine mühendislikle deşifre etmek ve fiziksel robota ihtiyaç duymadan uygulama geliştirmeyi mümkün kılan donanım seviyesinde bir simülatör sunmak amacıyla tasarlanmıştır.
 
-Only on rooted devices:
+Ekosistem 3 temel bileşenden oluşur:
+1. **Rust Hermes v96 Mock Sunucusu (`roborock_mock_server`):** UDP 54321 (miIO) ve TCP 58867 (LocalClientService) portlarını dinleyen, milisaniye altı gecikmeli (700-800 µs), canlı JSONL trafik kayıtçılı ve durum makineli simülatör.
+2. **Modern Web Kontrol Merkezi (`web_hub`):** Python FastAPI, WebSocket canlı telemetri, Three.js 3D ev planı görselleştiricisi ve neon cam morfizm (glassmorphism) temalı kontrol paneli.
+3. **Klasik Masaüstü İstemcisi (Legacy Qt/C++):** Çevrimdışı harita çıkarma, ses paketi yükleme ve doğrudan firmware yönetimi sunan orijinal C++ aracı (`rrcc.exe`).
 
-* extract token via ssh
-* install/update/uninstall [Valetudo](https://github.com/hypfer/valetudo)
-* map functions via [Valetudo](https://github.com/hypfer/valetudo) (goto, zone cleaning, virtual walls and nogo zones, flip, rotate, zoom)
-* show installed firmware and valetudo version
+---
 
-## Screenshots
+## 🚀 2. Temel Özellikler
 
-![main window](https://raw.github.com/LazyT/rrcc/gh-pages/screenshots/mainwindow.png)
+- **Çift Protokol Dinleme (Dual-Protocol Server):**
+  - **UDP 54321 (miIO):** AES-128-CBC şifreli el sıkışma (handshake), DID ve zaman damgası senkronizasyonu.
+  - **TCP 58867 (Roborock LAN):** Mobil uygulamanın yerel bağlandığı `LocalClientService` soket akışı ve DoS korumalı birleşik JSON ayrıştırıcısı (`find_next_json_object`).
+- **Hermes v96 RPC Metot Kataloğu:**
+  - Oda Temizliği (`app_segment_clean`, `resume_segment_clean`)
+  - Bölgesel Temizlik (`app_zoned_clean`, `resume_zoned_clean`)
+  - Emiş Gücü & Su Ayarları (`set_clean_motor_mode` 101-105, `set_water_box_custom_mode` 200-203, `set_mop_mode`)
+  - İstasyon ve Paspas Yıkama (`app_start_collect_dust`, `app_start_wash`, `app_stop_wash`)
+  - Çok Katmanlı Harita Yönetimi (`get_multi_maps_list`, `load_multi_map`, `save_map`)
+  - Sarf Malzeme Takibi ve Sıfırlama (`reset_consumable`, filtre, ana fırça, yan fırça, sensörler)
+- **Canlı Paket Denetçisi ve JSONL Kayıtçısı (`traffic_log.jsonl`):**
+  - Gelen/giden her JSON-RPC çağrısını zaman damgası, gecikme süresi (`elapsed_us`) ve soket bilgisiyle yapılandırılmış günlükleme.
+- **Katman 7 & Katman 2 MAC Klonlama Desteği:**
+  - Mock sunucuda `--mac` parametresi ile robotun kimliğini emüle etme.
+- **İnteraktif 3D Harita ve Glassmorphism Web Arayüzü:**
+  - Three.js + OrbitControls ile 3D kat planı HUD'ı, SVG radyal batarya göstergesi, tek tıkla oda temizleme butonları.
+- **Fiziksel VPN / Tünel Baypası:**
+  - Kaspersky VPN veya sanal ağ adaptörlerine takılmadan doğrudan fiziksel LAN IP'sine soket bağlama mimarisi.
 
-## Download
+---
 
-Download the latest version for your operating system. All 3 files (exe, dmg, AppImage) contain the binary, translations and required libraries to run RRCC on the target platform without installing anything.
+## 🏗️ 3. Mimari & Teknoloji Yığını (Stack)
 
-* [Windows (exe)](https://github.com/LazyT/rrcc/releases)
+### 3.1. Ağ ve İletişim Mimarisi
 
-This is an [7zip](https://www.7-zip.org) self extracting archive. It will be automatically extracted to "%temp%\7zxxxxxxxx" and after that the "rrcc.exe" is started. You can copy this directory or extract the file with 7z if you want the content.
+```mermaid
+graph TD
+    subgraph Client_Layer["İstemciler (Clients)"]
+        OfficialApp["Roborock Resmi Mobil APK<br/>(v4.74.08 Hermes v96)"]
+        WebClient["Modern Web Hub SPA (Three.js)<br/>[web_hub/static](file:///c:/Users/Birin/Birin/Projeler/rrcc-master/web_hub/static)"]
+        LegacyQt["Legacy Qt C++ Arayüzü<br/>[mainwindow.cpp](file:///c:/Users/Birin/Birin/Projeler/rrcc-master/mainwindow.cpp)"]
+    end
 
-Note: some virus scanners classify RRCC as malicious. This is due to the use of [7zsfx](https://www.7-zip.org/a/lzma1900.7z). If you don't trust me unzip the exe and scan that directory, no warnings should appear now.
+    subgraph Rust_Mock["Rust Hermes Mock Robot Motoru (:54321 / :58867)"]
+        MIIO_UDP["UDP miIO Listener (:54321)<br/>[miio.rs](file:///c:/Users/Birin/Birin/Projeler/rrcc-master/roborock_mock_server/src/protocol/miio.rs)"]
+        LAN_TCP["TCP LAN Listener (:58867)<br/>[tcp.rs](file:///c:/Users/Birin/Birin/Projeler/rrcc-master/roborock_mock_server/src/protocol/tcp.rs)"]
+        RPCHandler["Hermes RPC Yönlendirici<br/>[handler.rs](file:///c:/Users/Birin/Birin/Projeler/rrcc-master/roborock_mock_server/src/rpc/handler.rs)"]
+        StateMachine["RobotState Makinesi<br/>[machine.rs](file:///c:/Users/Birin/Birin/Projeler/rrcc-master/roborock_mock_server/src/state/machine.rs)"]
+        Simulator["Pil / Temizlik Simülatörü<br/>[simulation.rs](file:///c:/Users/Birin/Birin/Projeler/rrcc-master/roborock_mock_server/src/state/simulation.rs)"]
+        Inspector["Canlı Trafik Loglayıcı<br/>[inspector.rs](file:///c:/Users/Birin/Birin/Projeler/rrcc-master/roborock_mock_server/src/inspector.rs)"]
+    end
 
-* [MacOS (dmg)](https://github.com/LazyT/rrcc/releases)
+    subgraph Web_Hub_Py["Python FastAPI Web Hub Motoru (:8000)"]
+        FastAPI["FastAPI & WebSocket<br/>[main.py](file:///c:/Users/Birin/Birin/Projeler/rrcc-master/web_hub/main.py)"]
+        StateMgr["Durum Yöneticisi<br/>[state_manager.py](file:///c:/Users/Birin/Birin/Projeler/rrcc-master/web_hub/state_manager.py)"]
+        MiioClient["Asenkron miIO İstemcisi<br/>[miio_client.py](file:///c:/Users/Birin/Birin/Projeler/rrcc-master/web_hub/miio_client.py)"]
+    end
 
-This is an Apple disc image. You can mount and run or copy the application.
+    subgraph Physical_Robot["Fiziksel Robot Donanımı"]
+        RealVacuum["Roborock Q8 Max Pro<br/>(192.168.1.44)"]
+    end
 
-* [Linux (AppImage)](https://github.com/LazyT/rrcc/releases)
+    OfficialApp -- "TCP :58867 & UDP :54321" --> LAN_TCP
+    OfficialApp -- "UDP :54321" --> MIIO_UDP
+    LAN_TCP --> RPCHandler
+    MIIO_UDP --> RPCHandler
+    RPCHandler --> StateMachine
+    StateMachine --> Simulator
+    RPCHandler --> Inspector
 
-This is an [AppImage](https://appimage.org) package. Don't forget to "chmod +x *.AppImage" after download and then run it. You can use the parameter "--appimage-extract" if you want the content.
+    WebClient -- "HTTP / WebSocket :8000" --> FastAPI
+    FastAPI --> StateMgr
+    StateMgr --> MiioClient
+    MiioClient -- "Gerçek Mod" --> RealVacuum
+    MiioClient -- "Simülasyon Modu" --> MIIO_UDP
+```
 
-For better system integration it's recommended to install [AppImageD](https://github.com/AppImage/appimaged) or [AppImageLauncher](https://github.com/TheAssassin/AppImageLauncher).
+### 3.2. Teknoloji Bileşenleri
 
-## Build from Source
+| Bileşen | Dil & Altyapı | Sürüm | Görev |
+| :--- | :--- | :--- | :--- |
+| **Hermes Mock Server** | Rust (Tokio, Serde, AES, MD5) | 1.80+ | 1.56 MB tek binary, asenkron miIO/TCP sunucusu |
+| **Web Hub Backend** | Python (FastAPI, Uvicorn, PyCryptodome) | 3.10+ | REST API, WebSocket telemetrisi, cihaz poller |
+| **Web Hub Frontend** | HTML5, CSS3 Glassmorphism, Three.js | 0.160+ | 3D kat planı HUD, oda temizlik butonları |
+| **Legacy GUI** | C++ (Qt 5.12+) | C++11 | Klasik firmware ve harita yönetim masaüstü aracı |
+| **Trafik Analizi** | JADX decompiler, Hermes v96 disassembler | v4.74.08 APK | Resmi protokol ve metot çözümlemesi |
 
-If the release binaries doesn't work for you build it yourself:
+---
 
-1) checkout the source code
+## 🗺️ 4. Proje Bilgi Grafiği & Sembol Haritası (Graphify / Yapı)
 
-		git clone https://github.com/LazyT/rrcc
+### 4.1. Dizin Yapısı
 
-2) change into the new rrcc directory and generate the Makefile
+```
+rrcc-master/
+├── PROJECT_STATE.md                  # Canlı proje hafızası ve protokol günlüğü
+├── Baslat.ps1                        # İmzalı genel başlatıcı menüsü
+├── Baslat_Mock_Server.ps1            # İmzalı Rust Hermes Mock Server başlatıcısı
+├── Baslat_Web.ps1                    # İmzalı Python Web Hub başlatıcısı
+├── Roborock - v4.74.08.apk           # Tersine mühendislik referans APK'sı
+├── rrcc.exe                          # Klasik Qt masaüstü çalıştırılabilir dosyası
+│
+├── roborock_mock_server/             # Rust Hermes v96 Mock Robot Sunucusu
+│   ├── Cargo.toml                    # Tokio, serde, aes-modes bağımlılıkları
+│   └── src/
+│       ├── main.rs                   # CLI argümanları ve çift soket orkestrasyonu
+│       ├── config.rs                 # IP, port, token ve MAC yapılandırması
+│       ├── crypto.rs                 # AES-128-CBC şifreleme/çözme motoru
+│       ├── inspector.rs              # Renkli konsol ve JSONL trafik loglayıcı
+│       ├── protocol/
+│       │   ├── miio.rs               # UDP 54321 miIO el sıkışma ve paketleyici
+│       │   └── tcp.rs                # TCP 58867 Roborock LocalClient akış dinleyici
+│       ├── rpc/
+│       │   ├── types.rs              # JsonRpcRequest ve JsonRpcResponse tipleri
+│       │   └── handler.rs            # 30+ Hermes v96 RPC metot işleyicisi
+│       └── state/
+│           ├── machine.rs            # Thread-safe RobotState durum makinesi
+│           └── simulation.rs         # Pil tüketimi ve temizlik simülatörü
+│
+├── web_hub/                          # Modern Python FastAPI Web Kontrol Merkezi
+│   ├── main.py                       # FastAPI REST ve WebSocket uç noktaları
+│   ├── miio_client.py                # Asenkron Python miIO şifreli soket istemcisi
+│   ├── state_manager.py              # Telemetri önbelleği ve durum çevirici
+│   ├── config.py                     # Cihaz IP, port, token ve DUID ayarları
+│   ├── test_main.py                  # Pytest birim test süiti
+│   └── static/                       # Three.js 3D kat planı ve arayüz dosyaları
+│
+└── ext/ lng/ res/                    # Klasik C++ Qt kaynakları ve çevirileri
+```
 
-		cd rrcc && qmake
+### 4.2. Temel Semboller ve Dosya Bağlantıları
 
-3) compile the source code
+- [`RoborockMockServer::main`](file:///c:/Users/Birin/Birin/Projeler/rrcc-master/roborock_mock_server/src/main.rs): Tokio çalışma zamanında UDP 54321 ve TCP 58867 soketlerini eşzamanlı ayağa kaldıran ana döngü.
+- [`RpcHandler::dispatch`](file:///c:/Users/Birin/Birin/Projeler/rrcc-master/roborock_mock_server/src/rpc/handler.rs): Gelen JSON-RPC metodunu (`app_segment_clean`, `get_status`, `load_multi_map` vb.) ayrıştırıp yanıt üreten yönlendirici.
+- [`TcpStreamHandler::find_next_json_object`](file:///c:/Users/Birin/Birin/Projeler/rrcc-master/roborock_mock_server/src/protocol/tcp.rs): TCP soketinde birleşik gelen JSON paketlerini küme parantezi sayımıyla DoS korumalı ayrıştıran fonksiyon.
+- [`RobotState`](file:///c:/Users/Birin/Birin/Projeler/rrcc-master/roborock_mock_server/src/state/machine.rs): Batarya seviyesi, fan gücü, su seviyesi, temizlik süresi ve hata kodlarını tutan thread-safe model.
+- [`PacketInspector`](file:///c:/Users/Birin/Birin/Projeler/rrcc-master/roborock_mock_server/src/inspector.rs): İstek ve yanıtları mikrosaniye hassasiyetinde ekrana basan ve `traffic_log.jsonl` dosyasına yazan motor.
+- [`AsyncMiioClient`](file:///c:/Users/Birin/Birin/Projeler/rrcc-master/web_hub/miio_client.py): Python tarafında AES-128-CBC şifreli UDP miIO paketlerini gönderip yanıt bekleyen asenkron istemci.
+- [`StateManager`](file:///c:/Users/Birin/Birin/Projeler/rrcc-master/web_hub/state_manager.py): Robot durumunu periyodik sorgulayan ve sarf malzeme ömürlerini hesaplayan servis.
 
-		make
+---
 
-GUI fans just install the [Qt-Environment](http://www.qt.io/download-open-source), open the "rrcc.pro" project file and click on the build button.
+## 🤖 5. İlgili Agent Becerileri (Skills) ve Kuralları
 
-***Hints for compiling:***
+Bu projede kod geliştirecek yapay zeka ajanları aşağıdaki tasarım standartlarına uymalıdır:
 
- - Qt 5.11 or greater required
- - libarchive-dev and libssh-dev required
+### 5.1. Zorunlu Beceriler (Skills)
+- **`rust-patterns`**: `roborock_mock_server` üzerinde çalışırken bellek tahsislerini minimumda tut (`zero-copy` dilimleme), `Arc<RwLock<RobotState>>` kilitlerini kritik bölge biter bitmez serbest bırak, Tokio `select!` makrosunu asenkron soket dinlemelerinde hatasız kullan.
+- **`fastapi-patterns`**: `web_hub` üzerinde geliştirme yaparken WebSocket bağlantılarının istemci kopmalarında (`WebSocketDisconnect`) temiz bir şekilde havuzdan çıkarılmasını sağla.
+- **`subagent-token-sentinel`**: 500+ satırlık `handler.rs` ve `tcp.rs` dosyalarında cerrahi aralıklar (`Select-String` + `StartLine`/`EndLine`) ile çalış.
 
-## Contact
+### 5.2. Ajan Geliştirme Yönergeleri
+1. **Hermes Bytecode Protokol Uyumu:** `get_prop` metoduna verilen parametrelere (`["battery"]` vs `["get_status"]`) verilen yanıt tipi birebir resmi uygulamanın beklediği skaler veya dizi formatında olmalıdır.
+2. **Kriptografik Bütünlük:** miIO paketlerindeki MD5 anahtar türetimi (`Key = MD5(Token)`, `IV = MD5(Key + Token)`) bozulmamalıdır.
+3. **PowerShell İmzası:** Değiştirilen veya yeni üretilen PowerShell betikleri projenin geçerli Authenticode sertifikası ile imzalanmalıdır.
 
-You can reach me at [Roboter-Forum](https://www.roboter-forum.com/index.php?thread/30309-roborock-control-center-desktop-app-f%C3%BCr-win-lin-osx).
+---
 
-## Credits
+## ⚙️ 6. Kurulum ve Çalıştırma Talimatları
 
-RRCC is based on
+### 6.1. Rust Hermes Mock Sunucusunu Başlatma
 
-* [Qt](http://www.qt.io)
-* [QAES](https://github.com/bricke/Qt-AES)
-* [QArchive](https://github.com/antony-jr/QArchive)
-* [QSshSocket](https://github.com/mikemvk/QSshSocket)
-* [ccrypt](http://ccrypt.sourceforge.net)
-* [libarchive](https://www.libarchive.org)
-* [libssh](https://www.libssh.org)
-* [openssl](https://www.openssl.org)
-* [zlib](https://zlib.net)
+```powershell
+cd "c:\Users\Birin\Birin\Projeler\rrcc-master"
 
-Thanks for this great software!
+# İmzalı başlatıcı ile:
+.\Baslat_Mock_Server.ps1
+
+# Veya doğrudan Cargo ile:
+cd roborock_mock_server
+cargo run --release -- --port 54321 --tcp-port 58867 --mac "00:11:22:33:44:55"
+```
+
+### 6.2. Modern Web Hub Kontrol Merkezini Başlatma
+
+```powershell
+cd "c:\Users\Birin\Birin\Projeler\rrcc-master"
+
+# İmzalı web başlatıcısı ile:
+.\Baslat_Web.ps1
+
+# Veya Python FastAPI üzerinden doğrudan:
+cd web_hub
+pip install -r requirements.txt
+python main.py
+# Tarayıcıda açılacak adres: http://localhost:8000
+```
+
+### 6.3. Test Süitini Çalıştırma
+
+```powershell
+# Rust Mock Server Birim ve Entegrasyon Testleri (21/21 test)
+cd "c:\Users\Birin\Birin\Projeler\rrcc-master\roborock_mock_server"
+cargo test
+
+# Python Web Hub API Testleri (6/6 test)
+cd "c:\Users\Birin\Birin\Projeler\rrcc-master\web_hub"
+pytest test_main.py -v
+```

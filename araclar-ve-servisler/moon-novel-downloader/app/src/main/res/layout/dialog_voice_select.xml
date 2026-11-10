@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/bg_bottom_toast"
+    android:padding="20dp">
+
+    <!-- Başlık & İkon -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="12dp">
+
+        <ImageView
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:src="@drawable/ic_record_voice_over"
+            android:tint="@color/crimson_red"
+            android:layout_marginEnd="10dp" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Sesli Okuma (TTS) Motoru"
+            android:textColor="@color/text_white"
+            android:textSize="17sp"
+            android:textStyle="bold" />
+
+        <ImageButton
+            android:id="@+id/btnVoiceDialogClose"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_menu_close_clear_cancel"
+            android:tint="@color/text_muted"
+            android:contentDescription="Kapat" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvVoiceSubtitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Cihazınızda yüklü ses profillerini seçin ve test edin:"
+        android:textColor="@color/text_muted"
+        android:textSize="12sp"
+        android:layout_marginBottom="14dp" />
+
+    <!-- Ses Tonu (Pitch) Seçenekleri -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Ses Tonu (Pitch):"
+        android:textColor="@color/crimson_light"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="6dp" />
+
+    <RadioGroup
+        android:id="@+id/rgPitch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="14dp">
+
+        <RadioButton
+            android:id="@+id/rbPitchLow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Kalın (0.8x)"
+            android:textColor="@color/text_white"
+            android:buttonTint="@color/crimson_red"
+            android:textSize="12sp"
+            android:layout_marginEnd="12dp" />
+
+        <RadioButton
+            android:id="@+id/rbPitchNormal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Doğal (1.0x)"
+            android:textColor="@color/text_white"
+            android:buttonTint="@color/crimson_red"
+            android:textSize="12sp"
+            android:layout_marginEnd="12dp" />
+
+        <RadioButton
+            android:id="@+id/rbPitchHigh"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="İnce (1.2x)"
+            android:textColor="@color/text_white"
+            android:buttonTint="@color/crimson_red"
+            android:textSize="12sp" />
+    </RadioGroup>
+
+    <!-- Mevcut Yüklü Sesler Listesi -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Cihaz Ses Profili:"
+        android:textColor="@color/crimson_light"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="6dp" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:maxHeight="220dp"
+        android:layout_marginBottom="14dp">
+
+        <RadioGroup
+            android:id="@+id/rgVoiceList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+    </ScrollView>
+
+    <!-- Test Et & Uygula Butonları -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btnVoiceTest"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_weight="1"
+            android:text="🔊 Sesi Dinle"
+            android:background="@drawable/bg_chapter_card"
+            android:textColor="@color/text_white"
+            android:textSize="13sp"
+            android:layout_marginEnd="10dp" />
+
+        <Button
+            android:id="@+id/btnVoiceApply"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_weight="1.2"
+            android:text="Seç ve Uygula ✨"
+            android:background="@drawable/bg_btn_accent"
+            android:textColor="@color/text_white"
+            android:textStyle="bold"
+            android:textSize="13sp" />
+    </LinearLayout>
+
+</LinearLayout>

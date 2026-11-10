@@ -1,0 +1,122 @@
+{
+  "app/build.gradle.kts": {
+    "mtime": 1793119555.5289414,
+    "seen": 1793894118.6334774,
+    "ast_hash": "1c8980367f1a41038f1076a0fd3e1d17",
+    "semantic_hash": "1c8980367f1a41038f1076a0fd3e1d17"
+  },
+  "app/src/main/java/com/birin/moonnovel/AdGuardDohDns.kt": {
+    "mtime": 1792205464.8047235,
+    "seen": 1793894118.633483,
+    "ast_hash": "9af0686fe2b2842693593b3ee74501bd",
+    "semantic_hash": "9af0686fe2b2842693593b3ee74501bd"
+  },
+  "app/src/main/java/com/birin/moonnovel/MainActivity.kt": {
+    "mtime": 1793119528.5756905,
+    "seen": 1793894118.6334853,
+    "ast_hash": "956d47fb04f3fd7d4f53f60525aff37a",
+    "semantic_hash": "956d47fb04f3fd7d4f53f60525aff37a"
+  },
+  "app/src/main/java/com/birin/moonnovel/SecureNetworkClient.kt": {
+    "mtime": 1792205470.3049743,
+    "seen": 1793894118.6334865,
+    "ast_hash": "b512daf5f57cbd4ace1cdefd1c725fae",
+    "semantic_hash": "b512daf5f57cbd4ace1cdefd1c725fae"
+  },
+  "app/src/main/java/com/birin/moonnovel/backup/BackupRestoreManager.kt": {
+    "mtime": 1792532726.514454,
+    "seen": 1793894118.6334882,
+    "ast_hash": "3fe46dd105efb4606613238c5670251a",
+    "semantic_hash": "3fe46dd105efb4606613238c5670251a"
+  },
+  "app/src/main/java/com/birin/moonnovel/reader/ReaderActivity.kt": {
+    "mtime": 1793119544.3292713,
+    "seen": 1793894118.6334891,
+    "ast_hash": "773e63b41370a3443d255da1479bd080",
+    "semantic_hash": "773e63b41370a3443d255da1479bd080"
+  },
+  "app/src/main/java/com/birin/moonnovel/settings/AppSettings.kt": {
+    "mtime": 1793043192.9377527,
+    "seen": 1793894118.6334903,
+    "ast_hash": "d2bfd8f0d0cb534d2449150038bda3c7",
+    "semantic_hash": "d2bfd8f0d0cb534d2449150038bda3c7"
+  },
+  "app/src/main/java/com/birin/moonnovel/sources/NovelBinAdapter.kt": {
+    "mtime": 1793119460.1576016,
+    "seen": 1793894118.6334915,
+    "ast_hash": "a8f3356c058b4770d05f5d982bce4a3f",
+    "semantic_hash": "a8f3356c058b4770d05f5d982bce4a3f"
+  },
+  "app/src/main/java/com/birin/moonnovel/sources/NovelGecesiAdapter.kt": {
+    "mtime": 1793044813.0665696,
+    "seen": 1793894118.6334925,
+    "ast_hash": "40c432685a97d8981f1a930d7dcf96ad",
+    "semantic_hash": "40c432685a97d8981f1a930d7dcf96ad"
+  },
+  "app/src/main/java/com/birin/moonnovel/sources/NovelSourceModels.kt": {
+    "mtime": 1792532392.8985002,
+    "seen": 1793894118.6334934,
+    "ast_hash": "cfe1407ea466acdba730e18eb13cc49f",
+    "semantic_hash": "cfe1407ea466acdba730e18eb13cc49f"
+  },
+  "app/src/main/java/com/birin/moonnovel/sources/WuxiaWorldEnAdapter.kt": {
+    "mtime": 1792532418.410496,
+    "seen": 1793894118.6334946,
+    "ast_hash": "76a9e8a5725d636d0d71cf46f38df996",
+    "semantic_hash": "76a9e8a5725d636d0d71cf46f38df996"
+  },
+  "app/src/main/java/com/birin/moonnovel/stats/ReadingStatsManager.kt": {
+    "mtime": 1792532720.5424545,
+    "seen": 1793894118.6334956,
+    "ast_hash": "6d38579e92f025835e13e4809d22d362",
+    "semantic_hash": "6d38579e92f025835e13e4809d22d362"
+  },
+  "app/src/main/java/com/birin/moonnovel/theme/AppThemeManager.kt": {
+    "mtime": 1793043215.6524346,
+    "seen": 1793894118.6334965,
+    "ast_hash": "b8b94fc6e7d07dd8b4216aed73fdf453",
+    "semantic_hash": "b8b94fc6e7d07dd8b4216aed73fdf453"
+  },
+  "app/src/main/java/com/birin/moonnovel/translation/TranslationEngine.kt": {
+    "mtime": 1792532426.0344946,
+    "seen": 1793894118.6334977,
+    "ast_hash": "bfb314f67aefec14f5a045db54f9b0c4",
+    "semantic_hash": "bfb314f67aefec14f5a045db54f9b0c4"
+  },
+  "app/src/main/java/com/birin/moonnovel/tts/TtsVoiceHelper.kt": {
+    "mtime": 1793042808.6840098,
+    "seen": 1793894118.6334987,
+    "ast_hash": "757d72b15d7b2e63850f4e2f4a6c91fc",
+    "semantic_hash": "757d72b15d7b2e63850f4e2f4a6c91fc"
+  },
+  "app/src/main/java/com/birin/moonnovel/updater/AppUpdateManager.kt": {
+    "mtime": 1793044802.2571998,
+    "seen": 1793894118.6334994,
+    "ast_hash": "3bfce625545e20a76de81a3b1fa93841",
+    "semantic_hash": "3bfce625545e20a76de81a3b1fa93841"
+  },
+  "build.gradle.kts": {
+    "mtime": 1792204523.8343637,
+    "seen": 1793894118.6335003,
+    "ast_hash": "d5956a49876eb1b1f756989d06759a2c",
+    "semantic_hash": "d5956a49876eb1b1f756989d06759a2c"
+  },
+  "gradlew": {
+    "mtime": 1792204513.451964,
+    "seen": 1793894118.6335013,
+    "ast_hash": "b64f95c634c338c32f8e6ab69d09e0ea",
+    "semantic_hash": "b64f95c634c338c32f8e6ab69d09e0ea"
+  },
+  "scripts/ollama_bridge.py": {
+    "mtime": 1793119179.9148724,
+    "seen": 1793894118.6335022,
+    "ast_hash": "af31af83c8f732642ac9692d0d36744f",
+    "semantic_hash": "af31af83c8f732642ac9692d0d36744f"
+  },
+  "settings.gradle.kts": {
+    "mtime": 1792204521.6815639,
+    "seen": 1793894118.6335032,
+    "ast_hash": "29a170b00583d1c091c33a0e567c6ad7",
+    "semantic_hash": "29a170b00583d1c091c33a0e567c6ad7"
+  }
+}

@@ -1,1 +1,0 @@
-C:\Users\Birin\Birin\Projeler\araclar-ve-servisler\yerel-ag-tarayici-rust\target\release\yerel-ag-tarayici-rust.exe: C:\Users\Birin\Birin\Projeler\araclar-ve-servisler\yerel-ag-tarayici-rust\src\main.rs
