@@ -3,9 +3,8 @@ $ErrorActionPreference = "Stop"
 Write-Host "==========================================================" -ForegroundColor Cyan
 Write-Host "    ROBOROCK Q8 MAX PRO - MODERN WEB KONTROL MERKEZI     " -ForegroundColor Cyan
 Write-Host "==========================================================" -ForegroundColor Cyan
-Write-Host "Hedef Robot: 192.168.1.44:54321 (Roborock Q8 Max Pro)" -ForegroundColor Gray
+Write-Host "Hedef Robot: Yapilandirilmis Port: 54321 (Roborock Vacuum)" -ForegroundColor Gray
 Write-Host "Web Hub Adresi: http://localhost:8000" -ForegroundColor Yellow
-Write-Host "Ağdaki Diğer Cihazlardan: http://192.168.1.6:8000" -ForegroundColor Yellow
 Write-Host "----------------------------------------------------------" -ForegroundColor DarkGray
 
 $projectRoot = $PSScriptRoot
@@ -32,8 +31,8 @@ Write-Host "    PID: $($serverJob.Id)" -ForegroundColor DarkGray
 # SIG # Begin signature block
 # MIIFhQYJKoZIhvcNAQcCoIIFdjCCBXICAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUi7OqE4F937wvKKqTHydpuv5X
-# 2tqgggMYMIIDFDCCAfygAwIBAgIQI76FdVX6bLBILiWSYrJGYjANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUVCKnm2b7+F/9iEMG7mQhDVpG
+# 2qugggMYMIIDFDCCAfygAwIBAgIQI76FdVX6bLBILiWSYrJGYjANBgkqhkiG9w0B
 # AQsFADAiMSAwHgYDVQQDDBdBbnRpZ3Jhdml0eS1BR1ktU2NyaXB0czAeFw0yNjEx
 # MDgwOTQ0MTVaFw0zNjExMDgwOTU0MTVaMCIxIDAeBgNVBAMMF0FudGlncmF2aXR5
 # LUFHWS1TY3JpcHRzMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtVh/
@@ -53,11 +52,11 @@ Write-Host "    PID: $($serverJob.Id)" -ForegroundColor DarkGray
 # HgYDVQQDDBdBbnRpZ3Jhdml0eS1BR1ktU2NyaXB0cwIQI76FdVX6bLBILiWSYrJG
 # YjAJBgUrDgMCGgUAoHgwGAYKKwYBBAGCNwIBDDEKMAigAoAAoQKAADAZBgkqhkiG
 # 9w0BCQMxDAYKKwYBBAGCNwIBBDAcBgorBgEEAYI3AgELMQ4wDAYKKwYBBAGCNwIB
-# FTAjBgkqhkiG9w0BCQQxFgQUsDRCdxqfjFu/rFHAMg1shAPBraYwDQYJKoZIhvcN
-# AQEBBQAEggEASzjYuFBIW2z6Fu/4VS2iB1Kn9FojqKw0svc8Ace3nMiVsjZYOXqF
-# qxjIHK9pAb3LijQVc8x/fmxVs8xKJ/vgrcyV86pcXaSX4hW7sgnAK/jhPxSsXduJ
-# pmh+4ZIUBe85iYw/OK/fNYmZ2R/bYVWK6/O0RFVCVeAYLVn5UR69zPLT13KkoPuY
-# zx2axBTFearaLYnsgevL00TslAFd7mFA33tO2Ir9f2ZRhL8+qr/cYajiL02ij/em
-# eWOK7repCf240tCpPmdJsiuPvLUEnOQLDqAvA4mv8vGdabFMB+SPiUD5EQCrYfXe
-# zin2qw2rPIrmzleqoC9QQPNRAR9E/paUbg==
+# FTAjBgkqhkiG9w0BCQQxFgQU3GbK4axCT7sWFUkvhuwQsQynS6cwDQYJKoZIhvcN
+# AQEBBQAEggEAstIr/dBMem8ajKN8HLEdng23RT7hKVflxT22mh7Ps/OjT/YN8a1Y
+# wzVRGFcqQ8pPVqQN6NNLuj8JVyMPUS9KbQ/YH5IKDB8CVyolKAbYf/lwKx7UeXTP
+# XT5T4aHQJtpzcnzHZcaKThIJVnEEYEnZAmvrNg7B9/8NEu9Qoc+3eb8UMiNeaVXG
+# BZGAgm0WW6kYY9jn0XBmO+mAV86vL1/V3j6KyX2f/C97FnFkNJLCIrUFp/MNJnsO
+# t94hkS0UB081flKlh3/qPTY9yy+3O5d2bqt+LxsnXtK1yBbybqgJS7oA6ygwUJSh
+# KLqYKOUccRCNPN50bhXuD9wtWsTRYKyJmg==
 # SIG # End signature block

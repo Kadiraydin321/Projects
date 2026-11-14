@@ -2,9 +2,9 @@
 
 **Son Güncelleme:** 09 Kasım 2026  
 **Hedef Cihaz:** Roborock Q8 Max Pro (`roborock.vacuum.ss09`)  
-**IP:** `192.168.1.44` | **Port:** `54321` (UDP miIO) | **DUID:** `4EDlM4fJ272Mg9kP98f1ST`  
-**Token (Hex):** `6457713532704e374b56505062715362`  
-**Web Sunucusu:** `http://localhost:8000` veya `http://192.168.1.6:8000`  
+**IP:** `ROBOROCK_IP (Ortam Değişkeni)` | **Port:** `54321` (UDP miIO) | **DUID:** `[GİZLENDİ / ENV]`  
+**Token (Hex):** `[GİZLENDİ / ROBOROCK_TOKEN_HEX]`  
+**Web Sunucusu:** `http://localhost:8000`  
 **Durum:** Faz 1 & Faz 2 Başarıyla Tamamlandı (Python FastAPI + Modern Glassmorphism Web SPA)
 
 ---
@@ -14,7 +14,7 @@
   - AES-128-CBC şifreleme/çözme (PyCryptodome).
   - MD5 anahtar türetimi ve PKCS7 dolgusu.
   - Handshake yönetimi (DID & Stamp senkronizasyonu).
-  - Doğrudan fiziksel LAN IP'sine (`192.168.1.6`) soket bağlama (Kaspersky VPN bypass).
+  - Doğrudan fiziksel yerel ağ soketi bağlama (Kaspersky VPN bypass).
 - **Durum Yöneticisi (`web_hub/state_manager.py`):**
   - İmmutable telemetri durum önbelleği (`RobotSnapshot`).
   - Dinamik arka plan poller (temizlikte 3s, boştayken 10s).

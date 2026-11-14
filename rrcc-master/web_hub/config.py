@@ -14,11 +14,11 @@ from typing import Final
 logger = logging.getLogger("web_hub.config")
 
 # Network & Device Constants (Environment variables supported with safe defaults)
-ROBOT_IP: Final[str] = os.getenv("ROBOROCK_IP", "192.168.1.44")
+ROBOT_IP: Final[str] = os.getenv("ROBOROCK_IP", "127.0.0.1")
 ROBOT_PORT: Final[int] = int(os.getenv("ROBOROCK_PORT", "54321"))
-TOKEN_HEX: Final[str] = os.getenv("ROBOROCK_TOKEN_HEX", "6457713532704e374b56505062715362")
-TOKEN_RAW: Final[str] = os.getenv("ROBOROCK_TOKEN_RAW", "dWq52pN7KVPPbqSb")
-DUID: Final[str] = os.getenv("ROBOROCK_DUID", "4EDlM4fJ272Mg9kP98f1ST")
+TOKEN_HEX: Final[str] = os.getenv("ROBOROCK_TOKEN_HEX", "00000000000000000000000000000000")
+TOKEN_RAW: Final[str] = os.getenv("ROBOROCK_TOKEN_RAW", "0000000000000000")
+DUID: Final[str] = os.getenv("ROBOROCK_DUID", "MOCK_ROBOROCK_DUID")
 MODEL: Final[str] = os.getenv("ROBOROCK_MODEL", "roborock.vacuum.ss09")
 MODEL_NAME: Final[str] = "Roborock Q8 Max Pro"
 
@@ -60,6 +60,6 @@ def get_lan_ip(target_ip: str = ROBOT_IP) -> str:
         logger.warning("Routing probe socket failed: %s", exc)
 
     # Strategy 3: Deterministic fallback default
-    fallback_ip = "192.168.1.6"
+    fallback_ip = os.getenv("HOST_LAN_IP", "127.0.0.1")
     logger.info("Using fallback LAN IP: %s", fallback_ip)
     return fallback_ip

@@ -1,20 +1,46 @@
-$cert = Get-Item "Cert:\CurrentUser\My\18BDDE60A34E2F5E2AF49A9420F71C55445DE6F4"
+<#
+.SYNOPSIS
+    Roborock Ekosistemi Merkezi Başlatıcı
+#>
+
+$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
 
 Write-Host "=============================================" -ForegroundColor Cyan
-Write-Host " Roborock Q8 Max Pro - Temizlik Başlatıcı   " -ForegroundColor Cyan
+Write-Host " Roborock Q8 Max Pro - Kontrol Ekosistemi    " -ForegroundColor Cyan -BackgroundColor Black
 Write-Host "=============================================" -ForegroundColor Cyan
-Write-Host "IP: 192.168.1.44 | Token: 6457713532704e374b56505062715362" -ForegroundColor Gray
+Write-Host "Hedef Robot: Yapilandirilmis IP & Token (.env / Ortam Degiskeni)" -ForegroundColor Gray
+Write-Host ""
+Write-Host "1. Modern Web Hub Kontrol Merkezini Baslat (FastAPI + Three.js 3D)" -ForegroundColor Yellow
+Write-Host "2. Canli MITM Sniffer / Proxy Sunucusunu Baslat (Rust Tokio)" -ForegroundColor Green
+Write-Host "3. Bagimsiz Rust Mock Robot Sunucusunu Baslat" -ForegroundColor Magenta
+Write-Host "4. Hizli Temizlik Baslat (start_cleaning.py)" -ForegroundColor White
+Write-Host ""
 
-python "$PSScriptRoot\start_cleaning.py"
+$secim = Read-Host "Lutfen bir secim yapin [1-4] (Varsayilan: 1)"
+if (-not $secim) { $secim = "1" }
 
-Write-Host "`nİsteğe bağlı olarak RoboRock Control Center arayüzü başlatılıyor..." -ForegroundColor Yellow
-Start-Process "$PSScriptRoot\rrcc.exe"
-
+switch ($secim) {
+    "1" {
+        & (Join-Path $ScriptDir "Baslat_Web.ps1")
+    }
+    "2" {
+        & (Join-Path $ScriptDir "Baslat_Proxy_Server.ps1")
+    }
+    "3" {
+        & (Join-Path $ScriptDir "Baslat_Mock_Server.ps1")
+    }
+    "4" {
+        python (Join-Path $ScriptDir "start_cleaning.py")
+    }
+    default {
+        Write-Host "Gecersiz secim!" -ForegroundColor Red
+    }
+}
 # SIG # Begin signature block
 # MIIFhQYJKoZIhvcNAQcCoIIFdjCCBXICAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUmMsJxlOBYEkmheZ4Rmg/Avel
-# S1egggMYMIIDFDCCAfygAwIBAgIQI76FdVX6bLBILiWSYrJGYjANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQU7ruG526vYbmXztKgW1ma8jb6
+# ED6gggMYMIIDFDCCAfygAwIBAgIQI76FdVX6bLBILiWSYrJGYjANBgkqhkiG9w0B
 # AQsFADAiMSAwHgYDVQQDDBdBbnRpZ3Jhdml0eS1BR1ktU2NyaXB0czAeFw0yNjEx
 # MDgwOTQ0MTVaFw0zNjExMDgwOTU0MTVaMCIxIDAeBgNVBAMMF0FudGlncmF2aXR5
 # LUFHWS1TY3JpcHRzMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtVh/
@@ -34,11 +60,11 @@ Start-Process "$PSScriptRoot\rrcc.exe"
 # HgYDVQQDDBdBbnRpZ3Jhdml0eS1BR1ktU2NyaXB0cwIQI76FdVX6bLBILiWSYrJG
 # YjAJBgUrDgMCGgUAoHgwGAYKKwYBBAGCNwIBDDEKMAigAoAAoQKAADAZBgkqhkiG
 # 9w0BCQMxDAYKKwYBBAGCNwIBBDAcBgorBgEEAYI3AgELMQ4wDAYKKwYBBAGCNwIB
-# FTAjBgkqhkiG9w0BCQQxFgQUqu7py6UnIvdJooBai2gO8ZSTEBwwDQYJKoZIhvcN
-# AQEBBQAEggEAVnKDbWNNoZTkqyZnWbWgxoZVgbPyKEF8bu+IF+et1ICn6/DvJUvW
-# A+u0Lxh0juw/pxSVfBBQBVoOtJUv5TMdlUnyieIIfrXnki5tzvImTLylJsHn4mlm
-# trM2rXgWwwudThAxTzPhOTIen1/BL0KS2BTOmwSlJOR0H0IH9CbO9sddPpgx2w36
-# 9l53Qkm1gxCtuI5kfB7S7RIZlEAn/g7iu4o1Nc/yLD+oNKm4nhrghX+MPbAV12Fj
-# p0VQvtrugvH0jgBw/pg9GsBamF4E6UwSGT5QHq5aDgEC8Ybcu4GNbQCWs5DE8Bbx
-# Vq54xCCl2zaH6bnTLwKf6q1vq5RFxaFhzg==
+# FTAjBgkqhkiG9w0BCQQxFgQUaFyEdniKe1Mh2ji80HJmmjh0T7UwDQYJKoZIhvcN
+# AQEBBQAEggEAgpWQnUh/ZI7yaqRsQ+hj/vicobRcG1CMaZd1oqG9s4JWuAC9sdWk
+# 6wQYwf3lzn5btd9RHnTSPCtvq7UUD/j0e+9mDPakUu6Dt3uMja4MDLxxmSJRQAXs
+# +OqzWMT5rFrbu0IIQtoYmUcRH4/PQp85an4n+CkRwmWj8FcX8MBtMUhbEZVzN8Iu
+# xXKMiQUBzmcFov+n7gJjkMU/DYXpwr6i5F+r6MHHb9/d9GFkApJqMl1hZCvYCZEf
+# aaTDjaXWhiqCC9lti2oa2uc+K4NPATHZyB38iX3j9ZbJ+DxqWXDTIQ7xVIs9vhYj
+# DMC9/6w5YRpiPsIAgL2wWr2lAvVuqg9lEQ==
 # SIG # End signature block

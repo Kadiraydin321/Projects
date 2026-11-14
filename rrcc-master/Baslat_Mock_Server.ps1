@@ -10,10 +10,11 @@
 param(
     [string]$UdpPort = "54321",
     [string]$TcpPort = "58867",
-    [string]$Token = "6457713532704e374b56505062715362",
+    [string]$Token = "0123456789abcdef0123456789abcdef",
     [string]$Model = "roborock.vacuum.ss09",
     [string]$Mac = "54:48:E6:99:88:77",
     [string]$LogFile = "traffic_log.jsonl",
+    [string]$ProxyUpstream = "",
     [switch]$Release = $true
 )
 
@@ -31,6 +32,9 @@ Write-Host "UDP Port: $UdpPort (miIO Handshake & RPC)" -ForegroundColor Gray
 Write-Host "TCP Port: $TcpPort (Roborock LAN LocalClientService)" -ForegroundColor Gray
 Write-Host "Token:    $Token" -ForegroundColor Gray
 Write-Host "Log File: $LogFile (JSONL formatinda yapilandirilmis kayit)" -ForegroundColor Blue
+if ($ProxyUpstream) {
+    Write-Host "Proxy Upstream: $ProxyUpstream (MITM Sniffer Modu)" -ForegroundColor Green
+}
 Write-Host ""
 
 if (-not (Test-Path $BinaryPath)) {
@@ -48,14 +52,18 @@ if (-not (Test-Path $BinaryPath)) {
     Write-Error "Derleme basarisiz oldu veya binary olusturulamadi: $BinaryPath"
 }
 
-Write-Host ">> Mock Sunucu baslatiliyor..." -ForegroundColor Green
-& $BinaryPath -u $UdpPort -p $TcpPort -k $Token -m $Model -a $Mac -l $LogFile
-
+if ($ProxyUpstream) {
+    Write-Host ">> Canlı MITM Proxy baslatiliyor..." -ForegroundColor Green
+    & $BinaryPath -u $ProxyUpstream --udp-port $UdpPort -p $TcpPort -k $Token -l $LogFile
+} else {
+    Write-Host ">> Mock Sunucu baslatiliyor..." -ForegroundColor Green
+    & $BinaryPath --udp-port $UdpPort -p $TcpPort -k $Token -m $Model -a $Mac -l $LogFile
+}
 # SIG # Begin signature block
 # MIIFhQYJKoZIhvcNAQcCoIIFdjCCBXICAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQURyuUBwzoqj1EQYsidBiXx25U
-# c8KgggMYMIIDFDCCAfygAwIBAgIQI76FdVX6bLBILiWSYrJGYjANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUE9B0Y3XtOKyKBqFIXvbTrcUz
+# WuugggMYMIIDFDCCAfygAwIBAgIQI76FdVX6bLBILiWSYrJGYjANBgkqhkiG9w0B
 # AQsFADAiMSAwHgYDVQQDDBdBbnRpZ3Jhdml0eS1BR1ktU2NyaXB0czAeFw0yNjEx
 # MDgwOTQ0MTVaFw0zNjExMDgwOTU0MTVaMCIxIDAeBgNVBAMMF0FudGlncmF2aXR5
 # LUFHWS1TY3JpcHRzMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtVh/
@@ -75,11 +83,11 @@ Write-Host ">> Mock Sunucu baslatiliyor..." -ForegroundColor Green
 # HgYDVQQDDBdBbnRpZ3Jhdml0eS1BR1ktU2NyaXB0cwIQI76FdVX6bLBILiWSYrJG
 # YjAJBgUrDgMCGgUAoHgwGAYKKwYBBAGCNwIBDDEKMAigAoAAoQKAADAZBgkqhkiG
 # 9w0BCQMxDAYKKwYBBAGCNwIBBDAcBgorBgEEAYI3AgELMQ4wDAYKKwYBBAGCNwIB
-# FTAjBgkqhkiG9w0BCQQxFgQUaCsXZdodhsjA2Hm3wMFODc9xGzQwDQYJKoZIhvcN
-# AQEBBQAEggEAK+RSt74+ITljHuBEh/Ig6P7flBRtspKYY8urEA+XRXZLF7RgDwnu
-# aKh7KyhRk9g7rCn566g+L6mu+0YC8YWu3j+xEjcA5c1HNZAppurx9aAFlpEr7YxT
-# Au8Br4wLeeloIYx5NqH0Fk4Pd0Zf6M0CX+w46A1XeauiH5sxZjnuEen+viu9izPb
-# ivhnHqtz2JVGldmSkDOLLzifvMedzDuevGnGJ4da+eAMkO2hSWD10ih8ZL2iGe0y
-# +bWB1rZbHwkuLWHXB5XHJmL7Vz0awgfiiQ5ateVywEhrYxnlDI5aVNebH4XQaeSF
-# UsKqi4CNQHfZL8aQ+8Z1SW1perbvEtq7vw==
+# FTAjBgkqhkiG9w0BCQQxFgQU1CrqpaeFyK+AKTeOJ/LrHOkgmR4wDQYJKoZIhvcN
+# AQEBBQAEggEAL7H99ctkPdKOF3n0uDAU8fsT8SynuUjtzpSmEETSdCulbYI58Ytm
+# 3Pbscprpg2DR7bt0FL54RGyJ9smj7v5FSsiPA3UURS5IpL1WbgZc+2tySqp4pOPk
+# gubtsf+YB9SxJsCK281ZXQ/2JRZfhzarJVIqk5O96Ct1ulvrmtmGWEbre9KUgioJ
+# hKjObPLuoyo6MAmiMS/3LgvXo8H2eK7lckw4OeRHdLpNKQxUB10CWglKQiawTjgi
+# ZLd0RQm1BTZ3CDEXQmIRnBROKw5qbqIpg9uaHmHB1PxH2d1Gp5oKtiEPnHQxnAeA
+# 2WIXOMRF1uPSxbBSJfCQXtHe034X21Pzig==
 # SIG # End signature block

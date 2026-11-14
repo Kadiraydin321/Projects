@@ -1,4 +1,4 @@
-﻿use aes::Aes128;
+use aes::Aes128;
 use cbc::cipher::block_padding::Pkcs7;
 use cbc::cipher::{BlockDecryptMut, BlockEncryptMut, KeyIvInit};
 use md5::{Digest, Md5};
@@ -116,7 +116,7 @@ mod tests {
 
     #[test]
     fn test_key_iv_derivation() {
-        let token = hex::decode("6457713532704e374b56505062715362").unwrap();
+        let token = hex::decode("0123456789abcdef0123456789abcdef").unwrap();
         let mut token_arr = [0u8; 16];
         token_arr.copy_from_slice(&token);
 

@@ -305,7 +305,7 @@ async fn handle_device_settings(
                 "ssid": "Roborock_Mock_Network",
                 "bssid": "00:11:22:33:44:55",
                 "rssi": -42,
-                "ip": "192.168.1.44",
+                "ip": "127.0.0.1",
                 "gw": "192.168.1.1",
                 "mask": "255.255.255.0"
             }),
@@ -369,7 +369,7 @@ fn handle_info_and_meta(
                     "rssi": -42
                 },
                 "netif": {
-                    "localIp": "192.168.1.44",
+                    "localIp": "127.0.0.1",
                     "mask": "255.255.255.0",
                     "gw": "192.168.1.1"
                 },

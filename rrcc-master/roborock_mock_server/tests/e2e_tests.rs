@@ -20,6 +20,13 @@ mod protocol;
 mod rpc;
 #[path = "../src/state/mod.rs"]
 mod state;
+#[path = "../src/proxy/mod.rs"]
+pub mod proxy;
+
+use config::{ServerConfig, ServerMode};
+use proxy::capture::{CaptureEntry, CaptureLogger};
+use proxy::tcp_proxy::start_tcp_proxy;
+use proxy::udp_proxy::start_udp_proxy;
 
 use crypto::derive_key_iv;
 use protocol::miio::{build_encrypted_response, parse_and_decrypt_packet, MiioHeader};
@@ -57,7 +64,7 @@ async fn test_state_machine_transitions() {
 async fn test_rpc_handler_commands() {
     let state = Arc::new(RwLock::new(RobotState::default()));
     let model = "roborock.vacuum.ss09";
-    let token = "6457713532704e374b56505062715362";
+    let token = "0123456789abcdef0123456789abcdef";
     let mac = "54:48:E6:99:88:77";
 
     // 1. get_status
@@ -119,13 +126,12 @@ async fn test_rpc_handler_commands() {
 #[tokio::test]
 async fn test_tcp_listener_json_rpc_e2e() {
     let state = Arc::new(RwLock::new(RobotState::default()));
-    let test_port = 58910;
-    let bind_addr: SocketAddr = format!("127.0.0.1:{}", test_port).parse().unwrap();
-    let token = "6457713532704e374b56505062715362".to_string();
+    let bind_addr: SocketAddr = "127.0.0.1:0".parse().unwrap();
+    let token = "0123456789abcdef0123456789abcdef".to_string();
     let mac = "54:48:E6:99:88:77".to_string();
     let log_file = "test_tcp_traffic.jsonl".to_string();
 
-    start_tcp_listener(
+    let bound_addr = start_tcp_listener(
         bind_addr,
         Arc::clone(&state),
         "roborock.vacuum.ss09".to_string(),
@@ -137,9 +143,9 @@ async fn test_tcp_listener_json_rpc_e2e() {
     .unwrap();
 
     // Give TCP listener a moment to bind
-    tokio::time::sleep(Duration::from_millis(100)).await;
+    tokio::time::sleep(Duration::from_millis(50)).await;
 
-    let mut stream = TcpStream::connect(bind_addr).await.unwrap();
+    let mut stream = TcpStream::connect(bound_addr).await.unwrap();
     let (read_half, mut write_half) = stream.split();
     let mut reader = BufReader::new(read_half);
 
@@ -310,7 +316,7 @@ async fn test_segment_clean_requires_valid_segment_ids() {
 async fn test_smart_get_prop_single_and_multi() {
     let state = Arc::new(RwLock::new(RobotState::default()));
     let model = "roborock.vacuum.ss09";
-    let token = "6457713532704e374b56505062715362";
+    let token = "0123456789abcdef0123456789abcdef";
     let mac = "54:48:E6:99:88:77";
 
     // 1. Single property: ["battery"] -> [98]
@@ -356,7 +362,7 @@ async fn test_smart_get_prop_single_and_multi() {
 async fn test_hermes_resume_and_dock_methods() {
     let state = Arc::new(RwLock::new(RobotState::default()));
     let model = "roborock.vacuum.ss09";
-    let token = "6457713532704e374b56505062715362";
+    let token = "0123456789abcdef0123456789abcdef";
     let mac = "54:48:E6:99:88:77";
 
     // 1. resume_segment_clean
@@ -434,7 +440,7 @@ async fn test_hermes_resume_and_dock_methods() {
 async fn test_settings_and_multi_maps() {
     let state = Arc::new(RwLock::new(RobotState::default()));
     let model = "roborock.vacuum.ss09";
-    let token = "6457713532704e374b56505062715362";
+    let token = "0123456789abcdef0123456789abcdef";
     let mac = "54:48:E6:99:88:77";
 
     // 1. get_multi_maps_list
@@ -466,7 +472,7 @@ async fn test_settings_and_multi_maps() {
     let resp = handle_rpc_command(req, Arc::clone(&state), model, token, mac).await;
     let net = resp.result.unwrap();
     assert_eq!(net["ssid"], "Roborock_Mock_Network");
-    assert_eq!(net["ip"], "192.168.1.44");
+    assert_eq!(net["ip"], "127.0.0.1");
 
     // 4. child lock & led
     let req = RpcRequest {
@@ -502,13 +508,12 @@ async fn test_settings_and_multi_maps() {
 #[tokio::test]
 async fn test_tcp_no_newline_and_concatenated_json() {
     let state = Arc::new(RwLock::new(RobotState::default()));
-    let test_port = 58920;
-    let bind_addr: SocketAddr = format!("127.0.0.1:{}", test_port).parse().unwrap();
-    let token = "6457713532704e374b56505062715362".to_string();
+    let bind_addr: SocketAddr = "127.0.0.1:0".parse().unwrap();
+    let token = "0123456789abcdef0123456789abcdef".to_string();
     let mac = "54:48:E6:99:88:77".to_string();
     let log_file = "test_tcp_stream.jsonl".to_string();
 
-    start_tcp_listener(
+    let bound_addr = start_tcp_listener(
         bind_addr,
         Arc::clone(&state),
         "roborock.vacuum.ss09".to_string(),
@@ -519,9 +524,9 @@ async fn test_tcp_no_newline_and_concatenated_json() {
     .await
     .unwrap();
 
-    tokio::time::sleep(Duration::from_millis(100)).await;
+    tokio::time::sleep(Duration::from_millis(50)).await;
 
-    let stream = TcpStream::connect(bind_addr).await.unwrap();
+    let stream = TcpStream::connect(bound_addr).await.unwrap();
     let (read_half, mut write_half) = stream.into_split();
     let mut reader = BufReader::new(read_half);
 
@@ -583,3 +588,346 @@ async fn test_simulation_dock_state_auto_recovery() {
         );
     }
 }
+
+
+#[test]
+fn test_proxy_config_mode() {
+    let mock_cfg = ServerConfig {
+        bind_ip: "0.0.0.0".parse().unwrap(),
+        udp_port: 54321,
+        tcp_port: 58867,
+        token_hex: "0123456789abcdef0123456789abcdef".to_string(),
+        duid: "dummy".to_string(),
+        model: "roborock.vacuum.ss09".to_string(),
+        mac: "00:11:22:33:44:55".to_string(),
+        log_file: "log.jsonl".to_string(),
+        sim_speed: 1.0,
+        proxy_upstream: None,
+        proxy_udp_port: 54321,
+        proxy_tcp_port: 58867,
+        capture_file: "mitm_capture.jsonl".to_string(),
+        udp_timeout: 5,
+    };
+    assert_eq!(mock_cfg.mode(), ServerMode::Mock);
+
+    let proxy_cfg = ServerConfig {
+        proxy_upstream: Some("192.168.1.100".parse().unwrap()),
+        proxy_udp_port: 54321,
+        proxy_tcp_port: 58867,
+        ..mock_cfg
+    };
+    assert_eq!(
+        proxy_cfg.mode(),
+        ServerMode::Proxy {
+            upstream_ip: "192.168.1.100".parse().unwrap(),
+            upstream_udp_port: 54321,
+            upstream_tcp_port: 58867,
+        }
+    );
+}
+
+#[tokio::test]
+async fn test_capture_logger_async() {
+    let test_file = format!(
+        "target/test_capture_{}.jsonl",
+        std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_nanos()
+    );
+    let (logger, handle) = CaptureLogger::new(&test_file);
+
+    let entry1 = CaptureEntry {
+        timestamp: "2026-11-14T01:00:00Z".to_string(),
+        direction: "client_to_robot".to_string(),
+        protocol: "UDP_MIIO".to_string(),
+        client_addr: "127.0.0.1:40001".to_string(),
+        robot_addr: "127.0.0.1:54321".to_string(),
+        method: Some("get_status".to_string()),
+        id: Some(101),
+        payload: Some(serde_json::json!({"id": 101, "method": "get_status"})),
+        raw_len: 45,
+        elapsed_us: None,
+        status: "ok".to_string(),
+    };
+
+    let entry2 = CaptureEntry {
+        timestamp: "2026-11-14T01:00:01Z".to_string(),
+        direction: "robot_to_client".to_string(),
+        protocol: "UDP_MIIO".to_string(),
+        client_addr: "127.0.0.1:40001".to_string(),
+        robot_addr: "127.0.0.1:54321".to_string(),
+        method: Some("get_status".to_string()),
+        id: Some(101),
+        payload: Some(serde_json::json!({"id": 101, "result": ["charging"]})),
+        raw_len: 55,
+        elapsed_us: Some(1250),
+        status: "ok".to_string(),
+    };
+
+    logger.log(entry1);
+    logger.log(entry2);
+
+    drop(logger);
+    let _ = handle.await;
+
+    let content = tokio::fs::read_to_string(&test_file).await.unwrap();
+    let lines: Vec<&str> = content.lines().filter(|l| !l.is_empty()).collect();
+    assert_eq!(lines.len(), 2);
+
+    let parsed1: serde_json::Value = serde_json::from_str(lines[0]).unwrap();
+    assert_eq!(parsed1["method"], "get_status");
+    assert_eq!(parsed1["direction"], "client_to_robot");
+
+    let parsed2: serde_json::Value = serde_json::from_str(lines[1]).unwrap();
+    assert_eq!(parsed2["elapsed_us"], 1250);
+    assert_eq!(parsed2["direction"], "robot_to_client");
+
+    let _ = tokio::fs::remove_file(&test_file).await;
+}
+
+#[tokio::test]
+async fn test_tcp_proxy_bidirectional_and_capture() {
+    let test_file = format!(
+        "target/test_tcp_proxy_{}.jsonl",
+        std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_nanos()
+    );
+    let logger = CaptureLogger::start(&test_file);
+
+    // 1. Mock upstream robot TCP listener
+    let upstream_listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+    let upstream_addr = upstream_listener.local_addr().unwrap();
+
+    tokio::spawn(async move {
+        if let Ok((mut stream, _)) = upstream_listener.accept().await {
+            use tokio::io::{AsyncReadExt, AsyncWriteExt};
+            let mut buf = vec![0u8; 1024];
+            let n = stream.read(&mut buf).await.unwrap();
+            let req_str = std::str::from_utf8(&buf[..n]).unwrap();
+            assert!(req_str.contains("app_start"));
+
+            let resp = "{\"id\":777,\"result\":[\"ok\"]}\n";
+            stream.write_all(resp.as_bytes()).await.unwrap();
+        }
+    });
+
+    // 2. Start TCP proxy
+    let proxy_addr = start_tcp_proxy("127.0.0.1:0".parse().unwrap(), upstream_addr, logger.clone())
+        .await
+        .unwrap();
+
+    // 3. Connect client to TCP proxy
+    let mut client = TcpStream::connect(proxy_addr).await.unwrap();
+    let client_req = "{\"id\":777,\"method\":\"app_start\",\"params\":[]}\n";
+    client.write_all(client_req.as_bytes()).await.unwrap();
+
+    // 4. Read reply from TCP proxy
+    let mut reader = BufReader::new(client);
+    let mut line = String::new();
+    reader.read_line(&mut line).await.unwrap();
+    assert!(line.contains("\"result\":[\"ok\"]"));
+    assert!(line.contains("\"id\":777"));
+
+    tokio::time::sleep(Duration::from_millis(50)).await;
+    // Flushed automatically
+
+    let content = tokio::fs::read_to_string(&test_file).await.unwrap();
+    assert!(content.contains("client_to_robot"));
+    assert!(content.contains("robot_to_client"));
+    assert!(content.contains("app_start"));
+    assert!(content.contains("777"));
+
+    let _ = tokio::fs::remove_file(&test_file).await;
+}
+
+#[tokio::test]
+async fn test_tcp_proxy_large_map() {
+    let test_file = format!(
+        "target/test_tcp_map_{}.jsonl",
+        std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_nanos()
+    );
+    let logger = CaptureLogger::start(&test_file);
+
+    let upstream_listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+    let upstream_addr = upstream_listener.local_addr().unwrap();
+
+    let large_map_data = "x".repeat(300_000);
+    let large_map_json = format!("{{\"id\":888,\"result\":\"{}\"}}\n", large_map_data);
+    let large_map_clone = large_map_json.clone();
+
+    tokio::spawn(async move {
+        if let Ok((mut stream, _)) = upstream_listener.accept().await {
+            use tokio::io::{AsyncReadExt, AsyncWriteExt};
+            let mut buf = vec![0u8; 1024];
+            let _ = stream.read(&mut buf).await.unwrap();
+            stream.write_all(large_map_clone.as_bytes()).await.unwrap();
+        }
+    });
+
+    let proxy_addr = start_tcp_proxy("127.0.0.1:0".parse().unwrap(), upstream_addr, logger.clone())
+        .await
+        .unwrap();
+
+    let mut client = TcpStream::connect(proxy_addr).await.unwrap();
+    client.write_all(b"{\"id\":888,\"method\":\"get_map_v1\",\"params\":[]}\n").await.unwrap();
+
+    let mut reader = BufReader::new(client);
+    let mut resp = String::new();
+    reader.read_line(&mut resp).await.unwrap();
+    assert_eq!(resp.len(), large_map_json.len());
+    assert!(resp.contains("\"id\":888"));
+
+    tokio::time::sleep(Duration::from_millis(50)).await;
+    // Flushed automatically
+
+    let content = tokio::fs::read_to_string(&test_file).await.unwrap();
+    assert!(content.contains("get_map_v1"));
+    assert!(content.contains("888"));
+
+    let _ = tokio::fs::remove_file(&test_file).await;
+}
+
+#[tokio::test]
+async fn test_udp_proxy_handshake_and_encrypted_rpc() {
+    let test_file = format!(
+        "target/test_udp_proxy_{}.jsonl",
+        std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_nanos()
+    );
+    let logger = CaptureLogger::start(&test_file);
+
+    let token = [0x42u8; 16];
+    let (key, iv) = derive_key_iv(&token);
+
+    let upstream_socket = UdpSocket::bind("127.0.0.1:0").await.unwrap();
+    let upstream_addr = upstream_socket.local_addr().unwrap();
+
+    let upstream_key = key;
+    let upstream_iv = iv;
+    let upstream_token = token;
+
+    tokio::spawn(async move {
+        let mut buf = [0u8; 4096];
+        // Handle handshake
+        let (n, peer) = upstream_socket.recv_from(&mut buf).await.unwrap();
+        assert_eq!(n, 32);
+        let resp_hs = MiioHeader::build_handshake_response(0x04e12345, 9999);
+        upstream_socket.send_to(&resp_hs, peer).await.unwrap();
+
+        // Handle encrypted RPC
+        let (n2, peer2) = upstream_socket.recv_from(&mut buf).await.unwrap();
+        let (header, json_req) = parse_and_decrypt_packet(&buf[..n2], &upstream_token, &upstream_key, &upstream_iv).unwrap();
+        assert!(json_req.contains("get_status"));
+
+        let resp_json = "{\"id\":456,\"result\":[\"charging\"]}";
+        let enc_resp = build_encrypted_response(
+            header.did,
+            header.stamp + 1,
+            resp_json,
+            &upstream_token,
+            &upstream_key,
+            &upstream_iv,
+        ).unwrap();
+        upstream_socket.send_to(&enc_resp, peer2).await.unwrap();
+    });
+
+    let proxy_addr = start_udp_proxy("127.0.0.1:0".parse().unwrap(), upstream_addr, token, logger.clone(), 5)
+        .await
+        .unwrap();
+
+    let client_sock = UdpSocket::bind("127.0.0.1:0").await.unwrap();
+    client_sock.connect(proxy_addr).await.unwrap();
+
+    // Send handshake
+    let hs_pkt = MiioHeader::build_handshake_request();
+    client_sock.send(&hs_pkt).await.unwrap();
+
+    let mut resp_buf = [0u8; 4096];
+    let n = client_sock.recv(&mut resp_buf).await.unwrap();
+    assert_eq!(n, 32);
+    let hs_resp = MiioHeader::parse(&resp_buf[..n]).unwrap();
+    assert_eq!(hs_resp.did, 0x04e12345);
+    assert_eq!(hs_resp.stamp, 9999);
+
+    // Send encrypted RPC
+    let enc_req = build_encrypted_response(
+        hs_resp.did,
+        hs_resp.stamp,
+        "{\"id\":456,\"method\":\"get_status\",\"params\":[]}",
+        &token,
+        &key,
+        &iv,
+    ).unwrap();
+    client_sock.send(&enc_req).await.unwrap();
+
+    let n2 = client_sock.recv(&mut resp_buf).await.unwrap();
+    let (_, dec_resp) = parse_and_decrypt_packet(&resp_buf[..n2], &token, &key, &iv).unwrap();
+    assert!(dec_resp.contains("\"result\":[\"charging\"]"));
+    assert!(dec_resp.contains("\"id\":456"));
+
+    tokio::time::sleep(Duration::from_millis(50)).await;
+    // Flushed automatically
+
+    let content = tokio::fs::read_to_string(&test_file).await.unwrap();
+    assert!(content.contains("miio_handshake"));
+    assert!(content.contains("get_status"));
+    assert!(content.contains("456"));
+
+    let _ = tokio::fs::remove_file(&test_file).await;
+}
+
+#[tokio::test]
+async fn test_udp_proxy_fail_open_raw() {
+    let test_file = format!(
+        "target/test_udp_failopen_{}.jsonl",
+        std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_nanos()
+    );
+    let logger = CaptureLogger::start(&test_file);
+
+    let token = [0x42u8; 16];
+
+    let upstream_socket = UdpSocket::bind("127.0.0.1:0").await.unwrap();
+    let upstream_addr = upstream_socket.local_addr().unwrap();
+
+    tokio::spawn(async move {
+        let mut buf = [0u8; 1024];
+        let (n, peer) = upstream_socket.recv_from(&mut buf).await.unwrap();
+        let mut echo = b"ECHO:".to_vec();
+        echo.extend_from_slice(&buf[..n]);
+        upstream_socket.send_to(&echo, peer).await.unwrap();
+    });
+
+    let proxy_addr = start_udp_proxy("127.0.0.1:0".parse().unwrap(), upstream_addr, token, logger.clone(), 5)
+        .await
+        .unwrap();
+
+    let client = UdpSocket::bind("127.0.0.1:0").await.unwrap();
+    client.connect(proxy_addr).await.unwrap();
+
+    // Send arbitrary undecryptable data
+    client.send(b"arbitrary non-miio bytes 12345").await.unwrap();
+
+    let mut buf = [0u8; 1024];
+    let n = client.recv(&mut buf).await.unwrap();
+    assert_eq!(&buf[..n], b"ECHO:arbitrary non-miio bytes 12345");
+
+    tokio::time::sleep(Duration::from_millis(50)).await;
+    // Flushed automatically
+
+    let content = tokio::fs::read_to_string(&test_file).await.unwrap();
+    assert!(content.contains("raw_forward"));
+
+    let _ = tokio::fs::remove_file(&test_file).await;
+}
+

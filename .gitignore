@@ -85,6 +85,11 @@ graphify-out/
 *.p12
 *.pem
 *.key
+*.cfg
+rrcc.cfg
+**/rrcc.cfg
+start_cleaning.py
+**/start_cleaning.py
 
 # Kök Dizin Junction / Symlink Koruması
 /desktop-native

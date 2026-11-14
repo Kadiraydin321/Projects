@@ -66,7 +66,7 @@ graph TD
     end
 
     subgraph Physical_Robot["Fiziksel Robot Donanımı"]
-        RealVacuum["Roborock Q8 Max Pro<br/>(192.168.1.44)"]
+        RealVacuum["Roborock Q8 Max Pro<br/>(ROBOT_IP)"]
     end
 
     OfficialApp -- "TCP :58867 & UDP :54321" --> LAN_TCP

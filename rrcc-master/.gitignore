@@ -9,4 +9,9 @@ __pycache__/
 *.exe
 *.zip
 *.pdb
+rrcc.cfg
+*.cfg
+start_cleaning.py
+.env
+.env.*
 
